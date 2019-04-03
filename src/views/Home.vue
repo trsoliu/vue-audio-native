@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" style="margin-top: 150px;">
    <vue-audio></vue-audio>
   </div>
 </template>

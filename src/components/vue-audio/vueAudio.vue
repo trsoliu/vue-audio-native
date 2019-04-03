@@ -22,10 +22,17 @@
 					<!--播放进度条-->
 					<div class="audio-right">
 						<div class="slider" id="slider" ref="slider" @mousedown="drag($event,0)">
-							<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}"></div>
+							<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}">
+								<div class="tip-hover" :class="{'tip-on':dragStatus}" v-show="dragStatus">
+									{{processFormatTime(sliderTime)}}
+									<div class="arrow"></div>
+								</div>
+								
+							</div>
 							<div class="slider-bar" :style="{width:100*sliderTime/duration+'%'}"></div>
 							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
 						</div>
+						
 						<!--<Slider v-model="sliderTime" :max="duration" :tip-format="processFormatTime" @on-change="changeCurrentTime">
 						</Slider>-->
 					</div>
@@ -124,7 +131,7 @@
 			 *  */
 			processFormatTime(this: any, time: any) {
 				var minute: any = Math.floor(time / 60);
-				var second: any = time % 60;
+				var second: any = Math.ceil(time % 60);
 				if(minute < 10 || minute == 0) {
 					minute = '0' + minute;
 				}
@@ -228,8 +235,8 @@
 				};
 				if(t.dragStatus) {
 					if(flag == 0 || flag == 1) {
-						t.sliderTime = t.duration * (event.clientX > t.startX ? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
-
+						
+						t.sliderTime = t.duration * (event.clientX > t.startX+5? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
 						//					}else if(flag == 1) {
 						//						t.sliderTime = t.duration * (event.clientX>t.startX?(event.clientX-t.startX>t.$refs.slider.offsetWidth?t.$refs.slider.offsetWidth:event.clientX - t.startX-5):0) / t.$refs.slider.offsetWidth;
 						//					console.log(event.clientX-t.startX,99);
