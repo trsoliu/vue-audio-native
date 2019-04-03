@@ -1,0 +1,81 @@
+.vueAudio {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 10px;
+    box-sizing: border-box;
+    .audio-left {
+        display: flex;
+        align-items: center;
+        // flex: 1;
+        .iconfont {
+            font-size: 20px;
+            color: #2C8EF6;
+            cursor: pointer;
+        }
+        span {
+            padding: 7px 5px 5px;
+        }
+    }
+    .audio-right {
+        // width: 60%;
+        flex: auto;
+        margin-left: 6px;
+        position: relative;
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 4px;
+            background-color: #e8eaec;
+            cursor: pointer;
+            .slider-btn {
+                width: 10px;
+                height: 10px;
+                margin-left: -5px;
+                position: absolute;
+                top: -4px;
+                left: 0;
+                z-index: 3;
+                border: 2px solid #57a3f3;
+                border-radius: 20px;
+                background-color: #fff;
+                 &:hover {
+                    width: 14px;
+                    height: 14px;
+                    margin-left: -7px;
+                    top: -6px;
+                    border: 3px solid #57a3f3;
+                }
+            }
+            .slider-bar {
+                //              width: 0%;
+                height: 6px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 2;
+                border-radius: 4px;
+                background-color: #57a3f3;
+            }
+            .slider-buffer {
+                height: 6px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+                border-radius: 4px;
+                background-color: #DCDEE2;
+            }
+        }
+    }
+    .audio-download {
+        margin-left: 10px;
+        color: #57a3f3;
+    }
+    .hint {
+        flex: auto;
+        text-align: center;
+        padding: 15px 0;
+    }
+}
