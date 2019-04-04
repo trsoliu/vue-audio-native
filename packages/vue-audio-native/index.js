@@ -1,8 +1,8 @@
-import vueAudio from './vueAudio.vue'
+import vueAudioNative from './VueAudioNative.vue'
 //const component = {
 //	install: function(Vue, options) {
 ////		console.log(options, 7878)
-//		Vue.component('vue-audio', vueAudio)
+//		Vue.component('vue-audio-native', vueAudioNative)
 ////		Vue.component('sys-msg',{
 ////			template:"<div class='systemMessage'>{{msg}}</div>",
 ////			props:['msg'],
@@ -27,9 +27,9 @@ import vueAudio from './vueAudio.vue'
 //export default component
 
 // 为组件提供 install 安装方法，供按需引入
-vueAudio.install = function(Vue) {
-//	console.log(vueAudio)
-	Vue.component(vueAudio.name, vueAudio)
+vueAudioNative.install = function(Vue) {
+//	console.log(vueAudioNative)
+	Vue.component(vueAudioNative.name, vueAudioNative)
 }
 // 默认导出组件
-export default vueAudio;
+export default vueAudioNative;

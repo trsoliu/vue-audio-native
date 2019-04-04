@@ -1,9 +1,9 @@
 <style lang="scss" scoped>
 	@import "font/iconfont.css";
-	@import "./vueAudio.scss";
+	@import "./vueAudioNative.scss";
 </style>
 <template lang="html">
-	<div class="vueAudio">
+	<div class="vueAudioNative">
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
@@ -60,7 +60,7 @@
 	import Vue from 'vue'
 //	export default Vue.extend({
 		export default {
-		name:"vue-audio",
+		name:"vue-audio-native",
 		props: {
 			showControls: {
 				type: Boolean,

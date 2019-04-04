@@ -1,40 +1,21 @@
 # vue-audio
-重写原生audio标签UI，并使之成为适合vue组件
+> 重写原生audio标签UI，并使之成为适合vue组件
 
-## Project setup
-```
-npm install
-```
+## 安装
 
-### Compiles and hot-reloads for development
+``` bash
+$ npm install vcolorpicker -S
 ```
-npm run serve
-```
+## 使用
 
-### Compiles and minifies for production
-```
-npm run build
-```
+在 `main.js` 文件中引入插件并注册
 
-### Run your tests
-```
-npm run test
+``` bash
+# main.js
+import vueAudioNative from 'vueAudioNative'
+Vue.use(vueAudioNative)
 ```
 
-### Lints and fixes files
+``` js
+<vue-audio-native><vue-audio-native/>
 ```
-npm run lint
-```
-
-### Run your end-to-end tests
-```
-npm run test:e2e
-```
-
-### Run your unit tests
-```
-npm run test:unit
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

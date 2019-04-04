@@ -1,8 +1,8 @@
-import vueAudio from './vueAudio.vue'
+import vueAudioNative from './VueAudioNative.vue'
 const component = {
 	install: function(Vue, options) {
 //		console.log(options, 7878)
-		Vue.component('vue-audio', vueAudio)
+		Vue.component('vue-audio-native', vueAudioNative)
 //		Vue.component('sys-msg',{
 //			template:"<div class='systemMessage'>{{msg}}</div>",
 //			props:['msg'],

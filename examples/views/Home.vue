@@ -1,6 +1,6 @@
 <template>
   <div class="home" style="margin-top: 150px;">
-   <vue-audio></vue-audio>
+   <vue-audio-native></vue-audio-native>
   </div>
 </template>
 
