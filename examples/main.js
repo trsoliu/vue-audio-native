@@ -3,8 +3,10 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 
-import vueAudio from './components/vue-audio';
+//import vueAudio from '../packages/index'/
+import vueAudio from '../lib/vue-audio.umd.js'
 Vue.use(vueAudio)
+//console.log(vueAudio)
 Vue.config.productionTip = false;
 
 new Vue({

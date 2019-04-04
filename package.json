@@ -1,13 +1,21 @@
 {
   "name": "vue-audio",
   "version": "0.1.0",
-  "private": true,
+  "description": "基于 Vue 的颜色选择器",
+  "main": "lib/vue-audio.umd.min.js",
+ "keyword": "vue-audio vueAudio",
+  "private": false,
+  	"repository": {
+		"type": "git",
+		"url": "https://github.com/trsoliu/vue-audio.git"
+	},
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:e2e": "vue-cli-service test:e2e",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit",
+    "lib": "vue-cli-service build --target lib --name vue-audio --dest lib packages/index.js"
   },
   "dependencies": {
     "core-js": "^2.6.5",

@@ -2,7 +2,7 @@
 	@import "font/iconfont.css";
 	@import "./vueAudio.scss";
 </style>
-<template>
+<template lang="html">
 	<div class="vueAudio">
 		<template v-if="!!url">
 			<template v-if="!showControls">
@@ -56,9 +56,11 @@
 	</div>
 	</div>
 </template>
-<script lang="ts">
+<script >
 	import Vue from 'vue'
-	export default Vue.extend({
+//	export default Vue.extend({
+		export default {
+		name:"vue-audio",
 		props: {
 			showControls: {
 				type: Boolean,
@@ -87,21 +89,20 @@
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
 				startX: 0, //初始鼠标mousedown的位置值
-				sliderTime: 0, //滑块移动到的时间轴位置
 			}
 		},
 		methods: {
 			/**
 			 * @description 播放状态 切换播放/暂停
 			 */
-			startPlayOrPause(this: any) {
+			startPlayOrPause() {
 				let t = this;
 				!!t.playedStauts ? t.onPause() : t.onPlay();
 			},
 			/**
 			 * @description 当音频播放
 			 */
-			onPlay(this: any) {
+			onPlay() {
 				let t = this;
 				//				t.$store.state.common.audioRef = t.audioRef;
 				t.$refs[t.audioRef].play();
@@ -110,7 +111,7 @@
 			/**
 			 * @description 当音频暂停
 			 */
-			onPause(this: any) {
+			onPause() {
 				let t = this;
 				// if(this.$store.state.common.stopAudio){
 				!!t.$refs[t.audioRef] ? t.$refs[t.audioRef].pause() : "";
@@ -120,7 +121,7 @@
 			/**
 			 * @description 当音频结束
 			 */
-			onEnd(this: any) {
+			onEnd() {
 				//音频播放是否结束
 				let t = this;
 				t.$refs[t.audioRef].pause();
@@ -129,9 +130,9 @@
 			/**
 			 *  @description 进度条ToolTip 转换音频时间格式 duration秒单位 转换为 mm:ss
 			 *  */
-			processFormatTime(this: any, time: any) {
-				var minute: any = Math.floor(time / 60);
-				var second: any = Math.ceil(time % 60);
+			processFormatTime(time) {
+				var minute = Math.floor(time / 60);
+				var second = Math.ceil(time % 60);
 				if(minute < 10 || minute == 0) {
 					minute = '0' + minute;
 				}
@@ -143,7 +144,7 @@
 			/** @description 拖动进度条，改变当前时间
 			 * @param {event} 拖动的位置值
 			 *  */
-			changeCurrentTime(this: any, event: any) {
+			changeCurrentTime(event) {
 				let t = this,
 					ct = 0;
 				//当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置
@@ -160,7 +161,7 @@
 			},
 			/** @description 当音频当前时间改变后，进度条也要改变
 			 *  */
-			onTimeupdate(this: any) {
+			onTimeupdate() {
 				// debugger
 				let t = this;
 				//获取音频当前播放时间长度
@@ -171,7 +172,7 @@
 			},
 			/** @description 当前音频初始化加载状态检查,当前音频加载状态readyState===4时显示播放控件，否则显示“音频正在上传中，请稍等...”
 			 *  */
-			onLoadstart(this: any, event: any) {
+			onLoadstart(event) {
 				let t = this,
 					readyState = 0,
 					loadstartTime = new Date().getTime();
@@ -185,8 +186,8 @@
 							window.clearInterval(t.readyStateInterval);
 							t.readyStateInterval = null;
 							t.$nextTick(function() {
-								t.startX = document.getElementById('slider').getBoundingClientRect().left;
-								//								console.log(document.getElementById('slider').getBoundingClientRect(),2121)
+								let d=document.getElementById('slider');
+								t.startX = d.getBoundingClientRect().left;
 							})
 						}
 					} catch(err) {
@@ -197,7 +198,7 @@
 			},
 			/** @description 音频更新数据,获取缓冲位置
 			 *  */
-			onLoadeddata(this: any, event: any) {
+			onLoadeddata(event) {
 				//				console.log(event, 777)
 				let t = this;
 				if(!!t.$refs[t.audioRef]) {
@@ -217,7 +218,7 @@
 			},
 			/** @description 语音元数据主要是语音的长度之类的数据
 			 *  */
-			onLoadedmetadata(this: any, event: any) {
+			onLoadedmetadata(event) {
 				let t = this;
 				t.duration = parseInt(event.target.duration);
 
@@ -225,7 +226,7 @@
 			},
 			/** @description 音频进度条拖拽条
 			 *  */
-			drag(this: any, event: any, flag: Boolean) {
+			drag(event,flag) {
 				let t = this;
 				//				t.dragFlag = flag;
 				//				console.log(flag);
@@ -236,7 +237,7 @@
 				if(t.dragStatus) {
 					if(flag == 0 || flag == 1) {
 						
-						t.sliderTime = t.duration * (event.clientX > t.startX+5? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
+						t.sliderTime =t.duration * (event.clientX > t.startX+5? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
 						//					}else if(flag == 1) {
 						//						t.sliderTime = t.duration * (event.clientX>t.startX?(event.clientX-t.startX>t.$refs.slider.offsetWidth?t.$refs.slider.offsetWidth:event.clientX - t.startX-5):0) / t.$refs.slider.offsetWidth;
 						//					console.log(event.clientX-t.startX,99);
@@ -260,12 +261,8 @@
 			}
 		},
 
-		mounted(this: any) {
+		mounted() {
 			let t = this;
-			//			document.getElementById('slider').getBoundingClientRect()
-			//			t.$nextTick(function(){
-			//				console.log(document.getElementById('slider'),2121)
-			//			})
 			t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
 			window.clearInterval(t.interval);
 			t.interval = null;
@@ -275,17 +272,14 @@
 		created() {
 			let t = this;
 			t.addHandler(document, "mousemove", function(event) {
-				//				console.log(event,11111)
-				//				t.dragStatus = false;
 				t.drag(event, 1)
 			});　
 			t.addHandler(document, "mouseup", function(event) {
-				//				console.log(event,22222)
 				t.drag(event, 2)
 			});　　
 		},
 		watch: {
-			url: function(this: any, nv: any, ov: any) {
+			url: function(nv, ov) {
 				let t = this;
 				if(nv != ov && !!nv) {
 					window.clearInterval(t.interval);
@@ -298,8 +292,6 @@
 					t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
 				}
 			}
-
 		}
-
-	})
+	}
 </script>
