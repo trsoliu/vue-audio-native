@@ -1,14 +1,27 @@
 {
   "name": "vue-audio-native",
-  "version": "0.1.1",
+  "version": "0.1.6",
   "description": "vue-audio-native",
-  "main": "lib/vue-audio.umd.min.js",
- "keyword": "vue-audio vueAudio vue-audio-native vueAudioNative",
+  "main": "lib/vue-audio-native.umd.min.js",
+  "keywords": [
+    "vue-audio",
+    "vueAudio",
+    "vue-audio-native",
+    "vueAudioNative",
+    "sound",
+    "mp3",
+    "wav",
+    "player",
+    "audio",
+    "vue"
+  ],
+  "author": "trsoliu",
+  "license": "MIT",
   "private": false,
-  	"repository": {
-		"type": "git",
-		"url": "https://github.com/trsoliu/vue-audio.git"
-	},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trsoliu/vue-audio.git"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -44,6 +57,7 @@
     "sass-loader": "^7.1.0",
     "ts-jest": "^23.0.0",
     "typescript": "^3.2.1",
+    "vue-audio-native": "^0.1.5",
     "vue-template-compiler": "^2.5.21"
   }
 }
