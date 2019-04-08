@@ -1,5 +1,5 @@
 # vue-audio-native
-> 重写原生audio标签UI，并使之成为适合vue组件
+> 重写原生audio标签UI，并使之成为适合vue组件,使用了flex布局请注意兼容性IE10+,iOS 6.1+,Android 2.3+
  
 
 
@@ -42,3 +42,4 @@ Vue.use(vueAudioNative)
 | 事件名 | 说明 | 返回值 |
 | :------ | :--------- | :-----|
 | on-change | 显示播放状态发生变化时触发，true：开始播放，false：停止播放 | Boolean | true / false |
+| on-timeupdate | 显示播放进行的currentTime（单位:s）,返回值未进行parseInt，如需可手动处理 | Number | 当前值（单位:s） |

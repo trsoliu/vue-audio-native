@@ -7,7 +7,7 @@
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
-				<audio :ref="audioRef" :id="audioRef" muted :autoplay="autoplay" preload="preload"   @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio :ref="audioRef" :id="audioRef" muted :autoplay="autoplay" preload="preload" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -38,7 +38,7 @@
 				</template>
 			</template>
 			<template v-else-if="showControls">
-				<audio v-show="!!readyState" controls muted :autoplay="autoplay"   preload="preload"   :ref="audioRef" :id="audioRef"  @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio v-show="!!readyState" controls muted :autoplay="autoplay" preload="preload" :ref="audioRef" :id="audioRef" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -101,7 +101,7 @@
 			startPlayOrPause() {
 				let t = this;
 				!!t.playedStauts ? t.onPause() : t.onPlay();
-				t.$emit('on-change ',t.playedStauts);
+				t.$emit('on-change', t.playedStauts);
 			},
 			/**
 			 * @description 当音频播放
@@ -110,7 +110,7 @@
 				let t = this;
 				t.$refs[t.audioRef].play();
 				t.playedStauts = true;
-//				t.$emit('on-play',t.playedStauts);
+				//				t.$emit('on-play',t.playedStauts);
 			},
 			/**
 			 * @description 当音频暂停
@@ -120,7 +120,7 @@
 				!!t.$refs[t.audioRef] ? t.$refs[t.audioRef].pause() : "";
 				window.clearInterval(t.interval);
 				t.playedStauts = false;
-//				t.$emit('on-pause',t.playedStauts);
+				//				t.$emit('on-pause',t.playedStauts);
 			},
 			/**
 			 * @description 当音频结束
@@ -171,6 +171,7 @@
 				if(!!t.$refs[t.audioRef]) {
 					t.currentTime = parseInt(t.$refs[t.audioRef].currentTime);
 					t.dragStatus ? "" : t.sliderTime = (t.currentTime / t.duration) * t.duration;
+					t.$emit('on-timeupdate', t.$refs[t.audioRef].currentTime);
 				}
 			},
 			/** @description 当前音频初始化加载状态检查,当前音频加载状态readyState===4时显示播放控件，否则显示“音频正在上传中，请稍等...”
@@ -188,11 +189,10 @@
 							t.readyState = readyState;
 							window.clearInterval(t.readyStateInterval);
 							t.readyStateInterval = null;
-							
 							t.showControls ? "" : t.$nextTick(function() {
 								let d = document.getElementById('slider');
 								t.startX = d.getBoundingClientRect().left;
-//								readyState === 4 && t.autoplay && !!t.$refs[t.audioRef]? t.onPlay() : "";
+								//								readyState === 4 && t.autoplay && !!t.$refs[t.audioRef]? t.onPlay() : "";
 							})
 						}
 					} catch(err) {
@@ -209,10 +209,8 @@
 				if(!!t.$refs[t.audioRef]) {
 					t.interval = window.setInterval(function() {
 						if(!t.$refs[t.audioRef] || t.$refs[t.audioRef].buffered.length < 1) return true;
-						//						console.log(t.$refs[t.audioRef].buffered.end(0)) //						barLoaded.width((theAudio.buffered.end(0) / theAudio.duration) * 100 + '%');
 						//获取当前缓冲的最大位置
 						t.maxBuffer = parseInt(t.$refs[t.audioRef].buffered.end(0));
-						//						console.log(Math.floor(t.$refs[t.audioRef].buffered.end(0)) >= Math.floor(t.$refs[t.audioRef].duration), t.interval, 117)
 						//当缓存的时间大于等于音频的总时间，则停止
 						if(Math.floor(t.$refs[t.audioRef].buffered.end(0)) >= Math.floor(t.$refs[t.audioRef].duration)) {
 							window.clearInterval(t.interval);
@@ -226,35 +224,25 @@
 			onLoadedmetadata(event) {
 				let t = this;
 				t.duration = parseInt(event.target.duration);
-				//				 console.log(event, 888, t.duration)
 			},
 			/** @description 音频进度条拖拽条
 			 *  */
 			drag(event, flag) {
 				let t = this;
-				//				t.dragFlag = flag;
-				//				console.log(flag);
 				if(event.type === "mousedown") {
-					//					t.startX = event.clientX;
 					t.dragStatus = true;
 				};
 				if(t.dragStatus) {
 					if(flag == 0 || flag == 1) {
-
 						t.sliderTime = t.duration * (event.clientX > t.startX + 5 ? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
-						//					}else if(flag == 1) {
-						//						t.sliderTime = t.duration * (event.clientX>t.startX?(event.clientX-t.startX>t.$refs.slider.offsetWidth?t.$refs.slider.offsetWidth:event.clientX - t.startX-5):0) / t.$refs.slider.offsetWidth;
-						//					console.log(event.clientX-t.startX,99);
 					} else if(flag == 2) {
-						//						console.log(22222);
 						//拖拽修改播放时间
 						t.changeCurrentTime(t.sliderTime);
 						t.dragStatus = false;
 					}
 				}
-
 			},
-			addHandler: function(element, type, handler) {
+			addHandler(element, type, handler) {
 				if(element.addEventListener) {
 					element.addEventListener(type, handler, false);
 				} else if(element.attachEvent) {
@@ -262,9 +250,26 @@
 				} else {
 					element["on" + type] = handler;
 				}
+			},
+			removeHandler(element, type, handler) {
+				if(element.removeEventListener)
+					element.removeEventListener(type, handler, false);
+				else if(element.deattachEvent) { /*IE*/
+					element.deattachEvent('on' + type, handler);
+				} else {
+					element["on" + type] = null;
+				}
+			},
+			//移除鼠标监听
+			remove() {
+				t.removeHandler(document, "mousemove", function(event) {
+					t.drag(event, 1)
+				});　
+				t.removeHandler(document, "mouseup", function(event) {
+					t.drag(event, 2)
+				});　
 			}
 		},
-
 		mounted() {
 			let t = this;
 			t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
@@ -281,6 +286,15 @@
 			t.addHandler(document, "mouseup", function(event) {
 				t.drag(event, 2)
 			});　　
+		},
+//		activated() {
+//
+//		},
+//		deactivated() {
+//
+//		},
+		destroyed() {
+			this.remove();
 		},
 		watch: {
 			url: function(nv, ov) {
