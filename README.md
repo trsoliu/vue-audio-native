@@ -1,12 +1,15 @@
 # vue-audio-native
 > 重写原生audio标签UI，并使之成为适合vue组件
-
-## 安装
+ [安装][install]
+ [使用][use]
+ [API][API]
+ [events][events]
+[install]:## 安装
 
 ``` bash
 $ npm install vue-audio-native --save
 ```
-## 使用
+[use]:## 使用
 
 在 `main.js` 文件中引入插件并注册
 
@@ -21,7 +24,7 @@ Vue.use(vueAudioNative)
 <vue-audio-native><vue-audio-native/>
 ```
 
-## API
+[API]:## API
 
 | 属性 | 说明 | 类型 | 默认值 |
 | :------ | :---------  | :--------- | :-----|
@@ -31,7 +34,7 @@ Vue.use(vueAudioNative)
 | autoplay | 自动播放有效音频(由于高版本浏览器协议限制，初始化页面时无法自动播放，可以在点击页面后手动触发) | Boolean | false |
 | hint | 无有效播放音频时提示语 | String | "暂无有效音频..." |
 
-## events
+[events]:## events
 
 | 事件名 | 说明 | 返回值 |
 | :------ | :--------- | :-----|
