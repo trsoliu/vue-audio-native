@@ -39,7 +39,7 @@ Vue.use(vueAudioNative)
 
 ## <span id="events">events</span>
 
-| 事件名 | 说明 | 返回值 |
-| :------ | :--------- | :-----|
+| 事件名 | 说明 | 类型 | 返回值 |
+| :------ | :--------- | :-----| :-----|
 | on-change | 显示播放状态发生变化时触发，true：开始播放，false：停止播放 | Boolean | true / false |
 | on-timeupdate | 显示播放进行的currentTime（单位:s）,返回值未进行parseInt，如需可手动处理 | Number | 当前值（单位:s） |
