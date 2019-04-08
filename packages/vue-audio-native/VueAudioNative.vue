@@ -7,7 +7,7 @@
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
-				<audio :ref="audioRef" :id="audioRef" preload="auto" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio :ref="audioRef" :id="audioRef" muted :autoplay="autoplay" preload="preload"   @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -25,7 +25,7 @@
 									{{processFormatTime(sliderTime)}}
 									<div class="arrow"></div>
 								</div>
-								
+
 							</div>
 							<div class="slider-bar" :style="{width:100*sliderTime/duration+'%'}"></div>
 							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
@@ -38,7 +38,7 @@
 				</template>
 			</template>
 			<template v-else-if="showControls">
-				<audio v-show="!!readyState" controls :ref="audioRef" :id="audioRef" preload="auto" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio v-show="!!readyState" controls muted :autoplay="autoplay"   preload="preload"   :ref="audioRef" :id="audioRef"  @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -51,15 +51,15 @@
 	</div>
 	</div>
 </template>
-<script >
+<script>
 	import Vue from 'vue'
-//	export default Vue.extend({
-		export default {
-		name:"vue-audio-native",
+	//	export default Vue.extend({
+	export default {
+		name: "vue-audio-native",
 		props: {
 			url: {
 				type: String,
-				default: "",//音频地址
+				default: "", //音频地址
 			},
 			showCurrentTime: {
 				type: Boolean,
@@ -73,9 +73,9 @@
 				type: Boolean,
 				default: false //默认不自动播放
 			},
-			hint:{
-				type:String,
-				default: "暂无有效音频...",//无音频情况下提示文案
+			hint: {
+				type: String,
+				default: "暂无有效音频...", //无音频情况下提示文案
 			}
 		},
 		data() {
@@ -101,6 +101,7 @@
 			startPlayOrPause() {
 				let t = this;
 				!!t.playedStauts ? t.onPause() : t.onPlay();
+				t.$emit('on-change ',t.playedStauts);
 			},
 			/**
 			 * @description 当音频播放
@@ -109,6 +110,7 @@
 				let t = this;
 				t.$refs[t.audioRef].play();
 				t.playedStauts = true;
+//				t.$emit('on-play',t.playedStauts);
 			},
 			/**
 			 * @description 当音频暂停
@@ -118,6 +120,7 @@
 				!!t.$refs[t.audioRef] ? t.$refs[t.audioRef].pause() : "";
 				window.clearInterval(t.interval);
 				t.playedStauts = false;
+//				t.$emit('on-pause',t.playedStauts);
 			},
 			/**
 			 * @description 当音频结束
@@ -176,18 +179,20 @@
 				let t = this,
 					readyState = 0,
 					loadstartTime = new Date().getTime();
-					console.log(event, t.$refs[t.audioRef].readyState, 666);
+				//				console.log(event, t.$refs[t.audioRef].readyState, 666);
 				t.readyStateInterval = window.setInterval(function() {
-										console.log(t.$refs[t.audioRef].readyState, new Date().getTime() - loadstartTime, 55);
+					//										console.log(t.$refs[t.audioRef].readyState, new Date().getTime() - loadstartTime, 55);
 					try {
 						readyState = t.$refs[t.audioRef].readyState;
 						if(readyState === 4 || (new Date().getTime() - loadstartTime > 90000)) {
 							t.readyState = readyState;
 							window.clearInterval(t.readyStateInterval);
 							t.readyStateInterval = null;
-							t.showControls?"":t.$nextTick(function() {
-								let d=document.getElementById('slider');
+							
+							t.showControls ? "" : t.$nextTick(function() {
+								let d = document.getElementById('slider');
 								t.startX = d.getBoundingClientRect().left;
+//								readyState === 4 && t.autoplay && !!t.$refs[t.audioRef]? t.onPlay() : "";
 							})
 						}
 					} catch(err) {
@@ -225,7 +230,7 @@
 			},
 			/** @description 音频进度条拖拽条
 			 *  */
-			drag(event,flag) {
+			drag(event, flag) {
 				let t = this;
 				//				t.dragFlag = flag;
 				//				console.log(flag);
@@ -235,8 +240,8 @@
 				};
 				if(t.dragStatus) {
 					if(flag == 0 || flag == 1) {
-						
-						t.sliderTime =t.duration * (event.clientX > t.startX+5? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
+
+						t.sliderTime = t.duration * (event.clientX > t.startX + 5 ? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
 						//					}else if(flag == 1) {
 						//						t.sliderTime = t.duration * (event.clientX>t.startX?(event.clientX-t.startX>t.$refs.slider.offsetWidth?t.$refs.slider.offsetWidth:event.clientX - t.startX-5):0) / t.$refs.slider.offsetWidth;
 						//					console.log(event.clientX-t.startX,99);
