@@ -3,10 +3,10 @@
  
 
 
--[安装](#install)
--[使用](#use)
--[API](#API)
--[events](#events)
+- [安装](#install)
+- [使用](#use)
+- [API](#API)
+- [events](#events)
 ## <span id="install">安装</span>
 
 ``` bash
