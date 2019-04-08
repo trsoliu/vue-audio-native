@@ -75,6 +75,7 @@ Vue.use(vueAudioNative)
 | url | 音频地址 | String | "" |
 | showCurrentTime | 是否显示当前播放时间 | Boolean | true |
 | showControls | 是否展示原生音频播放控制条 | Boolean | false |
+| showDownload | 是否展示下载按钮 | Boolean | true |
 | autoplay | 自动播放有效音频(由于高版本浏览器协议限制，初始化页面时无法自动播放，可以在点击页面后手动触发) | Boolean | false |
 | hint | 无有效播放音频时提示语 | String | "暂无有效音频..." |
 

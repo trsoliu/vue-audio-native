@@ -32,7 +32,7 @@
 						</div>
 					</div>
 					<!--音频下载-->
-					<div class="audio-download">
+					<div class="audio-download" v-if="showDownload">
 						<a :href="url" target="_blank" download class="iconfont">&#xe671;</a>
 					</div>
 				</template>
@@ -68,6 +68,10 @@
 			showControls: {
 				type: Boolean,
 				default: false //默认显示自写组件 true显示原生组件
+			},
+			showDownload: {
+				type: Boolean,
+				default: true //默认显示下载按钮
 			},
 			autoplay: {
 				type: Boolean,
