@@ -5,6 +5,7 @@
 			:showCurrentTime=showCurrentTime
 			:showControls=showControls
 			:autoplay=autoplay
+			:hint=hint
 			>
 		</vue-audio-native>
 	</div>
@@ -16,9 +17,10 @@
 		data() {
 			return {
 				url: "http://mp3.9ku.com/m4a/183203.m4a", //演示路径
-				showCurrentTime:false,
+				showCurrentTime:false,//是否显示当前播放时间
 				showControls:false,//true:展示原生音频播放控制条，false：展示模拟播放控制条
 				autoplay:false,//自动播放有效音频
+				hint:"音频正在上传中，请稍等…",//无音频情况下提示文案
 				
 			}
 		},

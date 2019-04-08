@@ -46,7 +46,7 @@
 		</template>
 		<!--无音频时文字提示-->
 		<div class="hint" v-if="!url || !readyState">
-			<slot name="slotTip">音频正在上传中，请稍等…</slot>
+			<slot name="slotTip">{{hint}}</slot>
 		</div>
 	</div>
 	</div>
@@ -57,22 +57,26 @@
 		export default {
 		name:"vue-audio-native",
 		props: {
-			autoplay: {
-				type: Boolean,
-				default: false //默认不自动播放
-			},
-			showControls: {
-				type: Boolean,
-				default: false //默认显示自写组件 true显示原生组件
+			url: {
+				type: String,
+				default: "",//音频地址
 			},
 			showCurrentTime: {
 				type: Boolean,
 				default: true //默认不当前正在播放的时间
 			},
-			url: {
-				type: String,
-				default: "",
+			showControls: {
+				type: Boolean,
+				default: false //默认显示自写组件 true显示原生组件
 			},
+			autoplay: {
+				type: Boolean,
+				default: false //默认不自动播放
+			},
+			hint:{
+				type:String,
+				default: "暂无有效音频...",//无音频情况下提示文案
+			}
 		},
 		data() {
 			return {
