@@ -9,8 +9,6 @@
 				<!--音频标签-->
 				<audio :ref="audioRef" :id="audioRef" preload="auto" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
-					<!--<source src="http://voice.kxjlcc.com:9000/ant/8/ivr/0/2019/03/25/0/28466844-DC04AB11F8F219A62B838887BD246B3D.wav" />-->
-					<!--<source src="http://voice.kxjlcc.com:9000/ant/8/ivr/0/2019/03/21/0/28265530-B63A070102C24B86E8162EF7CA1C0094.wav" />-->
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
 				<template v-if="!!readyState">
@@ -32,9 +30,6 @@
 							<div class="slider-bar" :style="{width:100*sliderTime/duration+'%'}"></div>
 							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
 						</div>
-						
-						<!--<Slider v-model="sliderTime" :max="duration" :tip-format="processFormatTime" @on-change="changeCurrentTime">
-						</Slider>-->
 					</div>
 					<!--音频下载-->
 					<div class="audio-download">
@@ -42,8 +37,8 @@
 					</div>
 				</template>
 			</template>
-			<template v-else-if="showControls && !!readyState">
-				<audio controls :ref="audioRef" :id="audioRef" preload="auto" @play="onPlay" @pause="onPause" @ended="onEnd" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+			<template v-else-if="showControls">
+				<audio v-show="!!readyState" controls :ref="audioRef" :id="audioRef" preload="auto" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -62,6 +57,10 @@
 		export default {
 		name:"vue-audio-native",
 		props: {
+			autoplay: {
+				type: Boolean,
+				default: false //默认不自动播放
+			},
 			showControls: {
 				type: Boolean,
 				default: false //默认显示自写组件 true显示原生组件
@@ -72,7 +71,7 @@
 			},
 			url: {
 				type: String,
-				default: "http://mp3.9ku.com/m4a/183203.m4a",
+				default: "",
 			},
 		},
 		data() {
@@ -104,7 +103,6 @@
 			 */
 			onPlay() {
 				let t = this;
-				//				t.$store.state.common.audioRef = t.audioRef;
 				t.$refs[t.audioRef].play();
 				t.playedStauts = true;
 			},
@@ -113,7 +111,6 @@
 			 */
 			onPause() {
 				let t = this;
-				// if(this.$store.state.common.stopAudio){
 				!!t.$refs[t.audioRef] ? t.$refs[t.audioRef].pause() : "";
 				window.clearInterval(t.interval);
 				t.playedStauts = false;
@@ -157,7 +154,6 @@
 					t.$refs[t.audioRef].currentTime = ct;
 				};
 				t.onTimeupdate();
-				//				t.dragStatus = false;
 			},
 			/** @description 当音频当前时间改变后，进度条也要改变
 			 *  */
@@ -176,16 +172,16 @@
 				let t = this,
 					readyState = 0,
 					loadstartTime = new Date().getTime();
-				//				console.log(event, t.$refs[t.audioRef].readyState, 666);
+					console.log(event, t.$refs[t.audioRef].readyState, 666);
 				t.readyStateInterval = window.setInterval(function() {
-					//					console.log(t.$refs[t.audioRef].readyState, new Date().getTime() - loadstartTime, 55);
+										console.log(t.$refs[t.audioRef].readyState, new Date().getTime() - loadstartTime, 55);
 					try {
 						readyState = t.$refs[t.audioRef].readyState;
 						if(readyState === 4 || (new Date().getTime() - loadstartTime > 90000)) {
 							t.readyState = readyState;
 							window.clearInterval(t.readyStateInterval);
 							t.readyStateInterval = null;
-							t.$nextTick(function() {
+							t.showControls?"":t.$nextTick(function() {
 								let d=document.getElementById('slider');
 								t.startX = d.getBoundingClientRect().left;
 							})
@@ -221,7 +217,6 @@
 			onLoadedmetadata(event) {
 				let t = this;
 				t.duration = parseInt(event.target.duration);
-
 				//				 console.log(event, 888, t.duration)
 			},
 			/** @description 音频进度条拖拽条
