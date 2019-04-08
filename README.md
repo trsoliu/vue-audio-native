@@ -23,7 +23,7 @@ Vue.use(vueAudioNative)
 ## API
 
 | 属性 | 说明 | 类型 | 默认值 |
-| ------ | ---------  | --------- | -----:|
+| :------ | :---------  | :--------- | :-----|
 | url | 说明 | String | "" |
 | showCurrentTime | 是否显示当前播放时间 | Boolean | true |
 | showControls | 说明 | Boolean | false |
