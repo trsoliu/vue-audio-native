@@ -57,7 +57,7 @@
     "sass-loader": "^7.1.0",
     "ts-jest": "^23.0.0",
     "typescript": "^3.2.1",
-    "vue-audio-native": "^0.1.8",
+    "vue-audio-native": "^0.1.9",
     "vue-template-compiler": "^2.5.21"
   }
 }

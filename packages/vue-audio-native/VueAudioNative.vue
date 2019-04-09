@@ -136,7 +136,8 @@
 				t.sliderTime = 0;
 			},
 			/**
-			 *  @description 进度条ToolTip 转换音频时间格式 duration秒单位 转换为 mm:ss
+			 *  @description 进度条、Tip等 转换音频时间格式 duration秒单位 
+			 * 转换为 mm:ss
 			 *  */
 			processFormatTime(time) {
 				var minute = Math.floor(time / 60);
@@ -274,14 +275,6 @@
 				});　
 			}
 		},
-		mounted() {
-			let t = this;
-			t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
-			window.clearInterval(t.interval);
-			t.interval = null;
-			window.clearInterval(t.readyStateInterval);
-			t.readyStateInterval = null;
-		},
 		created() {
 			let t = this;
 			t.addHandler(document, "mousemove", function(event) {
@@ -291,15 +284,29 @@
 				t.drag(event, 2)
 			});　　
 		},
+		destroyed() {
+			window.clearInterval(t.interval);
+			t.interval = null;
+			window.clearInterval(t.readyStateInterval);
+			t.readyStateInterval = null;
+			this.remove();
+		},
+		mounted() {
+			let t = this;
+			t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
+			window.clearInterval(t.interval);
+			t.interval = null;
+			window.clearInterval(t.readyStateInterval);
+			t.readyStateInterval = null;
+		},
+		
 //		activated() {
 //
 //		},
 //		deactivated() {
 //
 //		},
-		destroyed() {
-			this.remove();
-		},
+		
 		watch: {
 			url: function(nv, ov) {
 				let t = this;
