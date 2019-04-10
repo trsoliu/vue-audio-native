@@ -88,14 +88,14 @@
 				readyStateInterval: null, //循环检查音频加载状态
 				readyState: 0, //当前音频状态
 				interval: null, //循环检查音频缓冲位置
-				maxBuffer: 0, //拖动滑动的最大值 当前缓冲的最大位置
+				maxBuffer: 0, //当前缓冲的最大位置
 				duration: 0, //音频总长度
 				playedStauts: false, //播放状态，true播放，false暂停
 				sliderTime: 0, //进度条时间
 				currentTime: 0, //当前播放时间长度
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
-				startX: 0, //初始鼠标mousedown的位置值
+				startX: 0, //初始进度条最左边的位置值
 			}
 		},
 		methods: {
@@ -122,7 +122,7 @@
 			onPause() {
 				let t = this;
 				!!t.$refs[t.audioRef] ? t.$refs[t.audioRef].pause() : "";
-				window.clearInterval(t.interval);
+//				window.clearInterval(t.interval);
 				t.playedStauts = false;
 				//				t.$emit('on-pause',t.playedStauts);
 			},
@@ -132,7 +132,7 @@
 			onEnd() {
 				//音频播放是否结束
 				let t = this;
-				t.$refs[t.audioRef].pause();
+//				t.$refs[t.audioRef].pause();
 				t.sliderTime = 0;
 			},
 			/**
@@ -267,6 +267,7 @@
 			},
 			//移除鼠标监听
 			remove() {
+				let t=this;
 				t.removeHandler(document, "mousemove", function(event) {
 					t.drag(event, 1)
 				});　
@@ -285,11 +286,12 @@
 			});　　
 		},
 		destroyed() {
+			let t=this;
 			window.clearInterval(t.interval);
 			t.interval = null;
 			window.clearInterval(t.readyStateInterval);
 			t.readyStateInterval = null;
-			this.remove();
+			t.remove();
 		},
 		mounted() {
 			let t = this;
