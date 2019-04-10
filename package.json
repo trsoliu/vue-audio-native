@@ -54,10 +54,11 @@
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",
     "node-sass": "^4.9.0",
+    "rollup-plugin-json": "^4.0.0",
     "sass-loader": "^7.1.0",
     "ts-jest": "^23.0.0",
     "typescript": "^3.2.1",
-    "vue-audio-native": "^0.1.9",
+    "vue-audio-native": "^0.1.11",
     "vue-template-compiler": "^2.5.21"
   }
 }
