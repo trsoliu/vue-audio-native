@@ -7,7 +7,7 @@
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
-				<audio :ref="audioRef" :id="audioRef" muted :autoplay="autoplay" preload="preload" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio :ref="audioRef" :id="audioRef" muted :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -38,7 +38,7 @@
 				</template>
 			</template>
 			<template v-else-if="showControls">
-				<audio v-show="!!readyState" controls muted :autoplay="autoplay" preload="preload" :ref="audioRef" :id="audioRef" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio v-show="!!readyState" controls muted :autoplay="autoplay" preload="preload" :ref="audioRef" :id="audioRef" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -229,6 +229,7 @@
 			onLoadedmetadata(event) {
 				let t = this;
 				t.duration = parseInt(event.target.duration);
+				t.$emit('on-metadata', event);
 			},
 			/** @description 音频进度条拖拽条
 			 *  */

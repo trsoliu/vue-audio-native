@@ -9,6 +9,7 @@
 			:hint=hint
 			@on-change="change"
 			@on-timeupdate="timeupdate"
+			@on-metadata="metadata"
 			>
 		</vue-audio-native>
 	</div>
@@ -25,15 +26,17 @@
 				showDownload:true, //默认显示下载按钮
 				autoplay:true,//自动播放有效音频(由于高版本浏览器协议限制，初始化页面时无法自动播放，可以在点击页面后手动触发)
 				hint:"音频正在上传中，请稍等…",//无音频情况下提示文案
-				
 			}
 		},
 		methods: {
 			change(event){
-				console.log(111,event)
+				console.log("当前播放状态：",event)
 			},
 			timeupdate(event){
-//				console.log(222,event)
+				console.log("当前播放时间：",event)
+			},
+			metadata(event){
+				console.log(event,"音频长度：",event.target.duration)
 			}
 //			play(e){
 //				console.log(123,e)
