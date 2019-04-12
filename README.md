@@ -38,6 +38,7 @@ Vue.use(vueAudioNative)
 			:hint=hint
 			@on-change="change"
 			@on-timeupdate="timeupdate"
+			@on-metadata="metadata"
 			>
 		</vue-audio-native>
 	</div>
@@ -62,6 +63,9 @@ Vue.use(vueAudioNative)
 			},
 			timeupdate(event){
 				console.log(222,event)
+			},
+			metadata(event){
+				console.log(event,"音频长度：",event.target.duration)
 			}
 		},
 	}
