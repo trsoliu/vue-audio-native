@@ -90,3 +90,6 @@ Vue.use(vueAudioNative)
 | on-change | 显示播放状态发生变化时触发，true：开始播放，false：停止播放 | Boolean | true / false |
 | on-timeupdate | 显示播放进行的currentTime（单位:s）,返回值未进行parseInt，如需可手动处理 | Number | 当前值 |
 | on-metadata | 返回音频元数据的所以信息 | Object | event |
+
+
+如有新的需要可在issues中提,或者加QQ群`535798405`找我.
