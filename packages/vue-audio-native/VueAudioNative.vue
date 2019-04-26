@@ -7,8 +7,8 @@
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
-				<audio :ref="audioRef" :id="audioRef" muted :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
-					<source :src="url" />
+				<audio :ref="audioRef" :src="url" :id="audioRef" muted :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+					<!--<source :src="url" />-->
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
 				<template v-if="!!readyState">
@@ -318,7 +318,7 @@
 					t.interval = null;
 					window.clearInterval(t.readyStateInterval);
 					t.readyStateInterval = null;
-					t.playedStauts = false;
+					t.onPause();
 					t.sliderTime = 0;
 					t.currentTime = 0;
 					t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);

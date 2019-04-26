@@ -12,6 +12,8 @@
 			@on-metadata="metadata"
 			>
 		</vue-audio-native>
+		<button @click="swtichSrc(0)">音频1</button>
+		<button @click="swtichSrc(1)">音频2</button>
 	</div>
 </template>
 <script>
@@ -20,7 +22,8 @@
 		name: "home",
 		data() {
 			return {
-				url: "http://mp3.9ku.com/m4a/183203.m4a", //演示路径
+				urlArray: ["http://mp3.9ku.com/m4a/183203.m4a","http://www.170mv.com/kw/other.web.rh01.sycdn.kuwo.cn/resource/n3/21/19/3413654131.mp3"], //演示路径
+				url:'http://mp3.9ku.com/m4a/183203.m4a',
 				showCurrentTime:true,//是否显示当前播放时间
 				showControls:false,//true:展示原生音频播放控制条，false：展示模拟播放控制条
 				showDownload:true, //默认显示下载按钮
@@ -37,13 +40,18 @@
 			},
 			metadata(event){
 				console.log(event,"音频长度：",event.target.duration)
-			}
+			},
 //			play(e){
 //				console.log(123,e)
 //			},
 //			pause(e){
 //				console.log(333,e)
 //			}
+			//切换音频地址
+			swtichSrc(index){
+				let t=this;
+				t.url=t.urlArray[index];
+			}
 		},
 	}
 </script>

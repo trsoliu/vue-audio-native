@@ -39,6 +39,7 @@ $color0: #2C8EF6;
                 left: 0;
                 z-index: 3;
                 border: 2px solid $color0;
+                box-sizing: content-box;
                 border-radius: 20px;
                 background-color: #fff;
                 %tip {

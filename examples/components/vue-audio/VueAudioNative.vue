@@ -7,8 +7,8 @@
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
-				<audio :ref="audioRef" :id="audioRef" preload="auto" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
-					<source :src="url" />
+				<audio :ref="audioRef" :src="url" :id="audioRef" preload="auto" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+					<!--<source :src="url" />-->
 					<!--<source src="http://voice.kxjlcc.com:9000/ant/8/ivr/0/2019/03/25/0/28466844-DC04AB11F8F219A62B838887BD246B3D.wav" />-->
 					<!--<source src="http://voice.kxjlcc.com:9000/ant/8/ivr/0/2019/03/21/0/28265530-B63A070102C24B86E8162EF7CA1C0094.wav" />-->
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
