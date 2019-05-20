@@ -95,7 +95,7 @@
 				currentTime: 0, //当前播放时间长度
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
-				startX: 0, //初始进度条最左边的位置值
+//				startX: 0, //初始进度条最左边的位置值
 			}
 		},
 		methods: {
@@ -122,7 +122,7 @@
 			onPause() {
 				let t = this;
 				!!t.$refs[t.audioRef] ? t.$refs[t.audioRef].pause() : "";
-//				window.clearInterval(t.interval);
+				//				window.clearInterval(t.interval);
 				t.playedStauts = false;
 				//				t.$emit('on-pause',t.playedStauts);
 			},
@@ -132,7 +132,7 @@
 			onEnd() {
 				//音频播放是否结束
 				let t = this;
-//				t.$refs[t.audioRef].pause();
+				//				t.$refs[t.audioRef].pause();
 				t.sliderTime = 0;
 			},
 			/**
@@ -194,11 +194,11 @@
 							t.readyState = readyState;
 							window.clearInterval(t.readyStateInterval);
 							t.readyStateInterval = null;
-							t.showControls ? "" : t.$nextTick(function() {
-								let d = document.getElementById('slider');
-								t.startX = d.getBoundingClientRect().left;
-								//								readyState === 4 && t.autoplay && !!t.$refs[t.audioRef]? t.onPlay() : "";
-							})
+//							t.showControls ? "" : t.$nextTick(function() {
+//								let d = document.getElementById('slider');
+//								t.startX = d.getBoundingClientRect().left;
+//								//								readyState === 4 && t.autoplay && !!t.$refs[t.audioRef]? t.onPlay() : "";
+//							})
 						}
 					} catch(err) {
 						window.clearInterval(t.readyStateInterval);
@@ -240,9 +240,11 @@
 				};
 				if(t.dragStatus) {
 					if(flag == 0 || flag == 1) {
-						t.sliderTime = t.duration * (event.clientX > t.startX + 5 ? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
-					} else if(flag == 2) {
-						//拖拽修改播放时间
+						let startX = document.getElementById('slider').getBoundingClientRect().left;//初始进度条最左边的位置x坐标值
+						let clientX=event.clientX;//鼠标当前位置x坐标
+						let offsetWidth=t.$refs.slider.offsetWidth;//进度条长度
+						t.sliderTime = t.duration * (clientX > startX + 5 ? (clientX - startX > offsetWidth ? offsetWidth : clientX - startX - 5) : 0) / offsetWidth;
+					} else if(flag == 2) { //拖拽修改播放时间
 						t.changeCurrentTime(t.sliderTime);
 						t.dragStatus = false;
 					}
@@ -268,7 +270,7 @@
 			},
 			//移除鼠标监听
 			remove() {
-				let t=this;
+				let t = this;
 				t.removeHandler(document, "mousemove", function(event) {
 					t.drag(event, 1)
 				});　
@@ -287,7 +289,7 @@
 			});　　
 		},
 		destroyed() {
-			let t=this;
+			let t = this;
 			window.clearInterval(t.interval);
 			t.interval = null;
 			window.clearInterval(t.readyStateInterval);
@@ -302,14 +304,14 @@
 			window.clearInterval(t.readyStateInterval);
 			t.readyStateInterval = null;
 		},
-		
-//		activated() {
-//
-//		},
-//		deactivated() {
-//
-//		},
-		
+
+		//		activated() {
+		//
+		//		},
+		//		deactivated() {
+		//
+		//		},
+
 		watch: {
 			url: function(nv, ov) {
 				let t = this;

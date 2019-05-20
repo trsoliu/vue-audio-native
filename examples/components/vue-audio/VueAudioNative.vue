@@ -87,7 +87,7 @@
 				currentTime: 0, //当前播放时间长度
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
-				startX: 0, //初始鼠标mousedown的位置值
+//				startX: 0, //初始鼠标mousedown的位置值
 			}
 		},
 		methods: {
@@ -184,10 +184,10 @@
 							t.readyState = readyState;
 							window.clearInterval(t.readyStateInterval);
 							t.readyStateInterval = null;
-							t.$nextTick(function() {
-								let d=<HTMLElement>document.getElementById('slider');
-								t.startX = d.getBoundingClientRect().left;
-							})
+//							t.$nextTick(function() {
+//								let d=<HTMLElement>document.getElementById('slider');
+//								t.startX = d.getBoundingClientRect().left;
+//							})
 						}
 					} catch(err) {
 						window.clearInterval(t.readyStateInterval);
@@ -227,27 +227,20 @@
 			 *  */
 			drag(this: any, event: any, flag:number) {
 				let t = this;
-				//				t.dragFlag = flag;
-				//				console.log(flag);
 				if(event.type === "mousedown") {
-					//					t.startX = event.clientX;
 					t.dragStatus = true;
 				};
 				if(t.dragStatus) {
 					if(flag == 0 || flag == 1) {
-						
-						t.sliderTime =t.duration * (event.clientX > t.startX+5? (event.clientX - t.startX > t.$refs.slider.offsetWidth ? t.$refs.slider.offsetWidth : event.clientX - t.startX - 5) : 0) / t.$refs.slider.offsetWidth;
-						//					}else if(flag == 1) {
-						//						t.sliderTime = t.duration * (event.clientX>t.startX?(event.clientX-t.startX>t.$refs.slider.offsetWidth?t.$refs.slider.offsetWidth:event.clientX - t.startX-5):0) / t.$refs.slider.offsetWidth;
-						//					console.log(event.clientX-t.startX,99);
-					} else if(flag == 2) {
-						//						console.log(22222);
-						//拖拽修改播放时间
+						let startX = <Number>document.getElementById('slider').getBoundingClientRect().left;//初始进度条最左边的位置x坐标值
+						let clientX=<Number>event.clientX;//鼠标当前位置x坐标
+						let offsetWidth=t.$refs.slider.offsetWidth;//进度条长度
+						t.sliderTime = t.duration * (clientX > startX + 5 ? (clientX - startX > offsetWidth ? offsetWidth : clientX - startX - 5) : 0) / offsetWidth;
+					} else if(flag == 2) { //拖拽修改播放时间
 						t.changeCurrentTime(t.sliderTime);
 						t.dragStatus = false;
 					}
 				}
-
 			},
 			addHandler: function(element:any, type:any, handler:any) {
 				if(element.addEventListener) {
