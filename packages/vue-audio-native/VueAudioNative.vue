@@ -95,7 +95,7 @@
 				interval: null, //循环检查音频缓冲位置
 				maxBuffer: 0, //当前缓冲的最大位置
 				isWaitBuffer: false, //true:当前音频正在加载中，false：加载完成
-				waitingST:null,
+				waitingST:null,//加载等待，50ms内开启加载动画，避免每次拖拽修改播放时间都有加载动画
 				duration: 0, //音频总长度
 				playedStauts: false, //播放状态，true播放，false暂停
 				sliderTime: 0, //进度条时间
