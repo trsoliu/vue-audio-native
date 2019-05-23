@@ -49,6 +49,29 @@ $color0: #2C8EF6;
             border-radius: 4px;
             background-color: #e8eaec;
             cursor: pointer;
+            @-webkit-keyframes anim-name {
+                0% {
+                    /* 动作1 */
+                  transform: rotate(0);
+                }
+              
+                25% {
+                    /* 动作3 */
+                   transform: rotate(90deg);
+                }
+               
+                50% {
+                    /* 动作5 */transform: rotate(180deg);
+                }
+               
+                75% {
+                    /* 动作3 */transform: rotate(270deg);
+                }
+               
+                100% {
+                    /* 动作1 */transform: rotate(360deg);
+                }
+            }
             .slider-btn {
                 width: 10px;
                 height: 10px;
@@ -61,6 +84,15 @@ $color0: #2C8EF6;
                 box-sizing: content-box;
                 border-radius: 20px;
                 background-color: #fff;
+                .anim{
+                    position: absolute;
+                    top: -2px;
+                    left: -1px;
+                    font-size: 12px!important;
+                    color: $color0;
+                    animation: anim-name 1s linear infinite;
+                     transform-origin:center center;
+                }
                 %tip {
                     display: block!important;
                     padding: 5px 5px;
@@ -96,6 +128,11 @@ $color0: #2C8EF6;
                     .tip-hover {
                         @extend %tip;
                         left: -100%;
+                    }
+                    .anim{
+                        top: -1px;
+//                      left: -1px;
+                        font-size: 16px!important;
                     }
                 }
             }

@@ -1,6 +1,6 @@
 {
   "name": "vue-audio-native",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "description": "vue-audio-native",
   "main": "lib/vue-audio-native.umd.min.js",
   "keywords": [
@@ -59,7 +59,7 @@
     "sass-loader": "^7.1.0",
     "ts-jest": "^23.0.0",
     "typescript": "^3.2.1",
-    "vue-audio-native": "^0.1.20",
+    "vue-audio-native": "^0.1.21",
     "vue-template-compiler": "^2.5.21"
   }
 }

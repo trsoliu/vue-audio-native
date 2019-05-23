@@ -7,7 +7,7 @@
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
-				<audio :ref="audioRef" :src="url" :id="audioRef" muted :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio :ref="audioRef" :src="url" :id="audioRef" :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate" @waiting="onWaiting">
 					<!--<source :src="url" />-->
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -21,6 +21,7 @@
 					<div class="audio-right">
 						<div class="slider" id="slider" ref="slider" @mousedown="drag($event,0)">
 							<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}">
+								<b class="anim iconfont iconjiazai" v-if="isWaitBuffer && waitBuffer"></b>
 								<div class="tip-hover" :class="{'tip-on':dragStatus}" v-show="dragStatus">
 									{{processFormatTime(sliderTime)}}
 									<div class="arrow"></div>
@@ -38,7 +39,7 @@
 				</template>
 			</template>
 			<template v-else-if="showControls">
-				<audio v-show="!!readyState" controls muted :autoplay="autoplay" preload="preload" :ref="audioRef" :id="audioRef" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
+				<audio v-show="!!readyState" controls :autoplay="autoplay" preload="preload" :ref="audioRef" :id="audioRef" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
 					<source :src="url" />
 					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 				</audio>
@@ -80,6 +81,10 @@
 			hint: {
 				type: String,
 				default: "暂无有效音频...", //无音频情况下提示文案
+			},
+			waitBuffer: {
+				type: Boolean,
+				default: true //拖拽到未加载的时间，是否需要等待加载，true:滑块位置不动，等待加载音频资源后播放，false：当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置
 			}
 		},
 		data() {
@@ -89,13 +94,15 @@
 				readyState: 0, //当前音频状态
 				interval: null, //循环检查音频缓冲位置
 				maxBuffer: 0, //当前缓冲的最大位置
+				isWaitBuffer: false, //true:当前音频正在加载中，false：加载完成
+				waitingST:null,
 				duration: 0, //音频总长度
 				playedStauts: false, //播放状态，true播放，false暂停
 				sliderTime: 0, //进度条时间
 				currentTime: 0, //当前播放时间长度
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
-//				startX: 0, //初始进度条最左边的位置值
+				//				startX: 0, //初始进度条最左边的位置值
 			}
 		},
 		methods: {
@@ -155,9 +162,14 @@
 			 *  */
 			changeCurrentTime(event) {
 				let t = this,
-					ct = 0;
-				//当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置
-				event > t.maxBuffer ? ct = t.maxBuffer : ct = event;
+					ct = 0; //current time  拖拽设置的时间
+				if(!t.waitBuffer) {
+					//当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置
+					event > t.maxBuffer ? ct = t.maxBuffer : ct = event;
+				} else {
+					ct = event;
+				}
+
 				if('fastSeek' in t.$refs[t.audioRef]) {
 					t.$refs[t.audioRef].fastSeek(ct); //改变audio.currentTime的值
 					t.onPlay();
@@ -177,6 +189,11 @@
 					t.currentTime = parseInt(t.$refs[t.audioRef].currentTime);
 					t.dragStatus ? "" : t.sliderTime = (t.currentTime / t.duration) * t.duration;
 					t.$emit('on-timeupdate', t.$refs[t.audioRef].currentTime);
+					//console.log(t.$refs[t.audioRef].currentTime,99991)
+					if(t.waitBuffer){
+						window.clearTimeout(t.waitingST);
+						t.isWaitBuffer = false;
+					}
 				}
 			},
 			/** @description 当前音频初始化加载状态检查,当前音频加载状态readyState===4时显示播放控件，否则显示“音频正在上传中，请稍等...”
@@ -185,20 +202,15 @@
 				let t = this,
 					readyState = 0,
 					loadstartTime = new Date().getTime();
-				//				console.log(event, t.$refs[t.audioRef].readyState, 666);
+				//console.log(event, t.$refs[t.audioRef].readyState, 666);
 				t.readyStateInterval = window.setInterval(function() {
-					//										console.log(t.$refs[t.audioRef].readyState, new Date().getTime() - loadstartTime, 55);
+					//console.log(t.$refs[t.audioRef].readyState, new Date().getTime() - loadstartTime, 55);
 					try {
 						readyState = t.$refs[t.audioRef].readyState;
 						if(readyState === 4 || (new Date().getTime() - loadstartTime > 90000)) {
 							t.readyState = readyState;
 							window.clearInterval(t.readyStateInterval);
 							t.readyStateInterval = null;
-//							t.showControls ? "" : t.$nextTick(function() {
-//								let d = document.getElementById('slider');
-//								t.startX = d.getBoundingClientRect().left;
-//								//								readyState === 4 && t.autoplay && !!t.$refs[t.audioRef]? t.onPlay() : "";
-//							})
 						}
 					} catch(err) {
 						window.clearInterval(t.readyStateInterval);
@@ -213,11 +225,14 @@
 				let t = this;
 				if(!!t.$refs[t.audioRef]) {
 					t.interval = window.setInterval(function() {
-						if(!t.$refs[t.audioRef] || t.$refs[t.audioRef].buffered.length < 1) return true;
+						let buffered = t.$refs[t.audioRef].buffered;
+						//当音频不存在||还没有缓冲
+						if(!t.$refs[t.audioRef] || buffered.length < 1) return true;
 						//获取当前缓冲的最大位置
-						t.maxBuffer = parseInt(t.$refs[t.audioRef].buffered.end(0));
+						t.maxBuffer = parseInt(buffered.end(buffered.length - 1));
+						//console.log(t.maxBuffer,99999,buffered.end(buffered.length-1))
 						//当缓存的时间大于等于音频的总时间，则停止
-						if(Math.floor(t.$refs[t.audioRef].buffered.end(0)) >= Math.floor(t.$refs[t.audioRef].duration)) {
+						if(Math.floor(buffered.end(buffered.length - 1)) >= Math.floor(t.$refs[t.audioRef].duration)) {
 							window.clearInterval(t.interval);
 							t.interval = null;
 						};
@@ -231,6 +246,15 @@
 				t.duration = parseInt(event.target.duration);
 				t.$emit('on-metadata', event);
 			},
+			/** @description 当媒介已停止播放但打算继续播放时（比如当媒介暂停已缓冲更多数据）运行脚本
+			 *  */
+			onWaiting(event) {
+				let t=this;
+				t.waitingST = setTimeout(() => {
+					t.waitBuffer ? t.isWaitBuffer = true : '';
+					window.clearTimeout(t.waitingST);
+				},50)
+			},
 			/** @description 音频进度条拖拽条
 			 *  */
 			drag(event, flag) {
@@ -240,9 +264,9 @@
 				};
 				if(t.dragStatus) {
 					if(flag == 0 || flag == 1) {
-						let startX = document.getElementById('slider').getBoundingClientRect().left;//初始进度条最左边的位置x坐标值
-						let clientX=event.clientX;//鼠标当前位置x坐标
-						let offsetWidth=t.$refs.slider.offsetWidth;//进度条长度
+						let startX = document.getElementById('slider').getBoundingClientRect().left; //初始进度条最左边的位置x坐标值
+						let clientX = event.clientX; //鼠标当前位置x坐标
+						let offsetWidth = t.$refs.slider.offsetWidth; //进度条长度
 						t.sliderTime = t.duration * (clientX > startX + 5 ? (clientX - startX > offsetWidth ? offsetWidth : clientX - startX - 5) : 0) / offsetWidth;
 					} else if(flag == 2) { //拖拽修改播放时间
 						t.changeCurrentTime(t.sliderTime);
@@ -303,26 +327,22 @@
 			t.interval = null;
 			window.clearInterval(t.readyStateInterval);
 			t.readyStateInterval = null;
+			window.clearTimeout(t.waitingST);
+			t.waitingST=null;
 		},
-
-		//		activated() {
-		//
-		//		},
-		//		deactivated() {
-		//
-		//		},
-
 		watch: {
+			/**
+			 * 监听音频路径的变化，及时重置音频
+			 * **/
 			url: function(nv, ov) {
 				let t = this;
 				if(nv != ov && !!nv) {
+					window.clearTimeout(t.waitingST);
 					window.clearInterval(t.interval);
-					t.interval = null;
 					window.clearInterval(t.readyStateInterval);
-					t.readyStateInterval = null;
 					t.onPause();
-					t.sliderTime = 0;
-					t.currentTime = 0;
+					//重置页面布局 重置页面数据 请求接口数据
+					Object.assign(t.$data, t.$options.data());
 					t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
 				}
 			}
