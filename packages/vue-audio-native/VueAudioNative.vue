@@ -26,7 +26,6 @@
 									{{processFormatTime(sliderTime)}}
 									<div class="arrow"></div>
 								</div>
-
 							</div>
 							<div class="slider-bar" :style="{width:100*sliderTime/duration+'%'}"></div>
 							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
@@ -54,7 +53,6 @@
 </template>
 <script>
 	import Vue from 'vue'
-	//	export default Vue.extend({
 	export default {
 		name: "vue-audio-native",
 		props: {
@@ -102,7 +100,6 @@
 				currentTime: 0, //当前播放时间长度
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
-				//				startX: 0, //初始进度条最左边的位置值
 			}
 		},
 		methods: {
@@ -121,7 +118,7 @@
 				let t = this;
 				t.$refs[t.audioRef].play();
 				t.playedStauts = true;
-				//				t.$emit('on-play',t.playedStauts);
+				//t.$emit('on-play',t.playedStauts);
 			},
 			/**
 			 * @description 当音频暂停
@@ -129,9 +126,8 @@
 			onPause() {
 				let t = this;
 				!!t.$refs[t.audioRef] ? t.$refs[t.audioRef].pause() : "";
-				//				window.clearInterval(t.interval);
 				t.playedStauts = false;
-				//				t.$emit('on-pause',t.playedStauts);
+				//t.$emit('on-pause',t.playedStauts);
 			},
 			/**
 			 * @description 当音频结束
@@ -139,7 +135,7 @@
 			onEnd() {
 				//音频播放是否结束
 				let t = this;
-				//				t.$refs[t.audioRef].pause();
+				//t.$refs[t.audioRef].pause();
 				t.sliderTime = 0;
 			},
 			/**
@@ -179,7 +175,8 @@
 				};
 				t.onTimeupdate();
 			},
-			/** @description 当音频当前时间改变后，进度条也要改变
+			/** 
+			 * @description 当音频当前时间改变后，进度条也要改变
 			 *  */
 			onTimeupdate() {
 				// debugger
@@ -221,7 +218,7 @@
 			/** @description 音频更新数据,获取缓冲位置
 			 *  */
 			onLoadeddata(event) {
-				//				console.log(event, 777)
+				//console.log(event, 777)
 				let t = this;
 				if(!!t.$refs[t.audioRef]) {
 					t.interval = window.setInterval(function() {
@@ -239,14 +236,16 @@
 					}, 300);
 				}
 			},
-			/** @description 语音元数据主要是语音的长度之类的数据
+			/**
+			 * @description 语音元数据主要是语音的长度之类的数据
 			 *  */
 			onLoadedmetadata(event) {
 				let t = this;
 				t.duration = parseInt(event.target.duration);
 				t.$emit('on-metadata', event);
 			},
-			/** @description 当媒介已停止播放但打算继续播放时（比如当媒介暂停已缓冲更多数据）运行脚本
+			/** 
+			 * @description 当媒介已停止播放但打算继续播放时（比如当媒介暂停已缓冲更多数据）运行脚本
 			 *  */
 			onWaiting(event) {
 				let t=this;
@@ -255,7 +254,8 @@
 					window.clearTimeout(t.waitingST);
 				},50)
 			},
-			/** @description 音频进度条拖拽条
+			/** 
+			 * @description 音频进度条拖拽条
 			 *  */
 			drag(event, flag) {
 				let t = this;
