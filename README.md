@@ -20,14 +20,14 @@ $ npm install vue-audio-native --save
 
 在 `main.js` 文件中引入插件并注册
 
-``` bash
-# main.js
+``` js
+// main.js
 import Vue from 'vue'
 import vueAudioNative from 'vue-audio-native'
 Vue.use(vueAudioNative)
 ```
 
-``` js
+``` html
 <template>
 	<div class="home" style="margin-top: 150px;">
 		<!--<div class="t">-->
@@ -39,6 +39,7 @@ Vue.use(vueAudioNative)
 				:autoplay=autoplay 
 				:hint=hint 
 				:waitBuffer=waitBuffer
+				:downloadName=downloadName
 				@on-change="change" 
 				@on-timeupdate="timeupdate" 
 				@on-metadata="metadata">
@@ -62,6 +63,7 @@ Vue.use(vueAudioNative)
 				autoplay: true, //默认false，自动播放有效音频(由于高版本浏览器协议限制，初始化页面时无法自动播放，可以在点击页面后手动触发)
 				waitBuffer:true,//默认true，拖拽到未加载的时间，是否需要等待加载，true:滑块位置不动，等待加载音频资源后播放，false：当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置
 				hint: "音频正在上传中，请稍等…", //无音频情况下提示文案
+				downloadName: "重命名1.m4a", //自定义下载后文件名
 			}
 		},
 		methods: {
@@ -92,6 +94,7 @@ Vue.use(vueAudioNative)
 | showCurrentTime | 是否显示当前播放时间 | Boolean | true |
 | showControls | 是否展示原生音频播放控制条 | Boolean | false |
 | showDownload | 是否展示下载按钮 | Boolean | true |
+| downloadName | 自定义下载文件名（仅支持Chrome新版本，跨域则会使用服务器下发默认名称） | String | url文件名 |
 | autoplay | 自动播放有效音频(由于高版本浏览器协议限制，初始化页面时无法自动播放，可以在点击页面后手动触发) | Boolean | false |
 | waitBuffer | 拖拽到未加载的时间，是否需要等待加载，true:滑块位置不动，等待加载音频资源后播放，false：当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置 | Boolean | true |
 | hint | 无有效播放音频时提示语 | String | "暂无有效音频..." |

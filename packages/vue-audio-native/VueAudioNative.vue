@@ -33,7 +33,7 @@
 					</div>
 					<!--音频下载-->
 					<div class="audio-download" v-if="showDownload">
-						<a :href="url" target="_blank" download class="iconfont">&#xe671;</a>
+						<a :href="url" :download="downloadName || url" target="_blank" class="iconfont">&#xe671;</a>
 					</div>
 				</template>
 			</template>
@@ -71,6 +71,9 @@
 			showDownload: {
 				type: Boolean,
 				default: true //默认显示下载按钮
+			},
+			downloadName: {
+				type: String
 			},
 			autoplay: {
 				type: Boolean,
