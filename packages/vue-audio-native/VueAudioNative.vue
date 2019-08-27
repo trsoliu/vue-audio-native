@@ -1,9 +1,9 @@
 <style lang="scss" scoped>
 	@import "font/iconfont.css";
-	@import "./vueAudioNative.scss";
+	@import "./scss/vueAudioNative.scss";
 </style>
 <template lang="html">
-	<div class="vueAudioNative">
+	<div  :class="size" class="vueAudioNative">
 		<template v-if="!!url">
 			<template v-if="!showControls">
 				<!--音频标签-->
@@ -56,6 +56,10 @@
 	export default {
 		name: "vue-audio-native",
 		props: {
+			size:{
+				type: String,
+				default: "default", //音频地址
+			},
 			url: {
 				type: String,
 				default: "", //音频地址

@@ -32,6 +32,7 @@ Vue.use(vueAudioNative)
 	<div class="home" style="margin-top: 150px;">
 		<!--<div class="t">-->
 			<vue-audio-native 
+				size='small'
 				:url=url 
 				:showCurrentTime=showCurrentTime 
 				:showControls=showControls 
@@ -88,6 +89,7 @@ Vue.use(vueAudioNative)
 
 | 属性 | 说明 | 类型 | 默认值 |
 | :------ | :---------  | :--------- | :-----|
+| size | 样式大小，可选值为large、small、default或者不设置 | String | default |
 | url | 音频地址 | String | "" |
 | showCurrentTime | 是否显示当前播放时间 | Boolean | true |
 | showControls | 是否展示原生音频播放控制条 | Boolean | false |

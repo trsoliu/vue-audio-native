@@ -1,0 +1,32 @@
+%large {
+    .audio-left .iconfont {
+        font-size: 22px; //20px
+    }
+    .audio-left span {
+        font-size: 18px; //16px
+        padding: 9px 7px; //7px 5px
+    }
+    .audio-right .slider .slider-btn {
+        width: 12px; //10px
+        height: 12px; //10px
+        margin-left: -4px; //-5px
+        &:hover {
+            width: 16px;
+            height: 16px;
+            margin-left: -8px;
+            top: -7px; //-6px
+            .tip-hover {
+                font-size: 14px;
+                top: -40px;
+                left: -90%;
+            }
+        }
+    }
+    .audio-right .slider {
+        height: 7px; //6px
+        .slider-bar,
+        .slider-buffer {
+            height: 7px; //6px
+        }
+    }
+}

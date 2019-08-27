@@ -14,6 +14,7 @@
 	<div class="home" style="margin-top: 150px;">
 		<!--<div class="t">-->
 			<vue-audio-native 
+				size="large"
 				:url=url 
 				:showCurrentTime=showCurrentTime 
 				:showControls=showControls 
