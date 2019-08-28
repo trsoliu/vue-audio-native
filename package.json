@@ -1,6 +1,6 @@
 {
   "name": "vue-audio-native",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "vue-audio-native",
   "main": "lib/vue-audio-native.umd.min.js",
   "keywords": [
