@@ -33,7 +33,7 @@
 					</div>
 					<!--音频下载-->
 					<div class="audio-download" v-if="showDownload">
-						<a :href="url" target="_blank" download class="iconfont">&#xe671;</a>
+						<a :href="url" target="_blank" :download="!!downloadName?downloadName:url" class="iconfont">&#xe671;</a>
 					</div>
 				</template>
 			</template>
@@ -87,6 +87,10 @@
 			waitBuffer: {
 				type: Boolean,
 				default: true //拖拽到未加载的时间，是否需要等待加载，true:滑块位置不动，等待加载音频资源后播放，false：当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置
+			},
+			downloadName: {
+				type: String,
+				default: '' //在Chrome和火狐、同域名下，修改下载文件名称，其它保持原文件服务器名称
 			}
 		},
 		data() {
