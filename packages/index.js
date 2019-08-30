@@ -1,4 +1,4 @@
-// 导入颜色选择器组件
+// 导入audio组件
 import vueAudioNative from './vue-audio-native'
 
 // 存储组件列表

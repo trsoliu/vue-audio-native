@@ -1,6 +1,6 @@
 {
   "name": "vue-audio-native",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "description": "vue-audio-native",
   "main": "lib/vue-audio-native.umd.min.js",
   "keywords": [
@@ -31,6 +31,7 @@
     "lib": "vue-cli-service build --target lib --name vue-audio-native --dest lib packages/index.js"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.4",
     "core-js": "^2.6.5",
     "vue": "^2.6.6",
     "vue-audio-native": "^0.1.19",
