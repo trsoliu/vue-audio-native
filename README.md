@@ -36,6 +36,7 @@ Vue.use(vueAudioNative)
 				:url=url 
 				:showCurrentTime=showCurrentTime 
 				:showControls=showControls 
+				:showMuted=showMuted
 				:showDownload=showDownload 
 				:autoplay=autoplay 
 				:hint=hint 
@@ -60,6 +61,7 @@ Vue.use(vueAudioNative)
 				url: 'http://mp3.9ku.com/m4a/183203.m4a',
 				showCurrentTime: true, //默认true，是否显示当前播放时间
 				showControls: false, //默认false，true:展示原生音频播放控制条，false：展示模拟播放控制条
+				showMuted: true, //默认true，默认显示静音按钮 true显示静音按钮
 				showDownload: true, //默认true，默认显示下载按钮
 				autoplay: true, //默认false，自动播放有效音频(由于高版本浏览器协议限制，初始化页面时无法自动播放，可以在点击页面后手动触发)
 				waitBuffer:true,//默认true，拖拽到未加载的时间，是否需要等待加载，true:滑块位置不动，等待加载音频资源后播放，false：当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置
@@ -95,6 +97,7 @@ Vue.use(vueAudioNative)
 | url | 音频地址 | String | "" |
 | showCurrentTime | 是否显示当前播放时间 | Boolean | true |
 | showControls | 是否展示原生音频播放控制条 | Boolean | false |
+| showMuted | 是否展示静音按钮 | Boolean | true |
 | showDownload | 是否展示下载按钮 | Boolean | true |
 | autoplay | 自动播放有效音频(由于高版本浏览器协议限制，初始化页面时无法自动播放，可以在点击页面后手动触发) | Boolean | false |
 | waitBuffer | 拖拽到未加载的时间，是否需要等待加载，true:滑块位置不动，等待加载音频资源后播放，false：当滑动位置大于当前缓冲的最大位置，则重置到当前最大缓冲位置 | Boolean | true |

@@ -2,10 +2,10 @@ $color0: #2C8EF6;
 @import './size/small.scss';
 @import './size/large.scss';
 .vueAudioNative {
-    &.small{
+    &.small {
         @extend %small;
     }
-    &.large{
+    &.large {
         @extend %large;
     }
     width: 100%;
@@ -162,6 +162,12 @@ $color0: #2C8EF6;
                 background-color: #DCDEE2;
             }
         }
+    }
+    .audio-muted {
+        margin-left: 10px;
+        font-size: 18px;
+        color: $color0!important;
+        cursor: pointer;
     }
     .audio-download {
         margin-left: 10px;

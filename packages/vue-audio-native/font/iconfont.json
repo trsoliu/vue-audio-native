@@ -1,0 +1,51 @@
+{
+  "id": "1119606",
+  "name": "vue-audio",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "vue-audio组件",
+  "glyphs": [
+    {
+      "icon_id": "1214969",
+      "name": "加载",
+      "font_class": "jiazai",
+      "unicode": "e801",
+      "unicode_decimal": 59393
+    },
+    {
+      "icon_id": "7924287",
+      "name": "播放",
+      "font_class": "bofang",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    },
+    {
+      "icon_id": "7924306",
+      "name": "暂停",
+      "font_class": "zanting",
+      "unicode": "e670",
+      "unicode_decimal": 58992
+    },
+    {
+      "icon_id": "7935983",
+      "name": "下载",
+      "font_class": "xiazai",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "11118310",
+      "name": "jingyin",
+      "font_class": "jingyin",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "11118318",
+      "name": "yinliang",
+      "font_class": "yinliang",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    }
+  ]
+}

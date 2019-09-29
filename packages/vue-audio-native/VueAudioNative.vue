@@ -31,6 +31,8 @@
 							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
 						</div>
 					</div>
+					<!--静音开关-->
+					<div v-if="showMuted" class="audio-muted iconfont" @click="switchMuted">{{mutedStatus?"&#xe60c;":"&#xe60d;"}}</div>
 					<!--音频下载-->
 					<div class="audio-download" v-if="showDownload">
 						<a :href="url" target="_blank" :download="!!downloadName?downloadName:url" class="iconfont">&#xe671;</a>
@@ -72,6 +74,10 @@
 				type: Boolean,
 				default: false //默认显示自写组件 true显示原生组件
 			},
+			showMuted:{
+				type: Boolean,
+				default: true //默认显示静音按钮 true显示静音按钮
+			},
 			showDownload: {
 				type: Boolean,
 				default: true //默认显示下载按钮
@@ -95,7 +101,7 @@
 		},
 		data() {
 			return {
-				audioRef: "audio123131", //默认audio组件的唯一识别码
+				audioRef: "audio1234567890", //默认audio组件的唯一识别码
 				readyStateInterval: null, //循环检查音频加载状态
 				readyState: 0, //当前音频状态
 				interval: null, //循环检查音频缓冲位置
@@ -108,6 +114,7 @@
 				currentTime: 0, //当前播放时间长度
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
+				mutedStatus:false,//静音状态在showMuted==true 即显示静音按钮，此时true表示当前静音，false表示当前是未静音状态
 			}
 		},
 		methods: {
@@ -309,6 +316,16 @@
 				t.removeHandler(document, "mouseup", function(event) {
 					t.drag(event, 2)
 				});　
+			},
+			/**
+			 *  @description 静音状态切换
+			 */
+			switchMuted(){
+				let t=this,flag=t.mutedStatus;
+				if(t.$refs[t.audioRef]){
+					t.$refs[t.audioRef].muted=!flag;
+					t.mutedStatus=!flag;
+				}
 			}
 		},
 		created() {
