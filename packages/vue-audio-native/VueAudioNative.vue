@@ -15,7 +15,7 @@
 					<!--播放/暂停按钮-->
 					<div class="audio-left">
 						<b class="iconfont played" @click="startPlayOrPause">{{ playedStauts ? "&#xe670;" : "&#xe65d;"}}</b>
-						<span>{{ showCurrentTime?processFormatTime(currentTime)+"/":"" }}{{ processFormatTime(duration) }}</span>
+						<span v-if="!!processFormatTime(duration) ">{{ showCurrentTime?processFormatTime(currentTime)+"/":"" }}{{ processFormatTime(duration) }}</span>
 					</div>
 					<!--播放进度条-->
 					<div class="audio-right">
