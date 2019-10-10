@@ -22,10 +22,13 @@
 						<div class="slider" id="slider" ref="slider" @mousedown="drag($event,0)">
 							<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}">
 								<b class="anim iconfont iconjiazai" v-if="isWaitBuffer && waitBuffer"></b>
-								<div class="tip-hover" :class="{'tip-on':dragStatus}" v-show="dragStatus">
-									{{processFormatTime(sliderTime)}}
-									<div class="arrow"></div>
-								</div>
+                                <div v-show="isTimeSlider">
+                                    <div class="tip-hover" :class="{'tip-on':dragStatus}" v-show="dragStatus">
+                                        {{processFormatTime(sliderTime)}}
+                                        <div class="arrow"></div>
+                                    </div>
+                                </div>
+
 							</div>
 							<div class="slider-bar" :style="{width:100*sliderTime/duration+'%'}"></div>
 							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
@@ -33,6 +36,14 @@
 					</div>
 					<!--静音开关-->
 					<div v-if="showMuted" class="audio-muted iconfont" @click="switchMuted">{{mutedStatus?"&#xe60c;":"&#xe60d;"}}</div>
+					<!--音量控制-->
+					<div v-if="showVolume" class="audio-muted audio-volume iconfont">
+						<span>{{volume==1?"&#xe60c;":"&#xe60d;"}}</span>
+						<div class="vertical-slider" id="vertical-slider" ref="vertical-slider" @mousedown="drag($event,3)">
+							<div class="slider-btn" :style="{top:85*volume+'%'}"></div>
+							<div class="slider-bar" :style="{height:100*(1-volume)+'%'}"></div>
+						</div>
+					</div>
 					<!--音频下载-->
 					<div class="audio-download" v-if="showDownload">
 						<a :href="url" target="_blank" :download="!!downloadName?downloadName:url" class="iconfont">&#xe671;</a>
@@ -51,10 +62,29 @@
 			<slot name="slotTip">{{hint}}</slot>
 		</div>
 	</div>
-	</div>
 </template>
 <script>
-	import Vue from 'vue'
+	import Vue from 'vue';
+	Vue.mixin({
+		props:{
+		    showVolume:{
+		        type:Boolean,
+				default:false
+			}
+		},
+		data(){
+		    return{
+				volume:0.5,
+				isVolumeSlider:false,
+                isTimeSlider:false,
+			}
+		},
+        methods:{
+		    changeVolume(value){
+                this.$refs[this.audioRef].volume = value;
+            }
+        }
+	})
 	export default {
 		name: "vue-audio-native",
 		props: {
@@ -278,14 +308,31 @@
 					t.dragStatus = true;
 				};
 				if(t.dragStatus) {
-					if(flag == 0 || flag == 1) {
+					if(flag == 3){
+                        t.isVolumeSlider = true;
+					}
+					if(flag == 0){
+                        t.isTimeSlider = true;
+                    }
+
+					if((flag == 0 || flag == 1) && t.isTimeSlider) {
 						let startX = document.getElementById('slider').getBoundingClientRect().left; //初始进度条最左边的位置x坐标值
 						let clientX = event.clientX; //鼠标当前位置x坐标
 						let offsetWidth = t.$refs.slider.offsetWidth; //进度条长度
 						t.sliderTime = t.duration * (clientX > startX + 5 ? (clientX - startX > offsetWidth ? offsetWidth : clientX - startX - 5) : 0) / offsetWidth;
-					} else if(flag == 2) { //拖拽修改播放时间
+					} else if(flag == 2  && t.isTimeSlider) { //拖拽修改播放时间
 						t.changeCurrentTime(t.sliderTime);
 						t.dragStatus = false;
+                        t.isTimeSlider = false;
+					} else if((flag == 3 || flag == 1) && t.isVolumeSlider){
+                        let startY = document.getElementById('vertical-slider').getBoundingClientRect().top; //初始进度条最顶边的位置y坐标值
+                        let clientY = event.clientY; //鼠标当前位置y坐标
+                        let offseHeight = t.$refs['vertical-slider'].offsetHeight; //进度条高度
+                        t.volume =  (clientY > startY + 4 ? (clientY - startY > offseHeight ? offseHeight : clientY - startY - 4) : 0) / offseHeight;
+					} else if(flag == 2 && t.isVolumeSlider){
+					    t.changeVolume(1-t.volume);
+                        t.dragStatus = false;
+                        t.isVolumeSlider = false;
 					}
 				}
 			},
