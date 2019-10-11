@@ -318,7 +318,7 @@
 					//重置页面布局 重置页面数据 请求接口数据
 					Object.assign(t.$data, t.$options.data());
 					t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 1000);
-					console.log(11111111111111)
+//					console.log(11111111111111)
 					t.$emit('on-audioId', t.audioRef);
 				}
 			}
