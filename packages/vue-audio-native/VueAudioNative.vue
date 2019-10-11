@@ -2,61 +2,7 @@
 	@import "font/iconfont.css";
 	@import "./scss/vueAudioNative.scss";
 </style>
-<<<<<<< HEAD
-<template lang="html">
-	<div  :class="size" class="vueAudioNative">
-		<template v-if="!!url">
-			<template v-if="!showControls">
-				<!--音频标签-->
-				<audio :ref="audioRef" :src="url" :id="audioRef" :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate" @waiting="onWaiting">
-					<!--<source :src="url" />-->
-					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
-				</audio>
-				<template v-if="!!readyState">
-					<!--播放/暂停按钮-->
-					<div class="audio-left">
-						<b class="iconfont played" @click="startPlayOrPause">{{ playedStauts ? "&#xe670;" : "&#xe65d;"}}</b>
-						<span v-if="!!processFormatTime(duration) ">{{ showCurrentTime?processFormatTime(currentTime)+"/":"" }}{{ processFormatTime(duration) }}</span>
-					</div>
-					<!--播放进度条-->
-					<div class="audio-right">
-						<div class="slider" id="slider" ref="slider" @mousedown="drag($event,0)">
-							<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}">
-								<b class="anim iconfont iconjiazai" v-if="isWaitBuffer && waitBuffer"></b>
-								<div class="tip-hover" :class="{'tip-on':dragStatus}" v-show="dragStatus">
-									{{processFormatTime(sliderTime)}}
-									<div class="arrow"></div>
-								</div>
-							</div>
-							<div class="slider-bar" :style="{width:100*sliderTime/duration+'%'}"></div>
-							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
-						</div>
-					</div>
-					<!--静音开关-->
-					<div v-if="showMuted" class="audio-muted iconfont" @click="switchMuted">{{mutedStatus?"&#xe60c;":"&#xe60d;"}}</div>
-					<!--音频下载-->
-					<div class="audio-download" v-if="showDownload">
-						<a :href="url" target="_blank" :download="!!downloadName?downloadName:url" class="iconfont">&#xe671;</a>
-					</div>
-				</template>
-			</template>
-			<template v-else-if="showControls">
-				<audio v-show="!!readyState" controls :autoplay="autoplay" preload="preload" :ref="audioRef" :id="audioRef" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
-					<source :src="url" />
-					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
-				</audio>
-			</template>
-		</template>
-		<!--无音频时文字提示-->
-		<div class="hint" v-if="!url || !readyState">
-			<slot name="slotTip">{{hint}}</slot>
-		</div>
-	</div>
-	</div>
-</template>
-=======
 <template src="./vueAudioNative.tpl"></template>
->>>>>>> 324f6b7510aae2d0b6636380301d62c520772e19
 <script>
 	import Vue from 'vue';
 	import volume from './mixin/volume.mixin.js'; //音量调节和静音
