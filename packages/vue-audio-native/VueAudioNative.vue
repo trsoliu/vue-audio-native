@@ -2,93 +2,15 @@
 	@import "font/iconfont.css";
 	@import "./scss/vueAudioNative.scss";
 </style>
-<template lang="html">
-	<div  :class="size" class="vueAudioNative">
-		<template v-if="!!url">
-			<template v-if="!showControls">
-				<!--音频标签-->
-				<audio :ref="audioRef" :src="url" :id="audioRef" :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate" @waiting="onWaiting">
-					<!--<source :src="url" />-->
-					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
-				</audio>
-				<template v-if="!!readyState">
-					<!--播放/暂停按钮-->
-					<div class="audio-left">
-						<b class="iconfont played" @click="startPlayOrPause">{{ playedStauts ? "&#xe670;" : "&#xe65d;"}}</b>
-						<span>{{ showCurrentTime?processFormatTime(currentTime)+"/":"" }}{{ processFormatTime(duration) }}</span>
-					</div>
-					<!--播放进度条-->
-					<div class="audio-right">
-						<div class="slider" id="slider" ref="slider" @mousedown="drag($event,0)">
-							<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}">
-								<b class="anim iconfont iconjiazai" v-if="isWaitBuffer && waitBuffer"></b>
-                                <div v-show="isTimeSlider">
-                                    <div class="tip-hover" :class="{'tip-on':dragStatus}" v-show="dragStatus">
-                                        {{processFormatTime(sliderTime)}}
-                                        <div class="arrow"></div>
-                                    </div>
-                                </div>
-
-							</div>
-							<div class="slider-bar" :style="{width:100*sliderTime/duration+'%'}"></div>
-							<div class="slider-buffer" :style="{width:100*maxBuffer/duration+'%'}"></div>
-						</div>
-					</div>
-					<!--静音开关-->
-					<div v-if="showMuted" class="audio-muted iconfont" @click="switchMuted">{{mutedStatus?"&#xe60c;":"&#xe60d;"}}</div>
-					<!--音量控制-->
-					<div v-if="showVolume" class="audio-muted audio-volume iconfont">
-						<span>{{volume==1?"&#xe60c;":"&#xe60d;"}}</span>
-						<div class="vertical-slider" id="vertical-slider" ref="vertical-slider" @mousedown="drag($event,3)">
-							<div class="slider-btn" :style="{top:85*volume+'%'}"></div>
-							<div class="slider-bar" :style="{height:100*(1-volume)+'%'}"></div>
-						</div>
-					</div>
-					<!--音频下载-->
-					<div class="audio-download" v-if="showDownload">
-						<a :href="url" target="_blank" :download="!!downloadName?downloadName:url" class="iconfont">&#xe671;</a>
-					</div>
-				</template>
-			</template>
-			<template v-else-if="showControls">
-				<audio v-show="!!readyState" controls :autoplay="autoplay" preload="preload" :ref="audioRef" :id="audioRef" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate">
-					<source :src="url" />
-					<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
-				</audio>
-			</template>
-		</template>
-		<!--无音频时文字提示-->
-		<div class="hint" v-if="!url || !readyState">
-			<slot name="slotTip">{{hint}}</slot>
-		</div>
-	</div>
-</template>
+<template src="./vueAudioNative.tpl"></template>
 <script>
 	import Vue from 'vue';
-	Vue.mixin({
-		props:{
-		    showVolume:{
-		        type:Boolean,
-				default:false
-			}
-		},
-		data(){
-		    return{
-				volume:0.5,
-				isVolumeSlider:false,
-                isTimeSlider:false,
-			}
-		},
-        methods:{
-		    changeVolume(value){
-                this.$refs[this.audioRef].volume = value;
-            }
-        }
-	})
+	import volume from './mixin/volume.mixin.js'; //音量调节和静音
 	export default {
 		name: "vue-audio-native",
+		mixins: [volume],
 		props: {
-			size:{
+			size: {
 				type: String,
 				default: "default", //音频地址
 			},
@@ -103,10 +25,6 @@
 			showControls: {
 				type: Boolean,
 				default: false //默认显示自写组件 true显示原生组件
-			},
-			showMuted:{
-				type: Boolean,
-				default: true //默认显示静音按钮 true显示静音按钮
 			},
 			showDownload: {
 				type: Boolean,
@@ -137,14 +55,15 @@
 				interval: null, //循环检查音频缓冲位置
 				maxBuffer: 0, //当前缓冲的最大位置
 				isWaitBuffer: false, //true:当前音频正在加载中，false：加载完成
-				waitingST:null,//加载等待，50ms内开启加载动画，避免每次拖拽修改播放时间都有加载动画
+				waitingST: null, //加载等待，50ms内开启加载动画，避免每次拖拽修改播放时间都有加载动画
 				duration: 0, //音频总长度
 				playedStauts: false, //播放状态，true播放，false暂停
 				sliderTime: 0, //进度条时间
 				currentTime: 0, //当前播放时间长度
 				dragStatus: false, //true:可以拖拽，false：拖拽结束
 				dragFlag: 2, //0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
-				mutedStatus:false,//静音状态在showMuted==true 即显示静音按钮，此时true表示当前静音，false表示当前是未静音状态
+				isTimeSlider: false, //默认false不在播放进度调节的调节条上，鼠标是否在播放进度调节的调节条上
+				isVolumeSlider: false, //默认false不在音量调节条和按钮上，鼠标是否在音量调节的调节条和按钮上
 			}
 		},
 		methods: {
@@ -161,6 +80,7 @@
 			 */
 			onPlay() {
 				let t = this;
+				console.log(this.$refs,55555)
 				t.$refs[t.audioRef].play();
 				t.playedStauts = true;
 				//t.$emit('on-play',t.playedStauts);
@@ -232,7 +152,7 @@
 					t.dragStatus ? "" : t.sliderTime = (t.currentTime / t.duration) * t.duration;
 					t.$emit('on-timeupdate', t.$refs[t.audioRef].currentTime);
 					//console.log(t.$refs[t.audioRef].currentTime,99991)
-					if(t.waitBuffer){
+					if(t.waitBuffer) {
 						window.clearTimeout(t.waitingST);
 						t.isWaitBuffer = false;
 					}
@@ -293,46 +213,36 @@
 			 * @description 当媒介已停止播放但打算继续播放时（比如当媒介暂停已缓冲更多数据）运行脚本
 			 *  */
 			onWaiting(event) {
-				let t=this;
+				let t = this;
 				t.waitingST = setTimeout(() => {
 					t.waitBuffer ? t.isWaitBuffer = true : '';
 					window.clearTimeout(t.waitingST);
-				},50)
+				}, 50)
 			},
 			/** 
-			 * @description 音频进度条拖拽条
+			 * @description 音频进度条拖拽条和音量大小控制条
+			 * @param{flag} 0:滑块按钮被选中（mousedown）,1:滑块按钮被拖动（mousemove），2:滑块按钮被释放（mouseup）
 			 *  */
 			drag(event, flag) {
 				let t = this;
 				if(event.type === "mousedown") {
 					t.dragStatus = true;
 				};
+				//console.log(event, 9999)
 				if(t.dragStatus) {
-					if(flag == 3){
-                        t.isVolumeSlider = true;
-					}
-					if(flag == 0){
-                        t.isTimeSlider = true;
-                    }
-
-					if((flag == 0 || flag == 1) && t.isTimeSlider) {
-						let startX = document.getElementById('slider').getBoundingClientRect().left; //初始进度条最左边的位置x坐标值
-						let clientX = event.clientX; //鼠标当前位置x坐标
-						let offsetWidth = t.$refs.slider.offsetWidth; //进度条长度
-						t.sliderTime = t.duration * (clientX > startX + 5 ? (clientX - startX > offsetWidth ? offsetWidth : clientX - startX - 5) : 0) / offsetWidth;
-					} else if(flag == 2  && t.isTimeSlider) { //拖拽修改播放时间
-						t.changeCurrentTime(t.sliderTime);
-						t.dragStatus = false;
-                        t.isTimeSlider = false;
-					} else if((flag == 3 || flag == 1) && t.isVolumeSlider){
-                        let startY = document.getElementById('vertical-slider').getBoundingClientRect().top; //初始进度条最顶边的位置y坐标值
-                        let clientY = event.clientY; //鼠标当前位置y坐标
-                        let offseHeight = t.$refs['vertical-slider'].offsetHeight; //进度条高度
-                        t.volume =  (clientY > startY + 4 ? (clientY - startY > offseHeight ? offseHeight : clientY - startY - 4) : 0) / offseHeight;
-					} else if(flag == 2 && t.isVolumeSlider){
-					    t.changeVolume(1-t.volume);
-                        t.dragStatus = false;
-                        t.isVolumeSlider = false;
+					if(t.isTimeSlider) { //音频进度条拖拽条
+						if(flag == 0 || flag == 1) {
+							let startX = document.getElementById('slider').getBoundingClientRect().left; //初始进度条最左边的位置x坐标值
+							let clientX = event.clientX; //鼠标当前位置x坐标
+							let offsetWidth = t.$refs.slider.offsetWidth; //进度条长度
+							t.sliderTime = t.duration * (clientX > startX + 5 ? (clientX - startX > offsetWidth ? offsetWidth : clientX - startX - 5) : 0) / offsetWidth;
+						} else if(flag == 2) { //拖拽修改播放时间
+							t.changeCurrentTime(t.sliderTime);
+							t.dragStatus = false;
+							t.isTimeSlider = false;
+						}
+					} else if(t.isVolumeSlider) { //音量大小控制条
+						t.changeVolume(flag);
 					}
 				}
 			},
@@ -364,16 +274,7 @@
 					t.drag(event, 2)
 				});　
 			},
-			/**
-			 *  @description 静音状态切换
-			 */
-			switchMuted(){
-				let t=this,flag=t.mutedStatus;
-				if(t.$refs[t.audioRef]){
-					t.$refs[t.audioRef].muted=!flag;
-					t.mutedStatus=!flag;
-				}
-			}
+
 		},
 		created() {
 			let t = this;
@@ -394,13 +295,14 @@
 		},
 		mounted() {
 			let t = this;
-			t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
+			t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 1000);
+			t.$emit('on-audioId', t.audioRef);
 			window.clearInterval(t.interval);
 			t.interval = null;
 			window.clearInterval(t.readyStateInterval);
 			t.readyStateInterval = null;
 			window.clearTimeout(t.waitingST);
-			t.waitingST=null;
+			t.waitingST = null;
 		},
 		watch: {
 			/**
@@ -415,7 +317,9 @@
 					t.onPause();
 					//重置页面布局 重置页面数据 请求接口数据
 					Object.assign(t.$data, t.$options.data());
-					t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 10);
+					t.audioRef = "audio" + new Date().getTime() + Math.ceil(Math.random() * 1000);
+					console.log(11111111111111)
+					t.$emit('on-audioId', t.audioRef);
 				}
 			}
 		}

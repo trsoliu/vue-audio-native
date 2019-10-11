@@ -1,6 +1,7 @@
-$color0: #2C8EF6;
+$color0: #2C8EF6;//后多主题可以提出去，引一个公共color文件
 @import './size/small.scss';
 @import './size/large.scss';
+@import './mixin/volume.scss';
 .vueAudioNative {
     &.small {
         @extend %small;
@@ -163,48 +164,8 @@ $color0: #2C8EF6;
             }
         }
     }
-    .audio-muted {
-        margin-left: 10px;
-        font-size: 18px;
-        color: $color0!important;
-        cursor: pointer;
-    }
-    .audio-volume{
-        position: relative;
-        .vertical-slider{
-            position: absolute;
-            left: 6px;
-            bottom: 20px;
-            width: 6px;
-            height: 100px;
-            border-radius: 4px;
-            background-color: #e8eaec;
-            cursor: pointer;
-            .slider-btn{
-                width: 10px;
-                height: 10px;
-                margin-left: -4px;
-                position: absolute;
-                top: -4px;
-                left: 0;
-                z-index: 3;
-                border: 2px solid $color0;
-                box-sizing: content-box;
-                border-radius: 20px;
-                background-color: #fff;
-            }
-            .slider-bar {
-                width: 6px;
-                position: absolute;
-                bottom: 0px;
-                left: 0;
-                z-index: 2;
-                border-radius: 4px;
-                background-color: $color0;
-            }
-        }
-
-    }
+    //音量调节和静音
+    @extend %volume;
     .audio-download {
         margin-left: 10px;
         color: $color0!important;
