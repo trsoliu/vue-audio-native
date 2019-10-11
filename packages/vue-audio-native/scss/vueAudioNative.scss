@@ -1,6 +1,7 @@
-$color0: #2C8EF6;
+$color0: #2C8EF6;//后多主题可以提出去，引一个公共color文件
 @import './size/small.scss';
 @import './size/large.scss';
+@import './mixin/volume.scss';
 .vueAudioNative {
     &.small {
         @extend %small;
@@ -163,12 +164,8 @@ $color0: #2C8EF6;
             }
         }
     }
-    .audio-muted {
-        margin-left: 10px;
-        font-size: 18px;
-        color: $color0!important;
-        cursor: pointer;
-    }
+    //音量调节和静音
+    @extend %volume;
     .audio-download {
         margin-left: 10px;
         color: $color0!important;
