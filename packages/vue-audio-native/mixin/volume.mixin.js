@@ -8,7 +8,7 @@ export default {
 	props: {
 		showVolume: {
 			type: Boolean,
-			default: false //默认true，默认显示音量调节和静音按钮 true显示音量调节和静音按钮
+			default: true //默认true，默认显示音量调节和静音按钮 true显示音量调节和静音按钮
 		}
 	},
 	data() {
