@@ -1,5 +1,5 @@
 # vue-audio-native
-> 重写原生audio标签UI，并使之成为适合vue组件（目前更适合PC使用）,使用了flex布局请注意兼容性IE10+,iOS 6.1+,Android 2.3+（如有新的需要可在issues中提）
+> 重写原生audio标签UI，并使之成为适合vue组件（目前更适合PC使用）,使用了flex布局请注意兼容性IE10+,iOS 6.1+,Android 2.3+（如有新的需要可在issues中提）由于需要vue-loader需要大于15.7，需要建议大家使用vue-cli3+
  
  
  ![trsoliu README.md](https://user-gold-cdn.xitu.io/2019/9/29/16d7bfa8fc4f1a79)
