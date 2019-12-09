@@ -38,7 +38,7 @@ export default {
 		changeVolume(flag) {
 			let t = this;
 			if(flag == 0 || flag == 1) {
-				let startY = document.getElementById('vertical-slider').getBoundingClientRect().top; //初始进度条最顶边的位置y坐标值
+				let startY = document.getElementById(t.audioRef+'-vertical-slider').getBoundingClientRect().top; //初始进度条最顶边的位置y坐标值
 				let clientY = event.clientY; //鼠标当前位置y坐标
 				let offseHeight = t.$refs['vertical-slider'].offsetHeight; //进度条高度
 				t.volume = 1 - (clientY > startY + 1 ? (clientY - startY > offseHeight ? offseHeight : clientY - startY - 1) : 0) / offseHeight;

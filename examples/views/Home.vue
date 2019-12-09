@@ -12,7 +12,7 @@
 </style>
 <template>
 	<div class="home" style="margin-top: 150px;">
-		<!--<div class="t">-->
+		<!--<div v-for="item in demoArray" :class="'demo-'+item">-->
 			<vue-audio-native 
 				size="default"
 				:url=url 
@@ -43,6 +43,7 @@
 		name: "home",
 		data() {
 			return {
+//				demoArray:[1,2,3],
 				urlArray: ["http://mp3.9ku.com/m4a/183203.m4a", "http://www.170mv.com/kw/other.web.rh01.sycdn.kuwo.cn/resource/n3/21/19/3413654131.mp3"], //演示路径
 				url: require('../assets/test.mp3'),
 				showCurrentTime: true, //默认true，是否显示当前播放时间

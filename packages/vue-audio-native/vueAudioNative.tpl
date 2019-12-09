@@ -33,7 +33,7 @@
 				<div v-if="showVolume" class="audio-muted audio-volume" @mouseenter="isShowVolumeBar=true,isOnVolumeBar=true" @mouseleave="isOnVolumeBar=false,isVolumeSlider?'':isShowVolumeBar=false">
 					<span @click="switchMuted" class="iconfont">{{volume==0 || mutedStatus?"&#xe60c;":"&#xe60d;"}}</span>
 					<div v-show="isShowVolumeBar" class="vertical-slider-box">
-						<div class="vertical-slider" id="vertical-slider" ref="vertical-slider" @mousedown="drag($event,0),isVolumeSlider=true">
+						<div class="vertical-slider" :id="audioRef+'-vertical-slider'" ref="vertical-slider" @mousedown="drag($event,0),isVolumeSlider=true">
 							<div class="slider-btn" :style="{bottom:100*volume+'%'}"></div>
 							<div class="slider-bar" :style="{height:100*volume+'%'}"></div>
 						</div>
