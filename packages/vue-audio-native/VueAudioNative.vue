@@ -80,7 +80,7 @@
 			 */
 			onPlay() {
 				let t = this;
-				console.log(this.$refs,55555)
+//				console.log(this.$refs,55555)
 				t.$refs[t.audioRef].play();
 				t.playedStauts = true;
 				//t.$emit('on-play',t.playedStauts);
@@ -232,7 +232,7 @@
 				if(t.dragStatus) {
 					if(t.isTimeSlider) { //音频进度条拖拽条
 						if(flag == 0 || flag == 1) {
-							let startX = document.getElementById('slider').getBoundingClientRect().left; //初始进度条最左边的位置x坐标值
+							let startX = document.getElementById(t.audioRef+'-slider').getBoundingClientRect().left; //初始进度条最左边的位置x坐标值
 							let clientX = event.clientX; //鼠标当前位置x坐标
 							let offsetWidth = t.$refs.slider.offsetWidth; //进度条长度
 							t.sliderTime = t.duration * (clientX > startX + 5 ? (clientX - startX > offsetWidth ? offsetWidth : clientX - startX - 5) : 0) / offsetWidth;

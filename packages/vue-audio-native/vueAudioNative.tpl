@@ -14,7 +14,7 @@
 				</div>
 				<!--播放进度条-->
 				<div class="audio-right">
-					<div class="slider" id="slider" ref="slider" @mousedown="drag($event,0),isTimeSlider=true">
+					<div class="slider"  :id="audioRef+'-slider'" ref="slider" @mousedown="drag($event,0),isTimeSlider=true">
 						<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}">
 							<b class="anim iconfont iconjiazai" v-if="isWaitBuffer && waitBuffer"></b>
 							<div v-show="isTimeSlider">
