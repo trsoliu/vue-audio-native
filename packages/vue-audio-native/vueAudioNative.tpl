@@ -2,7 +2,7 @@
 	<template v-if="!!url">
 		<template v-if="!showControls">
 			<!--音频标签-->
-			<audio :ref="audioRef" :src="url" :id="audioRef" :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @timeupdate="onTimeupdate" @waiting="onWaiting">
+			<audio :ref="audioRef" :src="url" :id="audioRef" :autoplay="autoplay" preload="preload" @play="onPlay" @pause="onPause" @ended="onEnd" @loadstart="onLoadstart" @loadeddata="onLoadeddata" @loadedmetadata="onLoadedmetadata" @durationchange="onDurationchange" @timeupdate="onTimeupdate" @waiting="onWaiting">
 				<!--<source :src="url" />-->
 				<!--<source src="http://mp3.9ku.com/m4a/183203.m4a" />-->
 			</audio>
@@ -10,14 +10,14 @@
 				<!--播放/暂停按钮-->
 				<div class="audio-left">
 					<b class="iconfont played" @click="startPlayOrPause">{{ playedStauts ? "&#xe670;" : "&#xe65d;"}}</b>
-					<span>{{ showCurrentTime?processFormatTime(currentTime)+"/":"" }}{{ processFormatTime(duration) }}</span>
+					<span>{{ showCurrentTime?processFormatTime(currentTime):"" }}{{showCurrentTime&&!isNaN(duration)?"/":""}}{{ !isNaN(duration)?processFormatTime(duration):"" }}</span>
 				</div>
 				<!--播放进度条-->
 				<div class="audio-right">
 					<div class="slider"  :id="audioRef+'-slider'" ref="slider" @mousedown="drag($event,0),isTimeSlider=true">
 						<div class="slider-btn" :style="{left:100*sliderTime/duration+'%'}">
 							<b class="anim iconfont iconjiazai" v-if="isWaitBuffer && waitBuffer"></b>
-							<div v-show="isTimeSlider">
+							<div v-show="isTimeSlider && !isNaN(duration)">
 								<div class="tip-hover" :class="{'tip-on':dragStatus}" v-show="dragStatus">
 									{{processFormatTime(sliderTime)}}
 									<div class="arrow"></div>
