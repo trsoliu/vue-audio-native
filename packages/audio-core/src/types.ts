@@ -18,18 +18,14 @@ export interface AudioSource {
 
 export type AudioSourceInput = string | AudioSource
 
-export interface AudioArtwork {
-  src: string
-  sizes?: string
-  type?: string
-}
+export type AudioArtwork = MediaImage
 
 export interface AudioTrack {
   id: string
   title?: string
   artist?: string
   album?: string
-  artwork?: AudioArtwork[]
+  artwork?: MediaImage[]
   sources: AudioSource | readonly AudioSource[]
   downloadName?: string
   peaks?: readonly number[]
@@ -74,6 +70,29 @@ export interface AudioSnapshot {
   error: AudioPlayerError | null
 }
 
+export type AudioBridgeEvent =
+  | { type: 'statechange'; snapshot: AudioSnapshot }
+  | {
+      type: 'trackchange'
+      snapshot: AudioSnapshot
+      track: AudioTrack | null
+      trackIndex: number
+    }
+  | { type: 'error'; snapshot: AudioSnapshot; error: AudioPlayerError }
+
+export interface AudioPlayerBridge {
+  emit(event: AudioBridgeEvent): void
+}
+
+export interface AudioRuntimeCapabilities {
+  customControls: boolean
+  download: boolean
+  mediaSession: boolean
+  nativeHls: boolean
+  pointerEvents: boolean
+  touch: boolean
+}
+
 export interface AudioPlayerHandle {
   play(): Promise<void>
   pause(): void
@@ -93,6 +112,7 @@ export interface AudioPlayerHandle {
 
 export interface AudioControllerOptions extends AudioInput {
   autoplay?: boolean
+  bridge?: AudioPlayerBridge
   exclusive?: boolean
   group?: string
   mediaSession?: boolean

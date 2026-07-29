@@ -1,0 +1,230 @@
+.audio-native {
+  --audio-native-background: oklch(0.16 0.018 260);
+  --audio-native-foreground: oklch(0.96 0.006 260);
+  --audio-native-muted: oklch(0.72 0.02 260);
+  --audio-native-border: oklch(0.32 0.025 260);
+  --audio-native-accent: oklch(0.84 0.2 145);
+  --audio-native-accent-foreground: oklch(0.16 0.025 145);
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--audio-native-border);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: var(--audio-native-background);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%), 0 1px 2px -1px rgb(0 0 0 / 10%);
+  color: var(--audio-native-foreground);
+  color-scheme: dark;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.audio-native[data-size='small'] {
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.audio-native[data-size='large'] {
+  gap: 1rem;
+  border-radius: 1.5rem;
+  padding: 1.25rem;
+}
+
+.audio-native__element {
+  width: 100%;
+}
+
+.audio-native__element:not([controls]) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  clip: rect(0 0 0 0);
+}
+
+.audio-native__track,
+.audio-native__toolbar,
+.audio-native__volume-control {
+  display: flex;
+  align-items: center;
+}
+
+.audio-native__track {
+  min-width: 0;
+  gap: 0.75rem;
+}
+
+.audio-native__track-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.audio-native__title,
+.audio-native__artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audio-native__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+}
+
+.audio-native__artist {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  opacity: 0.7;
+}
+
+.audio-native__artwork {
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  object-fit: cover;
+}
+
+.audio-native__custom-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.audio-native__toolbar {
+  gap: 0.5rem;
+}
+
+.audio-native__icon-button,
+.audio-native__play-button {
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 9999px;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  transition: color 150ms, background-color 150ms, opacity 150ms, transform 150ms;
+}
+
+.audio-native__icon-button {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.audio-native__play-button {
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--audio-native-accent);
+  color: var(--audio-native-accent-foreground);
+}
+
+.audio-native__icon-button:hover {
+  background: color-mix(in oklch, var(--audio-native-foreground) 10%, transparent);
+}
+
+.audio-native__icon-button:active,
+.audio-native__play-button:active {
+  transform: scale(0.96);
+}
+
+.audio-native__icon-button:focus-visible,
+.audio-native__play-button:focus-visible,
+.audio-native__range:focus-visible {
+  outline: 2px solid var(--audio-native-accent);
+  outline-offset: 3px;
+}
+
+.audio-native__icon-button > svg,
+.audio-native__play-button > svg {
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 2px;
+}
+
+.audio-native__waveform {
+  display: flex;
+  height: 3rem;
+  align-items: center;
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.audio-native__peak {
+  min-width: 1px;
+  flex: 1;
+  border-radius: 9999px;
+  background: var(--audio-native-muted);
+  opacity: 0.42;
+}
+
+.audio-native__peak.is-active {
+  background: var(--audio-native-accent);
+  opacity: 1;
+}
+
+.audio-native__range {
+  accent-color: var(--audio-native-accent);
+  cursor: pointer;
+}
+
+.audio-native__range:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.audio-native__progress {
+  width: 100%;
+}
+
+.audio-native__time {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1rem;
+  opacity: 0.75;
+}
+
+.audio-native__volume-control {
+  margin-left: auto;
+  gap: 0.5rem;
+}
+
+.audio-native__volume {
+  width: clamp(4rem, 12vw, 7rem);
+}
+
+.audio-native__hint {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  opacity: 0.75;
+}
+
+@media (max-width: 479px) {
+  .audio-native__toolbar {
+    flex-wrap: wrap;
+  }
+
+  .audio-native__volume-control {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audio-native *,
+  .audio-native *::before,
+  .audio-native *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createAudioController } from '../src/controller'
-import type { AudioTrack } from '../src/types'
+import type { AudioPlayerBridge, AudioTrack } from '../src/types'
 import { FakeAudioElement, FakeTimeRanges } from './fake-audio'
 
 const tracks: readonly AudioTrack[] = [
@@ -54,6 +54,18 @@ describe('createAudioController', () => {
       buffered: [{ start: 0, end: 45 }],
       currentTime: 12.5,
     })
+  })
+
+  it('notifies subscribers once for a single pause event', () => {
+    const audio = new FakeAudioElement()
+    const controller = createAudioController({ src: 'one.mp3' })
+    controller.attach(audio.asAudioElement())
+    const listener = vi.fn()
+    controller.subscribe(listener)
+
+    audio.emit('pause')
+
+    expect(listener).toHaveBeenCalledOnce()
   })
 
   it('reports autoplay blocking without making the player terminal', async () => {
@@ -486,5 +498,32 @@ describe('createAudioController', () => {
     await expect(controller.play()).resolves.toBeUndefined()
     expect(mediaSession.setActionHandler).toHaveBeenCalled()
     controller.destroy()
+  })
+
+  it('emits protocol-neutral bridge events and isolates host errors', async () => {
+    const audio = new FakeAudioElement()
+    const emit = vi.fn((event) => {
+      if (event.type === 'trackchange') throw new Error('host bridge unavailable')
+    })
+    const bridge: AudioPlayerBridge = { emit }
+    const controller = createAudioController({ bridge, tracks })
+
+    expect(() => controller.attach(audio.asAudioElement())).not.toThrow()
+    audio.emit('canplay')
+    await controller.play()
+    audio.error = { code: 2, message: 'network' } as MediaError
+    audio.emit('error')
+    audio.emit('error')
+
+    expect(emit.mock.calls.map(([event]) => event.type)).toEqual(
+      expect.arrayContaining(['trackchange', 'statechange', 'error']),
+    )
+    expect(
+      emit.mock.calls.find(([event]) => event.type === 'statechange')?.[0],
+    ).toMatchObject({ snapshot: { trackIndex: 0 }, type: 'statechange' })
+    expect(emit.mock.calls.find(([event]) => event.type === 'error')?.[0]).toMatchObject({
+      error: { code: 'NETWORK' },
+      type: 'error',
+    })
   })
 })

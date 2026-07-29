@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "rootDir": ".",
+    "types": ["vite/client", "vitest/globals"]
+  },
+  "include": [
+    "scripts",
+    "src",
+    "tests",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
+}

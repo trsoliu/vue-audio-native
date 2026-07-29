@@ -16,5 +16,17 @@ IE11 is not supported. Media Session, native HLS, download naming and autoplay a
 enhancements. The controller returns a structured error when a user gesture is required; it does
 not treat autoplay blocking as a terminal media failure.
 
+`detectAudioCapabilities()` reports the following independently:
+
+- custom-controls prerequisites, including a functional range input;
+- download attribute support;
+- Media Session availability;
+- native HLS MIME support;
+- Pointer Events and touch input availability.
+
+No User-Agent branch is used. The Vue adapter checks the real mounted media element and switches to
+native controls if the custom-control prerequisite set is missing. The compatibility lab exposes the
+same probe for device-cloud and embedded-host testing.
+
 Stable 1.0 publication requires smoke evidence from iOS WKWebView, Android WebView and HarmonyOS
 ArkWeb. If one of those environments is unavailable, only a prerelease may be published.

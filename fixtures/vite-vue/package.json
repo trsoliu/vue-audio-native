@@ -1,0 +1,22 @@
+{
+  "name": "fixture-vite-vue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vue-tsc -p tsconfig.json && vite build",
+    "lint": "eslint src vite.config.ts",
+    "typecheck": "vue-tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "vue": "catalog:",
+    "vue-audio-native": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "@vitejs/plugin-vue": "catalog:",
+    "typescript": "6.0.2",
+    "vite": "catalog:",
+    "vue-tsc": "3.3.8"
+  }
+}

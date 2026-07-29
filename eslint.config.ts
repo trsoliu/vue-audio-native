@@ -9,6 +9,8 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/coverage/**',
       '**/dist/**',
+      '**/.nuxt/**',
+      '**/.output/**',
       '**/node_modules/**',
       '**/playwright-report/**',
       '**/test-results/**',
@@ -39,7 +41,17 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      'vue/html-self-closing': 'off',
+      'vue/max-attributes-per-line': 'off',
       'vue/multi-word-component-names': 'off',
+      'vue/require-default-prop': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
+    },
+  },
+  {
+    files: ['**/tests/**/*.{ts,tsx}'],
+    rules: {
+      'vue/one-component-per-file': 'off',
     },
   },
 )

@@ -25,6 +25,7 @@ fixtures/nuxt              Nuxt SSR 消费者构建验证
 ```bash
 corepack enable
 pnpm install
+pnpm security:audit
 pnpm lint
 pnpm typecheck
 pnpm test:coverage

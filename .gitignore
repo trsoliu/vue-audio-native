@@ -1,12 +1,16 @@
 .DS_Store
+.nuxt
+.output
 .env
 .env.*
 !.env.example
 .turbo
 .vite
+.playwright-cli
 coverage
 dist
 node_modules
+output
 playwright-report
 test-results
 types-temp

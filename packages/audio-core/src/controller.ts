@@ -4,6 +4,7 @@ import { normalizeInput, normalizeSources } from './source'
 import type {
   AudioController,
   AudioControllerOptions,
+  AudioBridgeEvent,
   AudioInput,
   AudioPlayerError,
   AudioSnapshot,
@@ -74,8 +75,34 @@ export function createAudioController(
     volume: clamp(options.volume ?? 1, 0, 1),
   })
 
+  function emitBridge(event: AudioBridgeEvent): void {
+    try {
+      options.bridge?.emit(event)
+    } catch {
+      // Host bridges are optional integration points and cannot break playback.
+    }
+  }
+
   function emit(next: AudioSnapshot): void {
+    const previous = snapshot
     snapshot = Object.freeze(next)
+    if (snapshot.state !== previous.state) {
+      emitBridge({ snapshot, type: 'statechange' })
+    }
+    if (
+      snapshot.trackIndex !== previous.trackIndex ||
+      snapshot.track !== previous.track
+    ) {
+      emitBridge({
+        snapshot,
+        track: snapshot.track,
+        trackIndex: snapshot.trackIndex,
+        type: 'trackchange',
+      })
+    }
+    if (snapshot.error && snapshot.error !== previous.error) {
+      emitBridge({ error: snapshot.error, snapshot, type: 'error' })
+    }
     for (const listener of listeners) listener(snapshot)
   }
 
@@ -593,6 +620,15 @@ export function createAudioController(
     pauseFromCoordinator: pause,
   }
   const unregisterCoordinator = registerCoordinatorClient(coordinatorClient)
+
+  if (snapshot.track) {
+    emitBridge({
+      snapshot,
+      track: snapshot.track,
+      trackIndex: snapshot.trackIndex,
+      type: 'trackchange',
+    })
+  }
 
   return {
     attach,
