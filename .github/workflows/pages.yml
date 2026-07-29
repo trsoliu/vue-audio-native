@@ -38,8 +38,8 @@ jobs:
       - run: pnpm docs:index
       - run: pnpm docs:audit
       - run: pnpm docs:eval
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.silen/dist
 
@@ -52,4 +52,4 @@ jobs:
     steps:
       - name: Deploy GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
