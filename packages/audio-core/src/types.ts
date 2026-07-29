@@ -112,7 +112,7 @@ export interface AudioPlayerHandle {
 
 export interface AudioControllerOptions extends AudioInput {
   autoplay?: boolean
-  bridge?: AudioPlayerBridge
+  bridge?: AudioPlayerBridge | null
   exclusive?: boolean
   group?: string
   mediaSession?: boolean

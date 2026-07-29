@@ -5,6 +5,8 @@ package changelogs are managed by Changesets.
 
 ## Unreleased
 
+- Fixed WebView Bridge teardown so removing an adapter happens before a simultaneous source switch.
+
 ### Added
 
 - Typed, framework-independent `@trsoliu/audio-core` controller and public state contract.

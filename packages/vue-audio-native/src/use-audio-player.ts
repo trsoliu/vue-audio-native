@@ -20,6 +20,7 @@ import type {
 function runtimeOptions(options: AudioControllerOptions): AudioControllerOptions {
   const nextOptions: AudioControllerOptions = {
     autoplay: options.autoplay ?? false,
+    bridge: options.bridge ?? null,
     exclusive: options.exclusive ?? false,
     group: options.group ?? 'default',
     mediaSession: options.mediaSession ?? false,
@@ -30,7 +31,6 @@ function runtimeOptions(options: AudioControllerOptions): AudioControllerOptions
     volume: options.volume ?? 1,
     waitBuffer: options.waitBuffer ?? true,
   }
-  if (options.bridge !== undefined) nextOptions.bridge = options.bridge
   return nextOptions
 }
 
@@ -57,16 +57,16 @@ export function useAudioPlayer(
     (element) => controller.attach(element),
     { flush: 'sync' },
   )
+  watch(
+    () => runtimeOptions(getOptions()),
+    (nextOptions) => controller.updateOptions(nextOptions),
+    { deep: true, flush: 'sync' },
+  )
   const updateInput = (): void => controller.setInput(audioInput(getOptions()))
   watch(
     () => JSON.stringify(audioInput(getOptions())),
     () => updateInput(),
     { flush: 'sync' },
-  )
-  watch(
-    () => runtimeOptions(getOptions()),
-    (nextOptions) => controller.updateOptions(nextOptions),
-    { deep: true, flush: 'sync' },
   )
 
   onScopeDispose(() => {

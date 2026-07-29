@@ -14,7 +14,10 @@ description: Vue 组件、composable、共享类型、事件、插槽与命令�
 - `useAudioPlayer()`；
 - `createAudioController()`、能力检测和时间格式化工具；
 - `AudioTrack`、`AudioSnapshot`、`AudioPlayerError`、`AudioPlayerHandle`、
-  `AudioPlayerBridge` 等公共类型。
+`AudioPlayerBridge` 等公共类型。
+
+Headless `useAudioPlayer()` 接受协议无关的 `bridge`；从响应式 options 中移除它会解绑旧
+宿主。直接使用 controller 时可传 `bridge: null` 完成同一操作。
 
 ## 现代 props
 
