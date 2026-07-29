@@ -1,6 +1,6 @@
 {
   "name": "@trsoliu/audio-core",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Framework-agnostic, typed HTML audio controller.",
   "type": "module",
   "license": "MIT",

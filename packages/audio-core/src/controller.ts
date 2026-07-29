@@ -59,6 +59,7 @@ export function createAudioController(
   let sourceIndex = -1
   let destroyed = false
   let animationFrame: number | null = null
+  let unregisterCoordinator: (() => void) | null = null
   const listeners = new Set<AudioSnapshotListener>()
 
   let snapshot: AudioSnapshot = Object.freeze({
@@ -517,13 +518,25 @@ export function createAudioController(
   }
 
   function attach(nextElement: HTMLAudioElement | null): void {
+    if (destroyed) return
     if (element === nextElement) return
     removeElementListeners()
     stopProgressLoop()
+    unregisterCoordinator?.()
+    unregisterCoordinator = null
     element = nextElement
     if (!element) return
+    unregisterCoordinator = registerCoordinatorClient(coordinatorClient)
     applyElementOptions()
     addElementListeners()
+    if (snapshot.track) {
+      emitBridge({
+        snapshot,
+        track: snapshot.track,
+        trackIndex: snapshot.trackIndex,
+        type: 'trackchange',
+      })
+    }
     if (trackIndex >= 0) {
       void loadTrack(options.autoplay === true).catch(() => undefined)
     }
@@ -608,7 +621,8 @@ export function createAudioController(
     stopProgressLoop()
     removeElementListeners()
     releaseMediaSession()
-    unregisterCoordinator()
+    unregisterCoordinator?.()
+    unregisterCoordinator = null
     listeners.clear()
     element = null
   }
@@ -618,16 +632,6 @@ export function createAudioController(
     id,
     isExclusive: () => options.exclusive === true,
     pauseFromCoordinator: pause,
-  }
-  const unregisterCoordinator = registerCoordinatorClient(coordinatorClient)
-
-  if (snapshot.track) {
-    emitBridge({
-      snapshot,
-      track: snapshot.track,
-      trackIndex: snapshot.trackIndex,
-      type: 'trackchange',
-    })
   }
 
   return {

@@ -1,10 +1,10 @@
 .audio-native {
-  --audio-native-background: oklch(0.16 0.018 260);
-  --audio-native-foreground: oklch(0.96 0.006 260);
-  --audio-native-muted: oklch(0.72 0.02 260);
-  --audio-native-border: oklch(0.32 0.025 260);
-  --audio-native-accent: oklch(0.84 0.2 145);
-  --audio-native-accent-foreground: oklch(0.16 0.025 145);
+  --audio-native-background: #17191e;
+  --audio-native-foreground: #f2f3f5;
+  --audio-native-muted: #a8acb5;
+  --audio-native-border: #454a55;
+  --audio-native-accent: #91ee85;
+  --audio-native-accent-foreground: #10230f;
   position: relative;
   display: flex;
   width: 100%;
@@ -17,7 +17,6 @@
   background: var(--audio-native-background);
   box-shadow: 0 1px 3px rgb(0 0 0 / 10%), 0 1px 2px -1px rgb(0 0 0 / 10%);
   color: var(--audio-native-foreground);
-  color-scheme: dark;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -130,7 +129,7 @@
 }
 
 .audio-native__icon-button:hover {
-  background: color-mix(in oklch, var(--audio-native-foreground) 10%, transparent);
+  background: rgb(127 127 127 / 18%);
 }
 
 .audio-native__icon-button:active,
@@ -211,6 +210,12 @@
 }
 
 @media (max-width: 479px) {
+  .audio-native__icon-button,
+  .audio-native__play-button {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
   .audio-native__toolbar {
     flex-wrap: wrap;
   }

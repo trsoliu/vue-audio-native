@@ -54,6 +54,11 @@ const cssText = css.toString('utf8')
 assert(!cssText.includes('box-sizing:border-box'), 'Tailwind Preflight leaked into CSS')
 assert(!cssText.includes('@layer'), 'Global cascade layers leaked into library CSS')
 assert(!cssText.includes('.flex{'), 'Unscoped Tailwind utilities leaked into library CSS')
+assert(!cssText.includes('oklch('), 'Chromium 96-incompatible OKLCH leaked into CSS')
+assert(
+  !cssText.includes('color-mix('),
+  'Chromium 96-incompatible color-mix leaked into CSS',
+)
 
 for (const path of packedPaths.filter((path) => /\.(?:[cm]?js|css|map|json|ts)$/.test(path))) {
   const content = await readFile(resolve(packageRoot, path), 'utf8')

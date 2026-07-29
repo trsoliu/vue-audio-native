@@ -194,6 +194,19 @@ describe('createAudioController', () => {
     expect(listener).not.toHaveBeenCalled()
   })
 
+  it('cannot reattach and recreate side effects after destruction', () => {
+    const firstAudio = new FakeAudioElement()
+    const secondAudio = new FakeAudioElement()
+    const controller = createAudioController({ src: 'one.mp3' })
+    controller.attach(firstAudio.asAudioElement())
+    controller.destroy()
+
+    controller.attach(secondAudio.asAudioElement())
+
+    expect(controller.getElement()).toBeNull()
+    expect(secondAudio.loadCalls).toBe(0)
+  })
+
   it('rejects play and enters an error state when no source exists', async () => {
     const controller = createAudioController()
 
@@ -508,7 +521,11 @@ describe('createAudioController', () => {
     const bridge: AudioPlayerBridge = { emit }
     const controller = createAudioController({ bridge, tracks })
 
+    expect(emit).not.toHaveBeenCalled()
     expect(() => controller.attach(audio.asAudioElement())).not.toThrow()
+    expect(emit).toHaveBeenCalledWith(
+      expect.objectContaining({ trackIndex: 0, type: 'trackchange' }),
+    )
     audio.emit('canplay')
     await controller.play()
     audio.error = { code: 2, message: 'network' } as MediaError
