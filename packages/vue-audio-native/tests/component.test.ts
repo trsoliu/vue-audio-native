@@ -1,4 +1,4 @@
-import type { AudioTrack } from '@trsoliu/audio-core'
+import type { AudioControllerOptions, AudioTrack } from '@trsoliu/audio-core'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { createApp, defineComponent, h, nextTick, ref } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -313,5 +313,25 @@ describe('VueAudioNative', () => {
     expect(result?.snapshot.value.volume).toBe(0.4)
     wrapper.unmount()
     expect(result?.controls.getElement()).toBeNull()
+  })
+
+  it('removes the WebView bridge before switching a headless source', () => {
+    const emit = vi.fn()
+    const options = ref<AudioControllerOptions>({
+      bridge: { emit },
+      src: '/bridged.mp3',
+    })
+    const Harness = defineComponent({
+      setup() {
+        const player = useAudioPlayer(options)
+        return () => h('audio', { ref: player.audioRef })
+      },
+    })
+    mount(Harness)
+    emit.mockClear()
+
+    options.value = { src: '/detached.mp3' }
+
+    expect(emit).not.toHaveBeenCalled()
   })
 })

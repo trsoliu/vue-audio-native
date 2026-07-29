@@ -14,6 +14,18 @@ description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费�
 5. 在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包。
 6. 真机证据完成前保持 beta；完成后才设置 Vue 2 `legacy` 并发布稳定 1.0。
 
+## 首次 beta 引导发布
+
+新包尚未建立 Trusted Publisher 时，从包目录执行：
+
+```bash
+npm whoami --registry=https://registry.npmjs.org
+npm publish --tag next --access public --provenance=false
+```
+
+三个发布包都通过 `publishConfig.registry` 固定到官方 npm registry，不受本机安装镜像配置
+影响。`--provenance=false` 只用于首次 beta 引导；稳定版必须由 GitHub OIDC 生成 provenance。
+
 ## 证据不是声明
 
 本地 workspace link、成功的 `npm pack` 或桌面浏览器 E2E 都不能证明 registry 安装和宿主

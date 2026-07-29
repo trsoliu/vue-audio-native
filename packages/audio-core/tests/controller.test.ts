@@ -568,4 +568,17 @@ describe('createAudioController', () => {
       type: 'error',
     })
   })
+
+  it('accepts an explicit bridge reset and stops emitting host events', () => {
+    const audio = new FakeAudioElement()
+    const emit = vi.fn()
+    const controller = createAudioController({ bridge: { emit }, src: 'one.mp3' })
+    controller.attach(audio.asAudioElement())
+    emit.mockClear()
+
+    controller.updateOptions({ bridge: null })
+    audio.emit('canplay')
+
+    expect(emit).not.toHaveBeenCalled()
+  })
 })

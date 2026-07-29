@@ -51,6 +51,9 @@ const controller = createAudioController({
 })
 ```
 
+Call `controller.updateOptions({ bridge: null })` to detach the host before a WebView is recycled or
+its transport is replaced. No later track, state or error event is delivered to the old bridge.
+
 Host exceptions are isolated from playback. `detectAudioCapabilities()` reports custom-control,
 download, Media Session, native HLS, Pointer Events and touch capabilities without parsing the user
 agent.
