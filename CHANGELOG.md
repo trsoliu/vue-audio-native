@@ -29,3 +29,8 @@ package changelogs are managed by Changesets.
 - Source versions are prepared as `1.0.0-beta.1`; no npm publication is claimed by this file.
 - Stable `1.0.0` remains blocked until iOS WKWebView, Android WebView and HarmonyOS ArkWeb smoke
   evidence is complete.
+
+### Security
+
+- Updated transitive development tooling away from vulnerable `ini` and `@hono/node-server`
+  versions; published player tarballs remain isolated from documentation dependencies.
