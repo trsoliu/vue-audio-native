@@ -20,6 +20,7 @@ package changelogs are managed by Changesets.
   event-driven TypeScript.
 - Hardened media-event precedence so a late `canplay` cannot overwrite `paused`, while active
   buffering returns to `playing` without waiting for a second framework update.
+- Made package-content validation accept both npm 11 and npm 12 `npm pack --json` report shapes.
 - `vue-audio-native@1.x` now targets Vue 3 while preserving documented 0.x props, events, slots,
   component registration and `app.use()` behavior.
 
@@ -28,3 +29,8 @@ package changelogs are managed by Changesets.
 - Source versions are prepared as `1.0.0-beta.1`; no npm publication is claimed by this file.
 - Stable `1.0.0` remains blocked until iOS WKWebView, Android WebView and HarmonyOS ArkWeb smoke
   evidence is complete.
+
+### Security
+
+- Updated transitive development tooling away from vulnerable `ini` and `@hono/node-server`
+  versions; published player tarballs remain isolated from documentation dependencies.
