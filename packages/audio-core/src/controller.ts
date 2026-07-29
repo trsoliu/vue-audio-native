@@ -245,7 +245,13 @@ export function createAudioController(
   }
 
   function onCanPlay(): void {
-    if (snapshot.state !== 'playing') patch({ state: 'ready' })
+    if (snapshot.state === 'loading') {
+      patch({ state: element?.paused === false ? 'playing' : 'ready' })
+      return
+    }
+    if (snapshot.state === 'buffering' && element?.paused === false) {
+      patch({ state: 'playing' })
+    }
   }
 
   function onPlay(): void {

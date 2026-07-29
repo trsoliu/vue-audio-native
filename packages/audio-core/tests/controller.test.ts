@@ -390,6 +390,31 @@ describe('createAudioController', () => {
     expect(controller.getSnapshot().state).toBe('playing')
   })
 
+  it('does not let a late canplay event overwrite a paused state', async () => {
+    const audio = new FakeAudioElement()
+    const controller = createAudioController({ src: 'one.mp3' })
+    controller.attach(audio.asAudioElement())
+    audio.emit('canplay')
+
+    await controller.play()
+    audio.pause()
+    audio.emit('canplay')
+
+    expect(controller.getSnapshot().state).toBe('paused')
+  })
+
+  it('leaves buffering when canplay resumes active playback', async () => {
+    const audio = new FakeAudioElement()
+    const controller = createAudioController({ src: 'one.mp3' })
+    controller.attach(audio.asAudioElement())
+
+    await controller.play()
+    audio.emit('waiting')
+    audio.emit('canplay')
+
+    expect(controller.getSnapshot().state).toBe('playing')
+  })
+
   it('uses currentTime assignment when fastSeek is unavailable', () => {
     const audio = new FakeAudioElement()
     audio.duration = 60
