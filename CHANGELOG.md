@@ -6,6 +6,7 @@ package changelogs are managed by Changesets.
 ## Unreleased
 
 - Fixed WebView Bridge teardown so removing an adapter happens before a simultaneous source switch.
+- Pinned publishable packages to the official npm registry so local mirror settings cannot redirect a release.
 
 ### Added
 
