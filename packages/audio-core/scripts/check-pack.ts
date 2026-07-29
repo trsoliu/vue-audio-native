@@ -10,10 +10,12 @@ const packageRoot = resolve(import.meta.dirname, '..')
 const { stdout } = await execute('npm', ['pack', '--dry-run', '--json'], {
   cwd: packageRoot,
 })
-const reports = JSON.parse(stdout) as Array<{
+interface PackReport {
   files: Array<{ path: string }>
-}>
-const report = reports[0]
+}
+
+const reports = JSON.parse(stdout) as PackReport[] | Record<string, PackReport>
+const report = Array.isArray(reports) ? reports[0] : Object.values(reports)[0]
 assert(report, 'npm pack did not return a package report')
 
 const packedPaths = report.files.map((file) => file.path)

@@ -20,6 +20,7 @@ package changelogs are managed by Changesets.
   event-driven TypeScript.
 - Hardened media-event precedence so a late `canplay` cannot overwrite `paused`, while active
   buffering returns to `playing` without waiting for a second framework update.
+- Made package-content validation accept both npm 11 and npm 12 `npm pack --json` report shapes.
 - `vue-audio-native@1.x` now targets Vue 3 while preserving documented 0.x props, events, slots,
   component registration and `app.use()` behavior.
 
