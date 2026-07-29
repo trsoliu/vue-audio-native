@@ -1,0 +1,50 @@
+---
+title: Monorepo 项目地图
+description: Vue Audio Native 仓库的模块边界、依赖方向、验证证据和维护入口。
+---
+
+# Monorepo 项目地图
+
+```text
+vue-audio-native
+├── packages/audio-core          # 浏览器音频状态与能力契约
+├── packages/vue-audio-native    # Vue 3 组件、插件、composable、CSS
+├── apps/demo-vue                # shadcn-vue 产品级演示
+├── apps/compatibility-lab       # 浏览器/WebView 能力探针
+├── fixtures/vite-vue            # 干净 Vite 消费者
+├── fixtures/nuxt                # Nuxt SSR 消费者
+└── docs                         # Silen 文档、ADR、知识库、Agent Contract
+```
+
+`docs` 是仓库内的内容根，但不是 pnpm workspace；Silen 安装在根开发依赖中，避免依赖目录
+被静态内容扫描。播放器 package、Demo、fixtures 仍由 Turborepo workspace 管理。
+
+## 依赖方向
+
+| 来源               | 可以依赖                           | 不可以依赖                           |
+| ------------------ | ---------------------------------- | ------------------------------------ |
+| `audio-core`       | 浏览器标准 API                     | Vue、React、Lucide、Tailwind、shadcn |
+| `vue-audio-native` | `audio-core`、Vue、`@lucide/vue`   | Demo UI、Reka、shadcn-vue            |
+| Demo / Lab         | 发布包、shadcn-vue、Reka、Tailwind | 未公开的包内部路径                   |
+| fixtures           | npm 风格公共入口                   | Monorepo 私有实现                    |
+| docs               | 公共 API、ADR、验证证据            | 凭据、绝对本机路径、私有端点         |
+
+核心规则是单向适配：`audio-core → Vue adapter → UI/consumer`。任何媒体状态修复先进入
+core，再由 Vue 层翻译事件和响应式快照，不能在组件中维护第二套播放状态机。
+
+## 维护入口
+
+| 修改类型            | 首要文件                        | 必须补充的证据                  |
+| ------------------- | ------------------------------- | ------------------------------- |
+| 状态或媒体事件      | `packages/audio-core/src`       | core 单测、覆盖率、全浏览器 E2E |
+| Vue props/事件/插槽 | `packages/vue-audio-native/src` | Vue 单测、迁移文档、fixture     |
+| 样式/交互           | 包 CSS 与 Demo                  | 键盘、触摸、axe、包体积         |
+| WebView 支持        | capability/Bridge 与 lab        | 设备记录，不使用 UA 分支        |
+| 发布元数据          | package、Changeset、workflow    | pack、registry 干净安装、权限   |
+| 文档/AI             | `docs`、`AGENTS.md`             | Silen build、audit、eval        |
+
+## 跨仓库关系
+
+React 适配器位于独立的
+[trsoliu/react-audio-native](https://github.com/trsoliu/react-audio-native) 仓库，并精确依赖
+已发布的 `@trsoliu/audio-core`。发布顺序始终是 core → Vue → React。

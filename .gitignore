@@ -6,6 +6,8 @@
 !.env.example
 .turbo
 .vite
+docs/.silen/.temp
+docs/.silen/dist
 .playwright-cli
 coverage
 dist

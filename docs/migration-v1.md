@@ -70,7 +70,7 @@ const tracks: readonly AudioTrack[] = [
     media-session
     exclusive
     group="podcast"
-    @statechange="snapshot => console.log(snapshot.state)"
+    @statechange="(snapshot) => console.log(snapshot.state)"
   />
 </template>
 ```

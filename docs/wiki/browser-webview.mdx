@@ -1,0 +1,31 @@
+---
+title: 浏览器与 WebView
+description: iOS、Android、HarmonyOS、PC 浏览器和嵌入式宿主的能力检测与降级策略。
+---
+
+# 浏览器与 WebView
+
+## 先检测能力
+
+播放器不根据 User-Agent 猜测平台。`detectAudioCapabilities()` 分别报告自定义控件前提、
+download、Media Session、原生 HLS、Pointer Events 和触摸能力。缺少关键前提时只降级
+到 `<audio controls>`，不让整个页面失效。
+
+## 平台注意事项
+
+| 环境                          | 重点                                                     |
+| ----------------------------- | -------------------------------------------------------- |
+| iOS Safari / WKWebView        | 播放需要用户手势；后台、路由切换和音频会话由宿主共同决定 |
+| Android Chrome / WebView      | 生命周期、蓝牙路由、下载能力可能由宿主策略限制           |
+| HarmonyOS WebView / ArkWeb    | 使用能力探针；Bridge 由宿主注入，不绑定具体协议          |
+| PC Chrome/Edge/Firefox/Safari | 键盘、Pointer、Media Session 和格式支持逐项增强          |
+| 低于兼容基线的引擎            | 原生 controls；IE11 不支持                               |
+
+## WebView Bridge
+
+Bridge 只接收结构化 `statechange`、`trackchange` 和 `error` 事件。它不读取全局宿主对象，
+不假定方法名，也不在模块加载时执行。宿主可以把事件映射到 JS bridge、message handler
+或其他容器协议。
+
+自动化浏览器测试不能替代 WebView 音频会话、后台恢复和路由行为。稳定版条件以
+[真机冒烟记录](../device-smoke/)为准。

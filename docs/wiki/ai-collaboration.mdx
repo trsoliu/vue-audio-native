@@ -1,0 +1,45 @@
+---
+title: AI 协作说明
+description: AGENTS.md、Silen Agent Contract、llms 文件、MCP 权限和确定性检索门禁。
+---
+
+# AI 协作说明
+
+## 单一事实源
+
+根目录 `AGENTS.md` 是代码协作契约；本知识库是架构和操作事实源。`CLAUDE.md` 与 GitHub
+Copilot 指令只做入口跳转，不复制规则。Silen 构建公开以下机器可读产物：
+
+- `.well-known/silen/manifest.json`：站点 Agent Contract；
+- `llms.txt` 与 `llms-full.txt`：简明地图与完整正文；
+- `ai-index.json` 与 `search-index.json`：结构化发现和确定性检索；
+- 每个页面的干净 Markdown 路由。
+
+## 本地只读 MCP
+
+```bash
+pnpm docs:mcp
+```
+
+默认工具只允许 guide、list、search、read、backlinks、citations 和 build 预检。只有用户对
+明确范围的文档写入另行授权后，才允许运行 `silen mcp docs --allow-write`；写入后仍需审计
+Git diff、构建、链接和检索结果，提交与部署需要独立授权。
+
+## 模型无关门禁
+
+```bash
+pnpm docs:build
+pnpm docs:index
+pnpm docs:audit
+pnpm docs:eval
+```
+
+这些步骤不调用模型、不需要 API key 或 embeddings 服务。评测从生产搜索索引验证关键问题
+是否能在 Top K 命中正确页面，因此文档不仅“存在”，还必须“找得到”。
+
+## Monorepo 构建隔离
+
+Silen 是根目录开发依赖，`docs` 是内容目录而不是 pnpm workspace。这样内容扫描不会把
+`docs/node_modules` 中依赖包的 Markdown 当成公开页面。`docs/.silen/config.ts` 的 SSR 隔离
+插件还会统一打包文档运行时依赖，防止父目录 `node_modules` 注入第二份 React 并破坏静态
+渲染。两项配置都是可复现构建边界，不能作为普通清理删除。

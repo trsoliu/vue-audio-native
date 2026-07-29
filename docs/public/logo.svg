@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title">
+  <title id="title">Vue Audio Native waveform</title>
+  <rect width="160" height="160" rx="38" fill="#0a0d0b"/>
+  <path d="M30 86h16l9-34 15 64 16-83 13 54h31" fill="none" stroke="#b7ff48" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

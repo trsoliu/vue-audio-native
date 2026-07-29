@@ -1,0 +1,26 @@
+---
+title: 发布知识库
+description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费者验证的发布顺序。
+---
+
+# 发布知识库
+
+## 发布链
+
+1. 两个仓库完成 lint、类型、覆盖率、build、Silen audit/eval、pack 和浏览器 E2E。
+2. 核验 npm 登录与 `vue-audio-native` 原包维护权限；权限缺失时停止，不改包名。
+3. 先发布 `@trsoliu/audio-core@1.0.0-beta.1 --tag next`。
+4. 再发布 `vue-audio-native@1.0.0-beta.1 --tag next`，随后让 React 仓库从 registry 安装。
+5. 在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包。
+6. 真机证据完成前保持 beta；完成后才设置 Vue 2 `legacy` 并发布稳定 1.0。
+
+## 证据不是声明
+
+本地 workspace link、成功的 `npm pack` 或桌面浏览器 E2E 都不能证明 registry 安装和宿主
+WebView 行为。发布记录必须保留包版本、dist-tag、registry 查询、消费者构建、设备信息、
+commit SHA 与对应 CI URL。
+
+## 稳定发布
+
+稳定版通过 GitHub Actions Trusted Publishing、OIDC 与 provenance 发布。工作流不保存长期
+npm token。任何待处理的[真机冒烟](../device-smoke/)都会阻止 stable Changesets PR 合并。

@@ -16,6 +16,7 @@ packages/audio-core        零框架依赖的音频状态内核
 packages/vue-audio-native  Vue 3 组件、插件与 composable
 fixtures/vite-vue          Vite 消费者构建验证
 fixtures/nuxt              Nuxt SSR 消费者构建验证
+docs                       Silen 文档站、项目地图与 AI 知识库
 ```
 
 ## Development
@@ -30,12 +31,22 @@ pnpm lint
 pnpm typecheck
 pnpm test:coverage
 pnpm build
+pnpm docs:build
+pnpm docs:index
+pnpm docs:audit
+pnpm docs:eval
 pnpm test:pack
 pnpm test:e2e
 ```
 
-架构决策见 [`docs/adr`](docs/adr)，浏览器支持边界见
-[`docs/compatibility.md`](docs/compatibility.md)。
+文档站本地启动：`pnpm docs:dev --host 127.0.0.1 --port 5175`。项目地图见
+[`docs/project-map`](docs/project-map/index.mdx)，架构决策见 [`docs/adr`](docs/adr)，
+浏览器支持边界见 [`docs/compatibility.md`](docs/compatibility.md)。合并到 `master` 后，
+GitHub Pages 会发布到 <https://trsoliu.github.io/vue-audio-native/>。
+
+AI 客户端先阅读 [`AGENTS.md`](AGENTS.md)。文档构建会同时生成 `llms.txt`、
+`llms-full.txt`、结构化搜索索引和公开的 Silen Agent Contract；本地只读知识库可通过
+`pnpm docs:mcp` 接入。
 
 ## License
 
