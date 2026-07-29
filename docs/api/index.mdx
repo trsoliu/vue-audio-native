@@ -1,0 +1,52 @@
+---
+title: 公共 API
+description: Vue 组件、composable、共享类型、事件、插槽与命令句柄。
+---
+
+# 公共 API
+
+## 导出
+
+`vue-audio-native` 导出：
+
+- `VueAudioNative`，别名 `AudioPlayer`；
+- 默认插件，可通过 `app.use()` 注册；
+- `useAudioPlayer()`；
+- `createAudioController()`、能力检测和时间格式化工具；
+- `AudioTrack`、`AudioSnapshot`、`AudioPlayerError`、`AudioPlayerHandle`、
+  `AudioPlayerBridge` 等公共类型。
+
+## 现代 props
+
+| prop             | 类型                      | 说明                           |
+| ---------------- | ------------------------- | ------------------------------ |
+| `tracks`         | `readonly AudioTrack[]`   | 播放列表与多格式 source 回退   |
+| `src`            | `AudioSourceInput`        | 单曲输入                       |
+| `nativeControls` | `boolean`                 | 强制浏览器原生控件             |
+| `repeatMode`     | `'off' \| 'one' \| 'all'` | 循环策略                       |
+| `playbackRate`   | `number`                  | 倍速，内核限制为 0.25–4        |
+| `mediaSession`   | `boolean`                 | 锁屏元数据与媒体按键，显式开启 |
+| `exclusive`      | `boolean`                 | 与同 `group` 实例互斥          |
+| `group`          | `string`                  | 实例协调分组                   |
+
+旧 `url`、`size`、`showCurrentTime`、`showControls`、`showVolume`、`showDownload`、
+`autoplay`、`waitBuffer`、`downloadName` 和 `hint` 继续受支持。
+
+## 事件
+
+现代事件为 `ready`、`play`、`pause`、`ended`、`timeupdate`、`statechange`、
+`trackchange` 和 `error`。旧事件 `on-change`、`on-timeupdate`、`on-metadata`、
+`on-audioId` 保持兼容。
+
+## 命令句柄
+
+组件通过 `defineExpose` 暴露 `AudioPlayerHandle`：播放、暂停、切换、停止、跳转、前后
+跳、选曲、上一首/下一首、音量、静音、倍速、循环模式和原生媒体元素访问。
+
+## 插槽
+
+保留 `slotTip`，并提供 `tip`、`artwork`、`before-controls`、`after-controls`。所有图标按钮
+均有可访问名称，键盘、Pointer 和触摸共用同一命令接口。
+
+具体签名以 npm 包生成的 `.d.ts` 为准；发布门禁通过 Are The Types Wrong 和
+`publint` 验证 ESM、CJS 与类型解析。

@@ -1,0 +1,89 @@
+---
+title: 安装与快速开始
+description: 在 Vue 3、Vite 和 Nuxt 中接入 Vue Audio Native 1.0。
+---
+
+# 安装与快速开始
+
+## 安装
+
+Vue 3.3 及以上项目安装 1.0 预发布版本：
+
+```bash
+pnpm add vue-audio-native@next
+```
+
+播放器 CSS 是独立发布产物，消费者不需要安装或配置 Tailwind：
+
+```ts
+import { createApp } from 'vue'
+import VueAudioNative from 'vue-audio-native'
+import 'vue-audio-native/style.css'
+
+createApp(App).use(VueAudioNative).mount('#app')
+```
+
+## 推荐组件 API
+
+```vue
+<script setup lang="ts">
+import { VueAudioNative, type AudioTrack } from 'vue-audio-native'
+import 'vue-audio-native/style.css'
+
+const tracks: readonly AudioTrack[] = [
+  {
+    id: 'episode-1',
+    title: 'Episode 1',
+    artist: 'Audio Native',
+    sources: [
+      { src: '/episode-1.ogg', type: 'audio/ogg' },
+      { src: '/episode-1.mp3', type: 'audio/mpeg' },
+    ],
+  },
+]
+</script>
+
+<template>
+  <VueAudioNative
+    :tracks="tracks"
+    repeat-mode="all"
+    media-session
+    @statechange="(snapshot) => console.log(snapshot.state)"
+  />
+</template>
+```
+
+输入优先级固定为：非空 `tracks` → `src` → 旧 `url`。开发环境会对冲突输入给出警告。
+
+## Headless composable
+
+```vue
+<script setup lang="ts">
+import { useAudioPlayer } from 'vue-audio-native'
+
+const { audioRef, controls, snapshot } = useAudioPlayer({
+  src: '/episode-1.mp3',
+  group: 'podcast',
+  exclusive: true,
+})
+</script>
+
+<template>
+  <audio :ref="audioRef" />
+  <button type="button" @click="controls.toggle()">
+    {{ snapshot.state === 'playing' ? 'Pause' : 'Play' }}
+  </button>
+</template>
+```
+
+## Nuxt 与 SSR
+
+包在导入阶段不创建媒体元素。组件仍然需要在浏览器挂载后才可播放；Nuxt fixture 会在
+每次 `pnpm build` 中验证服务端构建。不要在模块顶层访问 `window`、`document` 或构造
+`Audio`。
+
+## 下一步
+
+- 旧项目先阅读[迁移指南](../migration-v1/)。
+- 完整类型和事件见[公共 API](../api/)。
+- WebView 宿主接入前阅读[浏览器与 WebView](../wiki/browser-webview/)。

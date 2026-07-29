@@ -1,0 +1,21 @@
+{
+  "name": "fixture-nuxt",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "lint": "eslint app.vue nuxt.config.ts",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "nuxt": "4.5.1",
+    "vue": "catalog:",
+    "vue-audio-native": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "6.0.2",
+    "vue-tsc": "3.3.8"
+  }
+}

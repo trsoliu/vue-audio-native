@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "topK": 5,
+  "cases": [
+    {
+      "id": "vue3-install",
+      "query": "Vue 3 Vite 如何安装播放器并导入独立 CSS",
+      "lang": "zh-CN",
+      "expected": { "route": "/guide/getting-started/" }
+    },
+    {
+      "id": "vue2-legacy",
+      "query": "Vue 2 应该使用哪个 legacy 版本和 npm 标签",
+      "lang": "zh-CN",
+      "expected": { "route": "/migration-v1/" }
+    },
+    {
+      "id": "workspace-boundary",
+      "query": "audio-core Vue adapter demo fixtures 的依赖边界和项目地图",
+      "lang": "zh-CN",
+      "expected": { "route": "/project-map/" }
+    },
+    {
+      "id": "harmony-webview",
+      "query": "HarmonyOS ArkWeb WebView 如何能力检测和降级",
+      "lang": "zh-CN",
+      "expected": { "route": "/wiki/browser-webview/" }
+    },
+    {
+      "id": "stable-device-gate",
+      "query": "稳定 1.0 发布前必须完成哪些 iOS Android 鸿蒙真机测试",
+      "lang": "zh-CN",
+      "expected": { "route": "/device-smoke/" }
+    },
+    {
+      "id": "read-only-mcp",
+      "query": "AI 客户端如何只读访问 Silen MCP 知识库",
+      "lang": "zh-CN",
+      "expected": { "route": "/wiki/ai-collaboration/" }
+    }
+  ]
+}

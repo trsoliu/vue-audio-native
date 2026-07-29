@@ -1,0 +1,101 @@
+:root {
+  color: #e8fff0;
+  background: #050806;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: radial-gradient(circle at 10% 0, #123b24, transparent 34rem), #050806;
+}
+
+main {
+  width: min(72rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 4rem 0;
+}
+
+header {
+  max-width: 54rem;
+  margin-bottom: 3rem;
+}
+
+h1 {
+  margin: 0.5rem 0 1rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(2.4rem, 7vw, 5.5rem);
+  line-height: 0.96;
+}
+
+h2 {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.eyebrow,
+dt {
+  color: #72f98f;
+}
+
+section {
+  margin-top: 1.5rem;
+  border: 1px solid #26422f;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: rgb(7 14 9 / 82%);
+}
+
+.matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+}
+
+.matrix div {
+  border-top: 1px solid #26422f;
+  padding-top: 0.75rem;
+}
+
+dd {
+  margin: 0.35rem 0 0;
+}
+
+dd[data-supported='false'] {
+  color: #ffad7a;
+}
+
+audio {
+  width: 100%;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid #72f98f;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: inherit;
+}
+
+button:focus-visible {
+  outline: 2px solid #72f98f;
+  outline-offset: 3px;
+}
+
+pre {
+  max-height: 22rem;
+  overflow: auto;
+  white-space: pre-wrap;
+}

@@ -1,0 +1,39 @@
+---
+title: 状态与适配架构
+description: audio-core、HTMLAudioElement、Vue 响应式适配与宿主能力的职责边界。
+---
+
+# 状态与适配架构
+
+## 状态流
+
+`createAudioController()` 接管一个由框架挂载的 `HTMLAudioElement`。媒体事件更新不可变
+`AudioSnapshot`，订阅者再将快照映射到 Vue 响应式状态。控制命令始终回到同一个
+`AudioPlayerHandle`。
+
+```text
+HTMLAudioElement events
+        ↓
+@trsoliu/audio-core controller
+        ↓ immutable AudioSnapshot
+Vue composable / component
+        ↓
+accessible controls + public events + slots
+```
+
+模块导入不会创建媒体元素；`attach()` 发生在挂载之后，`destroy()` 移除事件、动画帧、
+互斥分组和 Media Session 所有权。被销毁的控制器不能再次挂载。
+
+## 状态语义
+
+公开状态为 `idle`、`loading`、`ready`、`playing`、`paused`、`buffering`、`ended`、
+`error`。状态由 `loadstart`、`canplay`、`play`、`playing`、`pause`、`waiting`、`ended` 和
+`error` 等标准事件驱动；不轮询 `readyState`。
+
+自动播放阻止属于可恢复的 `AUTOPLAY_BLOCKED`，控件保持可用。媒体资源失败才进入结构化
+错误映射，并在多 source 输入中尝试下一格式。
+
+## 框架适配边界
+
+Vue 层负责 props 优先级、旧 API 翻译、emits、slots、`defineExpose` 和模板可访问性；
+播放列表、循环、缓冲、时间、错误、互斥与 Media Session 行为全部属于 core。

@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["e2e/**/*.ts", "eslint.config.ts", "playwright.config.ts"]
+}

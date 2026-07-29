@@ -1,0 +1,35 @@
+packages:
+  - apps/*
+  - packages/*
+  - fixtures/*
+
+autoInstallPeers: false
+allowBuilds:
+  esbuild: true
+  vue-demi: true
+
+linkWorkspacePackages: true
+preferWorkspacePackages: true
+saveExact: true
+strictPeerDependencies: true
+
+overrides:
+  'brace-expansion@<=5.0.7': 5.0.8
+  'decode-uri-component@<0.2.1': 0.2.2
+  'glob@>=11.0.0 <11.1.0': 11.1.0
+  'postcss-styl>stylus': 0.64.0
+
+catalog:
+  '@playwright/test': 1.62.0
+  '@tailwindcss/vite': 4.3.3
+  '@vitejs/plugin-vue': 6.0.8
+  '@vitest/coverage-v8': 4.1.10
+  tailwindcss: 4.3.3
+  vite: 8.1.5
+  vitest: 4.1.10
+  vue: 3.5.40
+
+minimumReleaseAgeExclude:
+  - '@size-limit/file@13.0.2'
+  - size-limit@13.0.2
+  - shadcn-vue@2.8.1

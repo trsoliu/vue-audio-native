@@ -1,0 +1,33 @@
+---
+layout: home
+title: Vue Audio Native
+description: Vue 3 audio player documentation, project map and AI-ready browser knowledge base.
+---
+
+## 这套文档解决什么问题
+
+Vue Audio Native 1.0 不只是一个播放器组件。它把浏览器媒体状态、Vue 适配、旧 API
+兼容、WebView 能力检测、发布约束和真机证据放进同一套可验证契约。
+
+如果你是使用者，从[快速开始](./guide/getting-started/)进入；如果你在维护项目，先看
+[项目地图](./project-map/)和[架构知识](./wiki/architecture/)；如果你是 AI 客户端，读取
+构建生成的 `/.well-known/silen/manifest.json`，并保持只读直到用户明确授权写入。
+
+## 当前发布状态
+
+- 源码目标版本：`@trsoliu/audio-core@1.0.0-beta.1` 与
+  `vue-audio-native@1.0.0-beta.1`。
+- Vue 2 继续使用 `vue-audio-native@0.1.41`，稳定发布前会设置 `legacy` 标签。
+- 稳定 `1.0.0` 仍由 iOS WKWebView、Android WebView 和 HarmonyOS ArkWeb 的
+  [真机冒烟记录](./device-smoke/)控制。
+
+## 快速索引
+
+| 目标                             | 文档                                        |
+| -------------------------------- | ------------------------------------------- |
+| 安装并播放第一段音频             | [安装与快速开始](./guide/getting-started/)  |
+| 从 0.x 或 Vue 2 迁移             | [Vue 1.0 迁移指南](./migration-v1/)         |
+| 查找 props、事件、插槽和句柄     | [公共 API](./api/)                          |
+| 理解 core、Vue、Demo 与 fixtures | [Monorepo 项目地图](./project-map/)         |
+| 处理浏览器/WebView 差异          | [浏览器与 WebView](./wiki/browser-webview/) |
+| 准备 beta 或稳定发布             | [发布知识库](./wiki/release/)               |
