@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "types": ["vitest/globals"]
+  },
+  "include": [
+    "scripts",
+    "src",
+    "tests",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
+}

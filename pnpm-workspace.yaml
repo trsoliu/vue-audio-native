@@ -1,0 +1,17 @@
+packages:
+  - apps/*
+  - packages/*
+  - fixtures/*
+
+allowBuilds:
+  esbuild: true
+
+catalog:
+  '@playwright/test': 1.62.0
+  '@tailwindcss/vite': 4.3.3
+  '@vitejs/plugin-vue': 6.0.8
+  '@vitest/coverage-v8': 4.1.10
+  tailwindcss: 4.3.3
+  vite: 8.1.5
+  vitest: 4.1.10
+  vue: 3.5.40

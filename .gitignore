@@ -1,24 +1,16 @@
 .DS_Store
+.env
+.env.*
+!.env.example
+.turbo
+.vite
+coverage
+dist
 node_modules
-/dist
-
-/tests/e2e/reports/
-selenium-debug.log
-
-# local env files
-.env.local
-.env.*.local
-
-# Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Editor directories and files
+playwright-report
+test-results
+types-temp
+*.log
+*.tgz
 .idea
 .vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw*
