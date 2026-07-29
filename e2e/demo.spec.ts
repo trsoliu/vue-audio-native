@@ -1,12 +1,25 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
+
+async function silenceHeadlessFirefox(
+  browserName: string,
+  audio: Locator,
+): Promise<void> {
+  if (browserName !== 'firefox' || !process.env.CI) return
+  await audio.evaluate((element) => {
+    (element as HTMLAudioElement).muted = true
+  })
+}
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
   await expect(page).toHaveTitle(/Vue Audio Native/)
 })
 
-test('plays generated audio with keyboard and pointer accessible controls', async ({ page }) => {
+test('plays generated audio with keyboard and pointer accessible controls', async ({
+  browserName,
+  page,
+}) => {
   const player = page.locator('.audio-native').first()
   await expect(player).toHaveAttribute('data-state', /ready|paused/)
   await expect(page.getByRole('slider', { name: 'Audio progress' }).first()).toBeVisible()
@@ -15,6 +28,7 @@ test('plays generated audio with keyboard and pointer accessible controls', asyn
     /neon-room\.wav$/,
   )
 
+  await silenceHeadlessFirefox(browserName, player.locator('audio'))
   await page.getByRole('button', { name: 'Play audio' }).first().click()
   await expect(player).toHaveAttribute('data-state', 'playing')
   await expect(page.getByRole('button', { name: 'Pause audio' }).first()).toBeVisible()
@@ -66,10 +80,15 @@ test('keeps settings focus inside the Sheet or Drawer and restores it on close',
   await expect(page.locator('.audio-native').first().locator('audio')).toHaveAttribute('controls', '')
 })
 
-test('coordinates exclusive players in the same group', async ({ page }) => {
-  const groupedPlayers = page.locator('section').filter({ hasText: '多实例互斥播放' }).locator('.audio-native')
+test('coordinates exclusive players in the same group', async ({ browserName, page }) => {
+  const groupedPlayers = page
+    .locator('section')
+    .filter({ hasText: '多实例互斥播放' })
+    .locator('.audio-native')
   await expect(groupedPlayers).toHaveCount(2)
 
+  await silenceHeadlessFirefox(browserName, groupedPlayers.nth(0).locator('audio'))
+  await silenceHeadlessFirefox(browserName, groupedPlayers.nth(1).locator('audio'))
   await groupedPlayers.nth(0).getByRole('button', { name: 'Play audio' }).click()
   await expect(groupedPlayers.nth(0)).toHaveAttribute('data-state', 'playing')
   await groupedPlayers.nth(1).getByRole('button', { name: 'Play audio' }).click()
