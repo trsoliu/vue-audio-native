@@ -5,10 +5,23 @@ package changelogs are managed by Changesets.
 
 ## Unreleased
 
+- No changes have been recorded after 1.0.1.
+
+## 1.0.1 - 2026-07-30
+
+- Published `@trsoliu/audio-core@1.0.1` and `vue-audio-native@1.0.1` through OIDC Trusted
+  Publishing with provenance, then verified fresh Vite Vue and Nuxt SSR registry consumers.
 - Corrected the stable npm installation guidance for core and Vue, and made Changesets keep package
   README version examples synchronized with every generated release.
 - Restricted stable OIDC publication to an allowlisted Changesets version commit and repeated the
   live default-branch head check immediately before publishing.
+- Preserved `vue-audio-native@legacy` at `0.1.41` and both prerelease lines on their existing `next`
+  tags.
+- Changed no runtime audio behavior from 1.0.0; the maintainer accepted the explicitly documented
+  residual risk from unexecuted physical WebView device tests.
+
+## 1.0.0 - 2026-07-30
+
 - Published `@trsoliu/audio-core@1.0.0` and `vue-audio-native@1.0.0` with provenance, kept Vue 2 on
   `vue-audio-native@legacy`, and verified clean Vite, Nuxt, React and Next registry consumers.
 - Accepted the maintainer's version-bound automated compatibility assessment for stable 1.0.0,
