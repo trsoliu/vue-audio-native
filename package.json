@@ -33,7 +33,7 @@
     "release:inspect": "tsx scripts/release-state.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
     "release:next": "tsx scripts/publish-prerelease.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
     "release:verify-prerelease": "tsx scripts/prerelease-gate.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
-    "release:verify-devices": "tsx scripts/device-smoke-gate.ts docs/device-smoke.md"
+    "release:verify-stable": "tsx scripts/stable-release-gate.ts docs/device-smoke.md packages/audio-core/package.json packages/vue-audio-native/package.json"
   },
   "devDependencies": {
     "@aicode-nexus/silen": "0.4.0",

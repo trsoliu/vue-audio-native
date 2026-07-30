@@ -85,7 +85,8 @@ component JavaScript under 25 KB gzip and CSS under 12 KB gzip.
 - Publish `@trsoliu/audio-core` before the matching Vue and React versions.
 - Verify npm ownership for the existing `vue-audio-native` name; never silently rename it.
 - Prereleases use the `next` dist-tag. Vue 2 remains on `0.1.41` via `legacy` before stable release.
-- Do not publish stable `1.0.0` while any required row in `docs/device-smoke.md` is pending.
+- Stable publication requires either complete device rows or the explicit, version-bound maintainer
+  assessment defined in `docs/device-smoke.md`; never infer or fabricate either path.
 - Stable publishing uses GitHub Actions OIDC Trusted Publishing and provenance.
 - Never commit credentials, npm tokens, registry auth, device recordings or local filesystem paths.
 

@@ -5,6 +5,10 @@ package changelogs are managed by Changesets.
 
 ## Unreleased
 
+- Accepted the maintainer's version-bound automated compatibility assessment for stable 1.0.0,
+  while preserving unexecuted WebView rows as explicit residual risk instead of false test evidence.
+- Replaced the device-only stable gate with an auditable dual-path gate: complete device evidence or
+  an exact-version maintainer decision with automated assessment and risk acceptance.
 - Published `@trsoliu/audio-core@1.0.0-beta.2` and `vue-audio-native@1.0.0-beta.3` through OIDC
   Trusted Publishing with provenance, then verified clean Vite, Nuxt, React and Next consumers.
 - Added a mutually exclusive OIDC release path that waits until Changesets records every retained
@@ -13,7 +17,7 @@ package changelogs are managed by Changesets.
   reconfirms the live remote branch immediately before publication,
   tolerates multi-commit rebase merges, and verifies exact `next` tags before
   treating registry versions as complete while retrying transient registry failures; stable
-  publication still requires all four device-smoke rows.
+  publication still requires the documented evidence gate.
 - Expanded the Vue and audio-core API references with every public option, event payload, snapshot
   state, error code, command, slot, Bridge event and npm README usage contract; also corrected the
   headless Vue template ref example and clarified that low-level controller values come from
@@ -62,8 +66,8 @@ package changelogs are managed by Changesets.
 
 - `@trsoliu/audio-core@1.0.0-beta.1`, `vue-audio-native@1.0.0-beta.1` and
   `react-audio-native@1.0.0-beta.1` and the corrected `vue-audio-native@1.0.0-beta.2` are published.
-- Stable `1.0.0` remains blocked until iOS WKWebView, Android WebView and HarmonyOS ArkWeb smoke
-  evidence is complete.
+- Stable `1.0.0` is authorized by the recorded maintainer assessment and remains subject to the
+  complete automated, registry-consumer and OIDC publication gates.
 
 ### Security
 

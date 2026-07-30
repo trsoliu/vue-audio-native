@@ -13,7 +13,7 @@ description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费�
 4. 后续 OIDC 发布按 core beta.2 → Vue beta.3 → React beta.2 的顺序推进。
 5. 在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包与精确 core 依赖。
 6. 三个包与干净消费者回归全部通过后，将 `vue-audio-native@0.1.41` 设置为 `legacy`。
-7. 真机证据完成前保持 beta；完成后才发布稳定 1.0。
+7. 稳定 1.0 由完整真机证据或维护者版本绑定评估授权二选一放行，随后只通过 OIDC 发布。
 
 ## 首次 beta 引导发布（已完成）
 
@@ -45,7 +45,7 @@ npm 配置。完成顺序如下：
 
 ## 后续 beta（OIDC）
 
-后续 beta 在 Changesets `beta` pre mode 中生成版本，release PR 可以在真机表仍为“待验证”
+后续 beta 在 Changesets `beta` pre mode 中生成版本，release PR 可以在稳定证据尚未放行
 时合并。Changesets 在 pre mode 会保留源 changeset 文件，因此工作流只有在每个面向发布包
 的非空文件都已出现在 `pre.json` 的 consumed 列表中时，才认定 beta 版本 PR 已合并；仅面向
 私有 Demo/fixture 的 changeset 不阻塞 npm 发布，其他尚未消费的变更只会创建或更新版本 PR。
@@ -72,9 +72,9 @@ transition、祖先关系和完整 diff 白名单。push 与手动路径都会�
 适配器发布前还会确认其精确 `@trsoliu/audio-core` 版本已经由本次顺序发布或 npm registry
 提供，防止产生不可安装的依赖图。
 
-不处于 active pre mode（包括 `pre exit` 过渡）时，工作流只会走稳定发布分支，并继续
-强制执行四项真机门禁。因此 beta 发布不能把 `latest` 切到未验证的稳定版本，稳定发布也
-不能借用 `next` 路径绕过设备证据。
+不处于 active pre mode（包括 `pre exit` 过渡）时，工作流只会走稳定发布分支，并强制执行
+稳定证据门禁。因此 beta 发布不能把 `latest` 切到未评估的稳定版本，稳定发布也不能借用
+`next` 路径绕过版本绑定授权。
 
 本次切换先把随公开 beta 发布过的 `modern-audio-native` 与 `safe-vue-declarations` 记为
 consumed；随后 `clear-audio-api-docs` 也由 beta 版本 PR 消费，并生成已发布的 core beta.2
@@ -83,15 +83,17 @@ consumed；随后 `clear-audio-api-docs` 也由 beta 版本 PR 消费，并生�
 ## 证据不是声明
 
 本地 workspace link、成功的 `npm pack` 或桌面浏览器 E2E 都不能证明 registry 安装和宿主
-WebView 行为。发布记录必须保留包版本、dist-tag、registry 查询、消费者构建、设备信息、
-commit SHA 与对应 CI URL。
+WebView 行为。发布记录必须保留包版本、dist-tag、registry 查询、消费者构建、commit SHA、
+对应 CI URL，以及真机证据或维护者评估与风险接受记录。
 
 ## 稳定发布
 
 稳定版通过 GitHub Actions Trusted Publishing、OIDC 与 provenance 发布。工作流不保存长期
-npm token。`pnpm release:verify-devices` 会在 publish 之前解析[真机冒烟](../device-smoke/)
-的四个必需环境；任一状态不是精确的 `通过` 都会在 Actions 中阻断稳定发布，但不会阻止
-Changesets 创建或更新 release PR，也不会阻止显式 pre mode 的 `next` 预发布。
+npm token。`pnpm release:verify-stable` 会在 publish 之前解析
+[兼容性评估与真机记录](../device-smoke/)：四个必需环境都精确为 `通过` 时采用真机证据；
+否则必须提供维护者、ISO 日期、精确稳定版本覆盖、自动化评估 `通过` 和剩余风险 `已接受`。
+工作流会要求所有传入 manifest 要么匹配单一共享版本，要么被完整的 `包名@版本` 映射精确覆盖。
+1.0.0 采用维护者评估路径，未执行的真机项保持明确标记，不会被写成通过。
 
 Vue 仓库采用 core 与组件协调版本。`pnpm version-packages` 在 Changesets 更新 manifests 后
 立即以 `--lockfile-only --ignore-scripts` 刷新 pnpm lockfile，保证生成的 release PR 仍可通过
