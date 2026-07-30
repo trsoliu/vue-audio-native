@@ -5,6 +5,8 @@ package changelogs are managed by Changesets.
 
 ## Unreleased
 
+- Published `@trsoliu/audio-core@1.0.0-beta.2` and `vue-audio-native@1.0.0-beta.3` through OIDC
+  Trusted Publishing with provenance, then verified clean Vite, Nuxt, React and Next consumers.
 - Added a mutually exclusive OIDC release path that waits until Changesets records every retained
   beta changeset for a publishable package as consumed, binds publication to an ancestor-verified
   versioning push, supports an exact-SHA-bound default-branch recovery after a failed release run,

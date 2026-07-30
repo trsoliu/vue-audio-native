@@ -9,11 +9,10 @@ description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费�
 
 1. 两个仓库完成 lint、类型、覆盖率、build、Silen audit/eval、pack 和浏览器 E2E。
 2. 核验 npm 身份与 `vue-audio-native` 原包维护权限；权限缺失时停止，不改包名。
-3. 先发布 `@trsoliu/audio-core@1.0.0-beta.1 --tag next`。
-4. Vue 初始 beta.1 发布后发现严格 TypeScript 声明回归，因此发布
-   `vue-audio-native@1.0.0-beta.2 --tag next`，随后让 React 仓库从 registry 安装。
-5. 发布 React beta，并在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包。
-6. 三个 beta 与干净消费者回归全部通过后，将 `vue-audio-native@0.1.41` 设置为 `legacy`。
+3. 首次引导发布 core beta.1、Vue beta.1，并以 Vue beta.2 修复严格 TypeScript 声明回归。
+4. 后续 OIDC 发布按 core beta.2 → Vue beta.3 → React beta.2 的顺序推进。
+5. 在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包与精确 core 依赖。
+6. 三个包与干净消费者回归全部通过后，将 `vue-audio-native@0.1.41` 设置为 `legacy`。
 7. 真机证据完成前保持 beta；完成后才发布稳定 1.0。
 
 ## 首次 beta 引导发布（已完成）
@@ -77,9 +76,9 @@ transition、祖先关系和完整 diff 白名单。push 与手动路径都会�
 强制执行四项真机门禁。因此 beta 发布不能把 `latest` 切到未验证的稳定版本，稳定发布也
 不能借用 `next` 路径绕过设备证据。
 
-本次切换已把随公开 beta 发布过的 `modern-audio-native` 与 `safe-vue-declarations` 记为
-consumed；发布时间晚于现有 beta 的 `clear-audio-api-docs` 仍保持 pending，并且是下一份
-version PR 的唯一变更输入。
+本次切换先把随公开 beta 发布过的 `modern-audio-native` 与 `safe-vue-declarations` 记为
+consumed；随后 `clear-audio-api-docs` 也由 beta 版本 PR 消费，并生成已发布的 core beta.2
+与 Vue beta.3。
 
 ## 证据不是声明
 
