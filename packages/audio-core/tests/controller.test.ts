@@ -259,6 +259,41 @@ describe('createAudioController', () => {
     })
   })
 
+  it('keeps volume and playback rate finite when inputs are non-finite', () => {
+    const audio = new FakeAudioElement()
+    const controller = createAudioController({
+      playbackRate: Number.POSITIVE_INFINITY,
+      src: 'one.mp3',
+      volume: Number.NaN,
+    })
+
+    expect(controller.getSnapshot()).toMatchObject({
+      playbackRate: 1,
+      volume: 1,
+    })
+
+    controller.attach(audio.asAudioElement())
+    controller.setVolume(Number.NaN)
+    controller.setPlaybackRate(Number.NEGATIVE_INFINITY)
+
+    expect(controller.getSnapshot()).toMatchObject({
+      playbackRate: 1,
+      volume: 1,
+    })
+    expect(audio.playbackRate).toBe(1)
+    expect(audio.volume).toBe(1)
+
+    audio.volume = Number.NaN
+    audio.playbackRate = Number.POSITIVE_INFINITY
+    audio.emit('volumechange')
+    audio.emit('ratechange')
+
+    expect(controller.getSnapshot()).toMatchObject({
+      playbackRate: 1,
+      volume: 1,
+    })
+  })
+
   it('supports skip, previous, next, and validated track selection', async () => {
     const audio = new FakeAudioElement()
     audio.duration = 100

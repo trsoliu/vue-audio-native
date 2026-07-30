@@ -31,6 +31,13 @@ let activeMediaSessionOwner: string | null = null
 const clamp = (value: number, minimum: number, maximum: number): number =>
   Math.min(maximum, Math.max(minimum, value))
 
+const clampFinite = (
+  value: number,
+  fallback: number,
+  minimum: number,
+  maximum: number,
+): number => (Number.isFinite(value) ? clamp(value, minimum, maximum) : fallback)
+
 const finiteOrNull = (value: number): number | null =>
   Number.isFinite(value) && value >= 0 ? value : null
 
@@ -68,12 +75,12 @@ export function createAudioController(
     duration: null,
     error: null,
     muted: options.muted ?? false,
-    playbackRate: clamp(options.playbackRate ?? 1, 0.25, 4),
+    playbackRate: clampFinite(options.playbackRate ?? 1, 1, 0.25, 4),
     repeatMode: options.repeatMode ?? 'off',
     state: 'idle',
     track: tracks[trackIndex] ?? null,
     trackIndex,
-    volume: clamp(options.volume ?? 1, 0, 1),
+    volume: clampFinite(options.volume ?? 1, 1, 0, 1),
   })
 
   function emitBridge(event: AudioBridgeEvent): void {
@@ -120,8 +127,13 @@ export function createAudioController(
         : 0,
       duration: finiteOrNull(element.duration),
       muted: element.muted,
-      playbackRate: element.playbackRate,
-      volume: element.volume,
+      playbackRate: clampFinite(
+        element.playbackRate,
+        snapshot.playbackRate,
+        0.25,
+        4,
+      ),
+      volume: clampFinite(element.volume, snapshot.volume, 0, 1),
     })
   }
 
@@ -285,11 +297,23 @@ export function createAudioController(
 
   function onVolumeChange(): void {
     if (!element) return
-    patch({ muted: element.muted, volume: element.volume })
+    patch({
+      muted: element.muted,
+      volume: clampFinite(element.volume, snapshot.volume, 0, 1),
+    })
   }
 
   function onRateChange(): void {
-    if (element) patch({ playbackRate: element.playbackRate })
+    if (element) {
+      patch({
+        playbackRate: clampFinite(
+          element.playbackRate,
+          snapshot.playbackRate,
+          0.25,
+          4,
+        ),
+      })
+    }
   }
 
   function onError(): void {
@@ -456,6 +480,7 @@ export function createAudioController(
   }
 
   function setVolume(volume: number): void {
+    if (!Number.isFinite(volume)) return
     const next = clamp(volume, 0, 1)
     if (element) element.volume = next
     patch({ volume: next })
@@ -467,6 +492,7 @@ export function createAudioController(
   }
 
   function setPlaybackRate(playbackRate: number): void {
+    if (!Number.isFinite(playbackRate)) return
     const next = clamp(playbackRate, 0.25, 4)
     if (element) element.playbackRate = next
     patch({ playbackRate: next })

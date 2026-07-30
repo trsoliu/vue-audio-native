@@ -39,6 +39,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.unstubAllEnvs()
   vi.restoreAllMocks()
 })
 
@@ -64,6 +65,21 @@ describe('VueAudioNative', () => {
 
     expect(wrapper.get('audio').attributes('src')).toContain('track-one.mp3')
     expect(warning).toHaveBeenCalledOnce()
+  })
+
+  it('does not warn about conflicting inputs in production', () => {
+    vi.stubEnv('DEV', false)
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    mount(VueAudioNative, {
+      props: {
+        src: '/modern.mp3',
+        tracks,
+        url: '/legacy.mp3',
+      },
+    })
+
+    expect(warning).not.toHaveBeenCalled()
   })
 
   it('preserves legacy props, events, slot, and audio id behavior', async () => {

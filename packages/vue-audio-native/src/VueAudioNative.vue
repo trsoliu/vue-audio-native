@@ -94,7 +94,7 @@ watch(
       Number(Number(trackCount) > 0) +
       Number(Boolean(modernSource)) +
       Number(Boolean(legacySource))
-    if (inputCount > 1) {
+    if (import.meta.env.DEV && inputCount > 1) {
       console.warn(
         '[vue-audio-native] Multiple audio inputs were provided. Using tracks, then src, then url.',
       )

@@ -69,7 +69,7 @@ const { audioRef, controls, snapshot } = useAudioPlayer({
 </script>
 
 <template>
-  <audio :ref="audioRef" />
+  <audio ref="audioRef" />
   <button type="button" @click="controls.toggle()">
     {{ snapshot.state === 'playing' ? 'Pause' : 'Play' }}
   </button>

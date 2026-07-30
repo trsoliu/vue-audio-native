@@ -19,6 +19,19 @@ fixtures/nuxt              Nuxt SSR 消费者构建验证
 docs                       Silen 文档站、项目地图与 AI 知识库
 ```
 
+## Public API
+
+- Vue 组件的完整 props、现代/兼容事件 payload、状态、错误、句柄、composable 和插槽见
+  [`docs/api`](docs/api/index.mdx)。
+- npm 上的 Vue 接入材料来自
+  [`packages/vue-audio-native/README.md`](packages/vue-audio-native/README.md)。
+- `@trsoliu/audio-core` 的 controller、snapshot 订阅和 Bridge Events 见
+  [`packages/audio-core/README.md`](packages/audio-core/README.md)。
+
+组件事件描述的是 `AudioSnapshot` 状态变化，并非原生 `<audio>` 事件的逐条透传。需要直接
+创建 controller 时请从 `@trsoliu/audio-core` 导入 `createAudioController()`；Vue 包只暴露
+组件、composable、适配层工具和共享类型。
+
 ## Development
 
 要求 Node.js 22.22.2 及以上、Corepack 和 pnpm 11.17.0。

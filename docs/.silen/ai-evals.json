@@ -15,6 +15,18 @@
       "expected": { "route": "/migration-v1/" }
     },
     {
+      "id": "vue-event-payloads",
+      "query": "Vue ready play buffering timeupdate trackchange error 事件在什么时候触发 payload 是什么",
+      "lang": "zh-CN",
+      "expected": { "route": "/api/" }
+    },
+    {
+      "id": "core-bridge-events",
+      "query": "audio-core Bridge statechange trackchange error 的完整消息结构和解绑方式",
+      "lang": "zh-CN",
+      "expected": { "route": "/api/" }
+    },
+    {
       "id": "workspace-boundary",
       "query": "audio-core Vue adapter demo fixtures 的依赖边界和项目地图",
       "lang": "zh-CN",

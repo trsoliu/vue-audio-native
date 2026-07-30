@@ -4,19 +4,25 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
 export default defineConfig(({ mode }) => {
+  const developmentBuild = mode === 'development'
   const globalBuild = mode === 'global'
+  const libraryBuild = mode === 'library'
 
   return {
     build: {
-      emptyOutDir: !globalBuild,
+      emptyOutDir: libraryBuild,
       lib: {
         cssFileName: 'style',
         entry: globalBuild ? 'src/global.ts' : 'src/index.ts',
         fileName: (format) =>
           format === 'es'
-            ? 'index.js'
+            ? developmentBuild
+              ? 'index.development.js'
+              : 'index.js'
             : format === 'cjs'
-              ? 'index.cjs'
+              ? developmentBuild
+                ? 'index.development.cjs'
+                : 'index.cjs'
               : 'vue-audio-native.global.js',
         formats: globalBuild ? ['iife'] : ['es', 'cjs'],
         name: 'VueAudioNative',
@@ -35,17 +41,20 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
       target: 'es2019',
     },
+    define: {
+      'import.meta.env.DEV': JSON.stringify(developmentBuild),
+    },
     plugins: [
       vue(),
       tailwindcss(),
-      ...(globalBuild
-        ? []
-        : [
+      ...(libraryBuild
+        ? [
             dts({
               bundleTypes: true,
               include: ['src'],
             }),
-          ]),
+          ]
+        : []),
     ],
   }
 })
