@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
@@ -29,5 +29,18 @@ describe('stable npm release workflow', () => {
     for (const reference of actionReferences) {
       expect(reference[1]).toMatch(/^[a-f0-9]{40}$/)
     }
+  })
+
+  it('uses OIDC without retaining bootstrap token credentials', async () => {
+    const workflowsDirectory = resolve(repositoryRoot, '.github/workflows')
+    const workflowFiles = await readdir(workflowsDirectory)
+    const workflows = await Promise.all(
+      workflowFiles.map((file) =>
+        readFile(resolve(workflowsDirectory, file), 'utf8'),
+      ),
+    )
+
+    expect(workflows.join('\n')).not.toContain('NPM_BOOTSTRAP_TOKEN')
+    expect(await readFile(workflowPath, 'utf8')).toContain('id-token: write')
   })
 })

@@ -17,6 +17,8 @@ package changelogs are managed by Changesets.
   Trusted Publishing workflow to an immutable commit.
 - Fixed the published Vue declaration bundle so strict TypeScript consumers can resolve component
   props, events, slots and exposed controls without private `__VLS_*` compiler symbols.
+- Retired the short-lived token bootstrap workflow after beta publication, clean registry-consumer
+  verification and Vue 2 `legacy` tag finalization; permanent releases use OIDC only.
 
 ### Added
 
@@ -40,8 +42,7 @@ package changelogs are managed by Changesets.
 ### Release boundary
 
 - `@trsoliu/audio-core@1.0.0-beta.1`, `vue-audio-native@1.0.0-beta.1` and
-  `react-audio-native@1.0.0-beta.1` are published; the Vue declaration correction is prepared as
-  `vue-audio-native@1.0.0-beta.2`.
+  `react-audio-native@1.0.0-beta.1` and the corrected `vue-audio-native@1.0.0-beta.2` are published.
 - Stable `1.0.0` remains blocked until iOS WKWebView, Android WebView and HarmonyOS ArkWeb smoke
   evidence is complete.
 
