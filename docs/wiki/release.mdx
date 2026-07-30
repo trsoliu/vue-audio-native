@@ -14,6 +14,8 @@ description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费�
 5. 在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包与精确 core 依赖。
 6. 三个包与干净消费者回归全部通过后，将 `vue-audio-native@0.1.41` 设置为 `legacy`。
 7. 稳定 1.0 由完整真机证据或维护者版本绑定评估授权二选一放行，随后只通过 OIDC 发布。
+8. 1.0.1 通过同一评估路径发布 core 与 Vue 的文档和发布安全补丁，并用全新 Vite Vue 与
+   Nuxt SSR 消费者复核 npm Registry；这次补丁没有改变音频运行时。
 
 ## 首次 beta 引导发布（已完成）
 
@@ -98,7 +100,12 @@ npm token。`pnpm release:verify-stable` 会在 publish 之前解析
 [兼容性评估与真机记录](../device-smoke/)：四个必需环境都精确为 `通过` 时采用真机证据；
 否则必须提供维护者、ISO 日期、精确稳定版本覆盖、自动化评估 `通过` 和剩余风险 `已接受`。
 工作流会要求所有传入 manifest 要么匹配单一共享版本，要么被完整的 `包名@版本` 映射精确覆盖。
-1.0.0 采用维护者评估路径，未执行的真机项保持明确标记，不会被写成通过。
+1.0.0 与 1.0.1 采用维护者评估路径，未执行的真机项保持明确标记，不会被写成通过。
+
+1.0.1 的稳定发布流水线、npm provenance 与 Registry 消费者验证已于 2026-07-30 完成；
+`@trsoliu/audio-core@latest` 和 `vue-audio-native@latest` 均解析到 1.0.1，Vue 精确依赖同版本
+core，`legacy` 仍解析到 0.1.41。对应 GitHub Release 为
+[Vue Audio Native 1.0.1](https://github.com/trsoliu/vue-audio-native/releases/tag/v1.0.1)。
 
 Vue 仓库采用 core 与组件协调版本。`pnpm version-packages` 在 Changesets 更新 manifests 后，
 同步重写两个 package README 的受管理安装区，再以 `--lockfile-only --ignore-scripts` 刷新
