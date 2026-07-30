@@ -16,3 +16,6 @@ WKWebView、Android WebView、HarmonyOS WebView 与 HarmonyOS NEXT ArkWeb 的带
 | HarmonyOS NEXT ArkWeb  | 播放、跳转、能力探测、宿主 Bridge 回调、销毁清理             | 待验证 |
 
 每次验证必须记录设备与系统版本、浏览器或 WebView 引擎版本、宿主版本、commit SHA、结果和证据文件位置。任何必需环境无法取得时，只能发布 npm `next` 预发行标签，不能发布稳定版。
+
+发布工作流会解析上表；只有四个状态单元格都精确写为 `通过` 时，Trusted Publishing
+步骤才会执行。填写 `通过` 的同时必须在本页追加对应的日期、版本、commit SHA 与证据位置。

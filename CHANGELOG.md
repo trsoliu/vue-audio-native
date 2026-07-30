@@ -13,6 +13,8 @@ package changelogs are managed by Changesets.
   `.well-known/silen` is deployed with the documentation site.
 - Made the beta bootstrap tolerate npm registry propagation delays and the registry-required
   `latest` alias on a new package that has no stable version; `next` remains the prerelease channel.
+- Added a machine-enforced stable-release device gate and pinned every action in the privileged
+  Trusted Publishing workflow to an immutable commit.
 
 ### Added
 

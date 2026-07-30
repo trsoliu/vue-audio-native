@@ -17,13 +17,14 @@ jobs:
   release:
     if: github.repository == 'trsoliu/vue-audio-native'
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     environment: npm
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -31,16 +32,28 @@ jobs:
       - run: npm install --global npm@12.0.1
       - run: pnpm install --frozen-lockfile
       - run: pnpm security:audit
-      - run: pnpm lint && pnpm typecheck && pnpm test:coverage
-      - run: pnpm build && pnpm test:pack
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:coverage
+      - run: pnpm build
+      - run: pnpm docs:build
+      - run: pnpm docs:index
+      - run: pnpm docs:audit
+      - run: pnpm docs:eval
+      - run: pnpm test:pack
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e
       - name: Create or update the release PR
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1
         with:
           version: pnpm version-packages
           title: 'chore: release packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify stable device-smoke evidence
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: pnpm release:verify-devices
       - name: Publish with npm Trusted Publishing
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm release
