@@ -11,8 +11,8 @@ package changelogs are managed by Changesets.
   environment secret before permanent migration to OIDC Trusted Publishing.
 - Included hidden Silen output in the GitHub Pages artifact so the public Agent Contract under
   `.well-known/silen` is deployed with the documentation site.
-- Made the beta bootstrap tolerate npm registry propagation delays and remove an automatically
-  created `latest` tag when it points at the new core prerelease.
+- Made the beta bootstrap tolerate npm registry propagation delays and the registry-required
+  `latest` alias on a new package that has no stable version; `next` remains the prerelease channel.
 
 ### Added
 

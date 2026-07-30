@@ -105,9 +105,7 @@ jobs:
         run: |
           npm dist-tag add @trsoliu/audio-core@1.0.0-beta.1 next --registry=https://registry.npmjs.org
           npm dist-tag add vue-audio-native@1.0.0-beta.1 next --registry=https://registry.npmjs.org
-          if npm dist-tag ls @trsoliu/audio-core --registry=https://registry.npmjs.org | grep --quiet '^latest: 1\.0\.0-beta\.1$'; then
-            npm dist-tag rm @trsoliu/audio-core latest --registry=https://registry.npmjs.org
-          fi
+          echo 'npm requires a latest tag while a package has no stable version; next remains the documented prerelease channel.'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
       - name: Show published dist-tags
