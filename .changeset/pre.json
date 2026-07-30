@@ -10,6 +10,7 @@
     "vue-audio-native": "1.0.0-beta.2"
   },
   "changesets": [
+    "clear-audio-api-docs",
     "modern-audio-native",
     "safe-vue-declarations"
   ]
