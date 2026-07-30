@@ -44,6 +44,43 @@ npm 配置。完成顺序如下：
 保留 provenance，后续版本必须由 `.github/workflows/release.yml` 和 Trusted Publishing 的
 短期 OIDC 凭据发布。
 
+## 后续 beta（OIDC）
+
+后续 beta 在 Changesets `beta` pre mode 中生成版本，release PR 可以在真机表仍为“待验证”
+时合并。Changesets 在 pre mode 会保留源 changeset 文件，因此工作流只有在每个面向发布包
+的非空文件都已出现在 `pre.json` 的 consumed 列表中时，才认定 beta 版本 PR 已合并；仅面向
+私有 Demo/fixture 的 changeset 不阻塞 npm 发布，其他尚未消费的变更只会创建或更新版本 PR。
+工作流还要求当前 push 同时新增 consumed 记录并改变至少一个发布 manifest 的版本，确保只有
+version PR 的合并提交能够发布；失败时应重跑原 Actions run，后续普通提交不会补发旧版本。
+push 事件的 previous SHA 必须仍是 `HEAD` 的祖先，并且完整 diff 只能包含 pre state、发布
+manifests、生成的 package changelog 与 lockfile。这既兼容多提交 rebase merge，也会拒绝批量
+push 夹带未版本化源码。进入可发布状态后，工作流再确认 core 与 Vue manifests 都是
+`*-beta.N` 且 Vue 精确依赖本次 core，最后由 TypeScript 发布器按 core → Vue 顺序对 registry
+中尚不存在的版本执行 `npm publish --tag next --provenance`。对已存在版本，发布器会通过
+有界的 fresh/no-cache 重试确认 `next` 精确解析到该版本；查询期间的瞬时网络或 registry
+错误也会在同一窗口内重试，否则失败而不是把过期 dist-tag 当作成功。部分成功后重跑原 run
+仍然幂等。这条路径只使用 Trusted Publishing 的短期 OIDC 凭据与 provenance，不读取 npm
+token。
+
+如果原发布 run 已无法重跑，可在 `master` 手动 dispatch，并填写失败 push 记录中的 previous
+default-branch SHA 与 exact release HEAD SHA。工作流会先要求当前 `HEAD` 与填写的 release SHA
+完全一致，并实时确认 `origin/master` 仍指向同一提交，再复用相同的 consumed/version
+transition、祖先关系和完整 diff 白名单。push 与手动路径都会在 `npm publish` 前再次读取远端
+分支；版本提交后出现任何后续提交或运行中发生竞态 push 都会拒绝发布，因此恢复路径不会扩大
+发布边界。
+
+发布 job 只允许在 `master` 上运行；从 release PR 分支手动 dispatch 不会获得发布路径。
+适配器发布前还会确认其精确 `@trsoliu/audio-core` 版本已经由本次顺序发布或 npm registry
+提供，防止产生不可安装的依赖图。
+
+不处于 active pre mode（包括 `pre exit` 过渡）时，工作流只会走稳定发布分支，并继续
+强制执行四项真机门禁。因此 beta 发布不能把 `latest` 切到未验证的稳定版本，稳定发布也
+不能借用 `next` 路径绕过设备证据。
+
+本次切换已把随公开 beta 发布过的 `modern-audio-native` 与 `safe-vue-declarations` 记为
+consumed；发布时间晚于现有 beta 的 `clear-audio-api-docs` 仍保持 pending，并且是下一份
+version PR 的唯一变更输入。
+
 ## 证据不是声明
 
 本地 workspace link、成功的 `npm pack` 或桌面浏览器 E2E 都不能证明 registry 安装和宿主
@@ -55,7 +92,7 @@ commit SHA 与对应 CI URL。
 稳定版通过 GitHub Actions Trusted Publishing、OIDC 与 provenance 发布。工作流不保存长期
 npm token。`pnpm release:verify-devices` 会在 publish 之前解析[真机冒烟](../device-smoke/)
 的四个必需环境；任一状态不是精确的 `通过` 都会在 Actions 中阻断稳定发布，但不会阻止
-Changesets 创建或更新 release PR。
+Changesets 创建或更新 release PR，也不会阻止显式 pre mode 的 `next` 预发布。
 
 Vue 仓库采用 core 与组件协调版本。`pnpm version-packages` 在 Changesets 更新 manifests 后
 立即以 `--lockfile-only --ignore-scripts` 刷新 pnpm lockfile，保证生成的 release PR 仍可通过

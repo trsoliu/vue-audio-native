@@ -30,6 +30,9 @@
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only --ignore-scripts",
     "release": "changeset publish",
+    "release:inspect": "tsx scripts/release-state.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
+    "release:next": "tsx scripts/publish-prerelease.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
+    "release:verify-prerelease": "tsx scripts/prerelease-gate.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
     "release:verify-devices": "tsx scripts/device-smoke-gate.ts docs/device-smoke.md"
   },
   "devDependencies": {

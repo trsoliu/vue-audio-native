@@ -42,6 +42,35 @@ only.
 The temporary workflow is removed from the default branch after the beta and `legacy` sequence;
 its immutable Actions runs and Git history retain the audit trail.
 
+Routine follow-up betas use Changesets `beta` pre mode and the same trusted `release.yml`. Because
+Changesets retains source changeset files during pre mode, the workflow publishes only after every
+non-empty changeset that targets a publishable package is recorded in `pre.json` as consumed by the
+merged beta version PR; private Demo and fixture changesets do not block package publication. It
+also confirms that the triggering push both added a consumed changeset and changed at least one
+publishable manifest version. The event's previous default-branch SHA must remain an ancestor of
+the pushed `HEAD`, and the complete tree diff is limited to prerelease state, publishable manifests,
+generated package changelogs and the lockfile. This supports multi-commit rebase merges without
+allowing unrelated source changes. It then verifies every publishable manifest is
+`*-beta.N` and verifies exact internal dependency alignment. Changesets rejects a custom publish
+tag during active pre mode, so a typed, idempotent publisher checks exact registry versions,
+verifies `next` through bounded fresh/no-cache reads that tolerate transient registry failures
+before skipping, and invokes
+`npm publish --tag next --provenance` in dependency order only for versions that do not yet exist.
+The job is restricted to `master`, and adapter publication requires its exact core dependency to be
+available from the same run or npm. Outside active pre mode, the stable path still requires the
+device-smoke gate before an untagged Changesets publication.
+
+If the original release run cannot be rerun, a manual dispatch on `master` requires the previous
+default-branch SHA and exact release HEAD SHA from the failed push. The checked-out `HEAD` must
+still equal that supplied release SHA, and live `origin/master` must resolve to the same commit,
+before the version-only diff and state transition are accepted. Both push and manual paths repeat
+the live remote comparison immediately before npm publication, preserving the source-change and
+default-branch boundary even when another push races a running job.
+
+When pre mode was adopted, `modern-audio-native` and `safe-vue-declarations` were seeded as
+consumed because their contents were already represented by the public beta manifests. The later
+`clear-audio-api-docs` changeset remains pending and is the sole input to the next version PR.
+
 ## Alternatives considered
 
 ### Local interactive npm login
@@ -87,6 +116,8 @@ required npm package names, dist-tags or clean npm consumer verification.
   a new package has no stable version, then move `latest` to `1.0.0` at stable release.
 - Do not use or reintroduce the retained token; manually revoke it if the accepted risk changes.
 - Never use this workflow for stable versions; stable remains blocked by device-smoke evidence.
+- Keep prerelease and stable conditions mutually exclusive: pre mode can publish only to `next`,
+  while non-pre mode must pass the device gate.
 
 ## Follow-up actions
 

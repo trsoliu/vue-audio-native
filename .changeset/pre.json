@@ -1,0 +1,16 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "compatibility-lab": "0.0.0",
+    "demo-vue": "0.0.0",
+    "fixture-nuxt": "0.0.0",
+    "fixture-vite-vue": "0.0.0",
+    "@trsoliu/audio-core": "1.0.0-beta.1",
+    "vue-audio-native": "1.0.0-beta.2"
+  },
+  "changesets": [
+    "modern-audio-native",
+    "safe-vue-declarations"
+  ]
+}

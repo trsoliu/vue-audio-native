@@ -8,6 +8,14 @@ const workflowPath = resolve(repositoryRoot, '.github/workflows/release.yml')
 const packagePath = resolve(repositoryRoot, 'package.json')
 
 describe('stable npm release workflow', () => {
+  it('runs only from the repository default branch', async () => {
+    const workflow = await readFile(workflowPath, 'utf8')
+
+    expect(workflow).toContain(
+      "if: github.repository == 'trsoliu/vue-audio-native' && github.ref == 'refs/heads/master'",
+    )
+  })
+
   it('runs the device gate after versioning and before publication', async () => {
     const workflow = await readFile(workflowPath, 'utf8')
     const changesets = workflow.indexOf('id: changesets')
@@ -18,7 +26,66 @@ describe('stable npm release workflow', () => {
     expect(deviceGate).toBeGreaterThan(changesets)
     expect(publish).toBeGreaterThan(deviceGate)
     expect(workflow).toContain(
-      "if: steps.changesets.outputs.hasChangesets == 'false'",
+      "if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'",
+    )
+  })
+
+  it('publishes prereleases only through the next dist-tag', async () => {
+    const workflow = await readFile(workflowPath, 'utf8')
+    const releaseState = workflow.indexOf('id: release_state')
+    const changesets = workflow.indexOf('id: changesets')
+    const prereleaseGate = workflow.indexOf('pnpm release:verify-prerelease')
+    const releaseHeadRecheck = workflow.indexOf('id: release_head_recheck')
+    const prereleasePublish = workflow.indexOf('\n        run: pnpm release:next\n')
+    const prereleaseCondition =
+      "if: steps.release_state.outputs.mode == 'beta' && steps.release_state.outputs.prerelease_ready == 'true' && steps.release_state.outputs.release_commit == 'true'"
+
+    expect(releaseState).toBeGreaterThan(-1)
+    expect(changesets).toBeGreaterThan(releaseState)
+    expect(prereleaseGate).toBeGreaterThan(changesets)
+    expect(releaseHeadRecheck).toBeGreaterThan(prereleaseGate)
+    expect(prereleasePublish).toBeGreaterThan(releaseHeadRecheck)
+    expect(workflow.split(prereleaseCondition)).toHaveLength(4)
+    expect(workflow).toContain(
+      "if: steps.release_state.outputs.prerelease_ready != 'true'",
+    )
+    expect(workflow).toContain('RELEASE_EVENT_NAME: ${{ github.event_name }}')
+    expect(workflow).toContain('release_before_sha:')
+    expect(workflow).toContain('release_head_sha:')
+    expect(workflow).toContain('RELEASE_DEFAULT_BRANCH: master')
+    expect(workflow).toContain(
+      "RELEASE_HEAD_SHA: ${{ github.event_name == 'push' && github.sha || inputs.release_head_sha }}",
+    )
+    expect(workflow).toContain(
+      "steps.release_head_recheck.outputs.release_commit == 'true'",
+    )
+    const betaConditions = workflow
+      .split('\n')
+      .filter((line) =>
+        line.includes("if: steps.release_state.outputs.mode == 'beta'"),
+      )
+    expect(betaConditions).toHaveLength(3)
+    expect(betaConditions.every((line) => !line.includes('hasChangesets'))).toBe(
+      true,
+    )
+
+    const packageJson = JSON.parse(await readFile(packagePath, 'utf8')) as {
+      scripts?: Record<string, string>
+    }
+    expect(packageJson.scripts?.['release:next']).toContain(
+      'scripts/publish-prerelease.ts',
+    )
+    expect(packageJson.scripts?.['release:next']).not.toContain(
+      'changeset publish',
+    )
+    expect(packageJson.scripts?.['release:verify-prerelease']).toContain(
+      'scripts/prerelease-gate.ts',
+    )
+    expect(packageJson.scripts?.['release:inspect']).toContain(
+      'scripts/release-state.ts',
+    )
+    expect(packageJson.scripts?.['release:inspect']).toContain(
+      'packages/audio-core/package.json',
     )
   })
 
