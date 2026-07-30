@@ -83,4 +83,26 @@ describe('bootstrap npm beta workflow', () => {
     expect(reactVerification).toBeGreaterThan(-1)
     expect(legacyTag).toBeGreaterThan(reactVerification)
   })
+
+  it('checks exact registry versions and retries propagation after publishing', async () => {
+    const workflow = await readFile(workflowPath, 'utf8')
+
+    expect(workflow).toContain(
+      'https://registry.npmjs.org/@trsoliu%2faudio-core/1.0.0-beta.1',
+    )
+    expect(workflow).toContain(
+      'https://registry.npmjs.org/vue-audio-native/1.0.0-beta.1',
+    )
+    expect(workflow.match(/for attempt in \{1\.\.12\}/g)?.length).toBe(2)
+    expect(workflow.match(/sleep 5/g)?.length).toBe(2)
+  })
+
+  it('does not leave the new core beta on the latest dist-tag', async () => {
+    const workflow = await readFile(workflowPath, 'utf8')
+
+    expect(workflow).toContain(
+      'npm dist-tag rm @trsoliu/audio-core latest --registry=https://registry.npmjs.org',
+    )
+    expect(workflow).toContain("'^latest: 1\\.0\\.0-beta\\.1$'")
+  })
 })

@@ -58,24 +58,46 @@ jobs:
       - name: Publish audio core beta when absent
         working-directory: packages/audio-core
         run: |
-          if npm view @trsoliu/audio-core@1.0.0-beta.1 version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
+          registry_url='https://registry.npmjs.org/@trsoliu%2faudio-core/1.0.0-beta.1'
+          if curl --fail --silent --show-error --output /dev/null "$registry_url"; then
             echo '@trsoliu/audio-core@1.0.0-beta.1 is already published; skipping.'
           else
             npm publish --tag next --access public --registry=https://registry.npmjs.org
           fi
-          npm view @trsoliu/audio-core@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+          for attempt in {1..12}; do
+            if curl --fail --silent --show-error --output /dev/null "$registry_url"; then
+              echo '@trsoliu/audio-core@1.0.0-beta.1 is visible on the registry.'
+              break
+            fi
+            if [[ "$attempt" == 12 ]]; then
+              echo '::error::@trsoliu/audio-core@1.0.0-beta.1 was not visible after 12 checks.'
+              exit 1
+            fi
+            sleep 5
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
       - name: Publish Vue beta when absent
         working-directory: packages/vue-audio-native
         run: |
-          if npm view vue-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
+          registry_url='https://registry.npmjs.org/vue-audio-native/1.0.0-beta.1'
+          if curl --fail --silent --show-error --output /dev/null "$registry_url"; then
             echo 'vue-audio-native@1.0.0-beta.1 is already published; skipping.'
           else
             npm publish --tag next --access public --registry=https://registry.npmjs.org
           fi
-          npm view vue-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+          for attempt in {1..12}; do
+            if curl --fail --silent --show-error --output /dev/null "$registry_url"; then
+              echo 'vue-audio-native@1.0.0-beta.1 is visible on the registry.'
+              break
+            fi
+            if [[ "$attempt" == 12 ]]; then
+              echo '::error::vue-audio-native@1.0.0-beta.1 was not visible after 12 checks.'
+              exit 1
+            fi
+            sleep 5
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
@@ -83,12 +105,15 @@ jobs:
         run: |
           npm dist-tag add @trsoliu/audio-core@1.0.0-beta.1 next --registry=https://registry.npmjs.org
           npm dist-tag add vue-audio-native@1.0.0-beta.1 next --registry=https://registry.npmjs.org
+          if npm dist-tag ls @trsoliu/audio-core --registry=https://registry.npmjs.org | grep --quiet '^latest: 1\.0\.0-beta\.1$'; then
+            npm dist-tag rm @trsoliu/audio-core latest --registry=https://registry.npmjs.org
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
       - name: Show published dist-tags
         run: |
-          npm view @trsoliu/audio-core dist-tags --json --registry=https://registry.npmjs.org
-          npm view vue-audio-native dist-tags --json --registry=https://registry.npmjs.org
+          npm dist-tag ls @trsoliu/audio-core --registry=https://registry.npmjs.org
+          npm dist-tag ls vue-audio-native --registry=https://registry.npmjs.org
 
   finalize-legacy:
     if: >-
