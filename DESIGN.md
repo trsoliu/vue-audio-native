@@ -39,5 +39,6 @@ translate that contract instead of creating their own playback state machines.
 
 Published packages contain ESM, CommonJS, declarations and standalone CSS. The Vue package also
 provides its documented browser bundle. Package CSS excludes Tailwind Preflight, global utilities,
-OKLCH and `color-mix()` output. Stable publication remains blocked until registry consumers and the
-required iOS, Android and HarmonyOS WebView smoke rows are verified.
+OKLCH and `color-mix()` output. Stable publication requires registry-consumer verification plus
+either complete WebView smoke evidence or a version-bound maintainer assessment that explicitly
+accepts the remaining device risk.

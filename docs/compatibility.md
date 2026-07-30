@@ -28,5 +28,7 @@ No User-Agent branch is used. The Vue adapter checks the real mounted media elem
 native controls if the custom-control prerequisite set is missing. The compatibility lab exposes the
 same probe for device-cloud and embedded-host testing.
 
-Stable 1.0 publication requires smoke evidence from iOS WKWebView, Android WebView and HarmonyOS
-ArkWeb. If one of those environments is unavailable, only a prerelease may be published.
+Stable publication normally uses smoke evidence from iOS WKWebView, Android WebView and HarmonyOS
+ArkWeb. When those environments are unavailable, the maintainer may instead authorize an exact
+version after the full automated assessment and explicitly accept the remaining host-specific risk;
+the machine-readable decision is recorded in `docs/device-smoke.md`.

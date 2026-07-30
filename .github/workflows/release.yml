@@ -69,9 +69,9 @@ jobs:
           title: 'chore: release packages'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Verify stable device-smoke evidence
+      - name: Verify stable release evidence or maintainer assessment
         if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'
-        run: pnpm release:verify-devices
+        run: pnpm release:verify-stable
       - name: Publish stable packages with npm Trusted Publishing
         if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm release

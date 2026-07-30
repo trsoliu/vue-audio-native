@@ -57,7 +57,7 @@ export default defineConfig({
         text: '维护与发布',
         items: [
           { text: '发布知识库', link: '/wiki/release/' },
-          { text: '真机冒烟记录', link: '/device-smoke/' },
+          { text: '兼容性评估记录', link: '/device-smoke/' },
           { text: 'AI 协作说明', link: '/wiki/ai-collaboration/' },
           { text: '架构决策', link: '/adr/0001-modernize-audio-native/' },
         ],

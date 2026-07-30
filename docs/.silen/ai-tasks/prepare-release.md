@@ -16,8 +16,8 @@ references:
 
 ## Goal
 
-Prepare a reviewable prerelease or stable release without bypassing ownership, registry or device
-evidence.
+Prepare a reviewable prerelease or stable release without bypassing ownership, registry or the
+documented stable-evidence decision.
 
 ## Steps
 
@@ -31,9 +31,11 @@ evidence.
 
 1. Run the complete repository quality, package, docs and browser gates.
 2. Query the public registry and install the exact prerelease artifacts in clean consumers.
-3. For a stable release, verify every required device-smoke row contains dated real-device evidence.
+3. For a stable release, verify either dated evidence for every required device row or a complete,
+   exact-version maintainer assessment with explicit remaining-risk acceptance.
 
 ## Stop conditions
 
-Stop on missing npm authority, failed CI, pending stable device rows or any mismatch between package
-metadata and intended dist-tag. Never rename the existing Vue package as a workaround.
+Stop on missing npm authority, failed CI, the absence of both valid stable-evidence paths, or any
+mismatch between package metadata and intended dist-tag. Never rename the existing Vue package as
+a workaround and never represent an unexecuted device test as passed.

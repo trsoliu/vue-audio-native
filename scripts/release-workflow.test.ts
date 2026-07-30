@@ -16,15 +16,15 @@ describe('stable npm release workflow', () => {
     )
   })
 
-  it('runs the device gate after versioning and before publication', async () => {
+  it('runs the stable evidence gate after versioning and before publication', async () => {
     const workflow = await readFile(workflowPath, 'utf8')
     const changesets = workflow.indexOf('id: changesets')
-    const deviceGate = workflow.indexOf('pnpm release:verify-devices')
+    const stableGate = workflow.indexOf('pnpm release:verify-stable')
     const publish = workflow.indexOf('\n        run: pnpm release\n')
 
     expect(changesets).toBeGreaterThan(-1)
-    expect(deviceGate).toBeGreaterThan(changesets)
-    expect(publish).toBeGreaterThan(deviceGate)
+    expect(stableGate).toBeGreaterThan(changesets)
+    expect(publish).toBeGreaterThan(stableGate)
     expect(workflow).toContain(
       "if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'",
     )
@@ -36,7 +36,9 @@ describe('stable npm release workflow', () => {
     const changesets = workflow.indexOf('id: changesets')
     const prereleaseGate = workflow.indexOf('pnpm release:verify-prerelease')
     const releaseHeadRecheck = workflow.indexOf('id: release_head_recheck')
-    const prereleasePublish = workflow.indexOf('\n        run: pnpm release:next\n')
+    const prereleasePublish = workflow.indexOf(
+      '\n        run: pnpm release:next\n',
+    )
     const prereleaseCondition =
       "if: steps.release_state.outputs.mode == 'beta' && steps.release_state.outputs.prerelease_ready == 'true' && steps.release_state.outputs.release_commit == 'true'"
 
@@ -65,9 +67,9 @@ describe('stable npm release workflow', () => {
         line.includes("if: steps.release_state.outputs.mode == 'beta'"),
       )
     expect(betaConditions).toHaveLength(3)
-    expect(betaConditions.every((line) => !line.includes('hasChangesets'))).toBe(
-      true,
-    )
+    expect(
+      betaConditions.every((line) => !line.includes('hasChangesets')),
+    ).toBe(true)
 
     const packageJson = JSON.parse(await readFile(packagePath, 'utf8')) as {
       scripts?: Record<string, string>
@@ -87,6 +89,10 @@ describe('stable npm release workflow', () => {
     expect(packageJson.scripts?.['release:inspect']).toContain(
       'packages/audio-core/package.json',
     )
+    expect(packageJson.scripts?.['release:verify-stable']).toContain(
+      'scripts/stable-release-gate.ts',
+    )
+    expect(packageJson.scripts?.['release:verify-devices']).toBeUndefined()
   })
 
   it('pins every release action to an immutable commit', async () => {

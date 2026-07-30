@@ -39,8 +39,8 @@
       "expected": { "route": "/wiki/browser-webview/" }
     },
     {
-      "id": "stable-device-gate",
-      "query": "稳定 1.0 发布前必须完成哪些 iOS Android 鸿蒙真机测试",
+      "id": "stable-evidence-gate",
+      "query": "稳定 1.0 没有 iOS Android 鸿蒙真机时如何通过维护者评估授权发布",
       "lang": "zh-CN",
       "expected": { "route": "/device-smoke/" }
     },

@@ -14,7 +14,7 @@ repository's long-term OIDC workflow for their first publication. Local npm web 
 did not return a usable CLI session on this workstation.
 
 The beta must still be published core → Vue → React, preserve provenance, keep credentials out of
-the repositories and avoid weakening the stable-release device gate.
+the repositories and preserve an explicit, auditable stable-release evidence gate.
 
 ## Decision
 
@@ -57,8 +57,8 @@ verifies `next` through bounded fresh/no-cache reads that tolerate transient reg
 before skipping, and invokes
 `npm publish --tag next --provenance` in dependency order only for versions that do not yet exist.
 The job is restricted to `master`, and adapter publication requires its exact core dependency to be
-available from the same run or npm. Outside active pre mode, the stable path still requires the
-device-smoke gate before an untagged Changesets publication.
+available from the same run or npm. Outside active pre mode, the stable path requires the evidence
+or version-bound maintainer assessment defined by ADR 0004 before an untagged Changesets publication.
 
 If the original release run cannot be rerun, a manual dispatch on `master` requires the previous
 default-branch SHA and exact release HEAD SHA from the failed push. The checked-out `HEAD` must
@@ -116,9 +116,10 @@ required npm package names, dist-tags or clean npm consumer verification.
 - Keep `next` as the documented prerelease channel. Accept npm's required `latest` alias only while
   a new package has no stable version, then move `latest` to `1.0.0` at stable release.
 - Do not use or reintroduce the retained token; manually revoke it if the accepted risk changes.
-- Never use this workflow for stable versions; stable remains blocked by device-smoke evidence.
+- Never use the bootstrap workflow for stable versions; stable uses the permanent OIDC workflow and
+  the ADR 0004 evidence contract.
 - Keep prerelease and stable conditions mutually exclusive: pre mode can publish only to `next`,
-  while non-pre mode must pass the device gate.
+  while non-pre mode must pass the stable evidence gate.
 
 ## Follow-up actions
 
@@ -130,7 +131,7 @@ required npm package names, dist-tags or clean npm consumer verification.
 - [x] Configure Trusted Publishers for all three packages.
 - [x] Delete both GitHub bootstrap secrets and retire the temporary workflow.
 - [x] Record the owner's decision to retain the disconnected token until 2026-10-28 and confirm it
-  is absent from both GitHub Environments and all release workflows.
+      is absent from both GitHub Environments and all release workflows.
 
 ## References
 
