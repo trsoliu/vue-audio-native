@@ -23,9 +23,12 @@ Use a one-day npm Granular Access Token only for the first beta publications. St
 only to manual bootstrap publishing steps on the default branch.
 
 The Vue bootstrap workflow runs the complete release gates, publishes core before Vue with the
-`next` tag and is safe to rerun after a partial publication. The React repository uses the same
-pattern only after installing the public core beta. After all three betas and clean registry
-consumers pass, a separate confirmed workflow mode sets `vue-audio-native@0.1.41` to `legacy`.
+`next` tag and is safe to rerun after a partial publication. Exact registry version endpoints and a
+bounded propagation retry prevent a successful first publish from being mistaken for a failure.
+For a new package, the workflow removes `latest` only when npm automatically points it at the beta.
+The React repository uses the same pattern only after installing the public core beta. After all
+three betas and clean registry consumers pass, a separate confirmed workflow mode sets
+`vue-audio-native@0.1.41` to `legacy`.
 
 Immediately afterward, configure each package to trust its repository's `release.yml` workflow,
 delete both GitHub secrets and revoke the token. Stable releases use OIDC Trusted Publishing and
@@ -57,7 +60,7 @@ required npm package names, dist-tags or clean npm consumer verification.
 - GitHub Environment scoping, a default-branch condition, manual confirmation and complete gates
   constrain when publication can occur.
 - GitHub OIDC remains available for provenance during the token-authenticated bootstrap.
-- Idempotent version checks allow recovery if core succeeds and an adapter publication fails.
+- Idempotent exact-version checks allow recovery if core succeeds and an adapter publication fails.
 
 ### Negative
 
@@ -71,6 +74,8 @@ required npm package names, dist-tags or clean npm consumer verification.
 
 - Keep the expiry at one day and organization permissions at `No access`.
 - Restrict workflow execution to the default branch and the `npm` Environment.
+- Keep prereleases on `next`; do not leave a new package's automatically created `latest` tag on a
+  beta version.
 - Revoke the token only after React beta, registry consumers and `legacy` finalization complete.
 - Never use this workflow for stable versions; stable remains blocked by device-smoke evidence.
 
