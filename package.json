@@ -28,7 +28,7 @@
     "test:pack": "turbo run test:pack",
     "test:release": "vitest run --config vitest.release.config.ts",
     "changeset": "changeset",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && pnpm install --lockfile-only --ignore-scripts",
     "release": "changeset publish",
     "release:verify-devices": "tsx scripts/device-smoke-gate.ts docs/device-smoke.md"
   },

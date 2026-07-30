@@ -49,3 +49,7 @@ commit SHA 与对应 CI URL。
 npm token。`pnpm release:verify-devices` 会在 publish 之前解析[真机冒烟](../device-smoke/)
 的四个必需环境；任一状态不是精确的 `通过` 都会在 Actions 中阻断稳定发布，但不会阻止
 Changesets 创建或更新 release PR。
+
+Vue 仓库采用 core 与组件协调版本。`pnpm version-packages` 在 Changesets 更新 manifests 后
+立即以 `--lockfile-only --ignore-scripts` 刷新 pnpm lockfile，保证生成的 release PR 仍可通过
+CI 的 `pnpm install --frozen-lockfile`，且版本阶段不会执行依赖生命周期脚本。
