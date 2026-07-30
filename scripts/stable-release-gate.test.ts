@@ -192,11 +192,11 @@ describe('stable release evidence gate', () => {
     const adapterPath = join(repositoryRoot, 'adapter.json')
     await writeFile(
       corePath,
-      JSON.stringify({ name: '@trsoliu/audio-core', version: '1.0.0' }),
+      JSON.stringify({ name: '@trsoliu/audio-core', version: '1.0.1' }),
     )
     await writeFile(
       adapterPath,
-      JSON.stringify({ name: 'vue-audio-native', version: '1.0.0' }),
+      JSON.stringify({ name: 'vue-audio-native', version: '1.0.1' }),
     )
     const result = await execute(
       process.execPath,

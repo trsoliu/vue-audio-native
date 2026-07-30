@@ -27,6 +27,26 @@ export interface PrereleaseVersionCommitInput {
   previousVersions: readonly unknown[]
 }
 
+export interface StableVersionCommitInput {
+  beforeIsAncestorOfHead: boolean
+  changedFiles: readonly string[]
+  currentPrereleaseState: ChangesetsPrereleaseState | null
+  currentVersions: readonly unknown[]
+  deletedFiles: readonly string[]
+  eventName?: string | undefined
+  manifestPaths: readonly string[]
+  previousPrereleaseState: ChangesetsPrereleaseState | null
+  previousVersions: readonly unknown[]
+  removedPackageChangeset: boolean
+}
+
+interface ReleaseCommitOptions {
+  beforeSha?: string | undefined
+  defaultBranch?: string | undefined
+  eventName?: string | undefined
+  headSha?: string | undefined
+}
+
 export interface ReleaseState {
   mode: 'beta' | 'stable'
   pendingChangesets: string[]
@@ -34,6 +54,52 @@ export interface ReleaseState {
 }
 
 const execFileAsync = promisify(execFile)
+const stableVersionPattern = /^(\d+)\.(\d+)\.(\d+)$/
+const releaseVersionPattern = /^(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?$/
+
+function changelogPath(manifestPath: string): string {
+  const separatorIndex = manifestPath.lastIndexOf('/')
+  const directory =
+    separatorIndex === -1 ? '' : manifestPath.slice(0, separatorIndex + 1)
+  return directory + 'CHANGELOG.md'
+}
+
+function readmePath(manifestPath: string): string {
+  const separatorIndex = manifestPath.lastIndexOf('/')
+  const directory =
+    separatorIndex === -1 ? '' : manifestPath.slice(0, separatorIndex + 1)
+  return directory + 'README.md'
+}
+
+function isStableVersionProgression(
+  previousVersion: unknown,
+  currentVersion: unknown,
+): boolean {
+  if (
+    typeof previousVersion !== 'string' ||
+    typeof currentVersion !== 'string'
+  ) {
+    return false
+  }
+  const previousMatch = releaseVersionPattern.exec(previousVersion)
+  const currentMatch = stableVersionPattern.exec(currentVersion)
+  if (!previousMatch || !currentMatch) return false
+
+  for (let index = 1; index <= 3; index += 1) {
+    const previousPart = Number(previousMatch[index])
+    const currentPart = Number(currentMatch[index])
+    if (
+      !Number.isSafeInteger(previousPart) ||
+      !Number.isSafeInteger(currentPart)
+    ) {
+      return false
+    }
+    if (currentPart > previousPart) return true
+    if (currentPart < previousPart) return false
+  }
+
+  return previousVersion.includes('-')
+}
 
 function consumedChangesets(
   state: ChangesetsPrereleaseState,
@@ -70,12 +136,8 @@ export function isPrereleaseVersionCommit({
     '.changeset/pre.json',
     'pnpm-lock.yaml',
     ...manifestPaths,
-    ...manifestPaths.map((manifestPath) => {
-      const separatorIndex = manifestPath.lastIndexOf('/')
-      const directory =
-        separatorIndex === -1 ? '' : manifestPath.slice(0, separatorIndex + 1)
-      return directory + 'CHANGELOG.md'
-    }),
+    ...manifestPaths.map(changelogPath),
+    ...manifestPaths.map(readmePath),
   ])
   if (
     !changedFiles.includes('.changeset/pre.json') ||
@@ -109,6 +171,101 @@ export function isPrereleaseVersionCommit({
     )
 
   return consumedNewChangeset && retainedPreviousChangesets && versionChanged
+}
+
+export function isStableVersionCommit({
+  beforeIsAncestorOfHead,
+  changedFiles,
+  currentPrereleaseState,
+  currentVersions,
+  deletedFiles,
+  eventName,
+  manifestPaths,
+  previousPrereleaseState,
+  previousVersions,
+  removedPackageChangeset,
+}: StableVersionCommitInput): boolean {
+  if (
+    (eventName !== 'push' && eventName !== 'workflow_dispatch') ||
+    !beforeIsAncestorOfHead ||
+    !removedPackageChangeset ||
+    manifestPaths.length === 0 ||
+    currentVersions.length !== manifestPaths.length ||
+    previousVersions.length !== manifestPaths.length
+  ) {
+    return false
+  }
+
+  const changedSet = new Set(changedFiles)
+  const deletedSet = new Set(deletedFiles)
+  const changesetPattern = /^\.changeset\/[^/]+\.md$/
+  const changedChangesets = changedFiles.filter((filePath) =>
+    changesetPattern.test(filePath),
+  )
+  const allowedFiles = new Set([
+    '.changeset/pre.json',
+    'pnpm-lock.yaml',
+    ...manifestPaths,
+    ...manifestPaths.map(changelogPath),
+    ...manifestPaths.map(readmePath),
+  ])
+  if (
+    changedChangesets.length === 0 ||
+    changedChangesets.some((filePath) => !deletedSet.has(filePath)) ||
+    changedFiles.some(
+      (filePath) =>
+        !allowedFiles.has(filePath) && !changesetPattern.test(filePath),
+    )
+  ) {
+    return false
+  }
+
+  const exitsPreMode =
+    previousPrereleaseState?.mode === 'pre' &&
+    previousPrereleaseState.tag === 'beta' &&
+    currentPrereleaseState?.mode === 'exit' &&
+    currentPrereleaseState.tag === 'beta' &&
+    changedSet.has('.changeset/pre.json') &&
+    !deletedSet.has('.changeset/pre.json')
+  const finalizesExitMode =
+    previousPrereleaseState?.mode === 'exit' &&
+    currentPrereleaseState === null &&
+    deletedSet.has('.changeset/pre.json')
+  const advancesStableMode =
+    previousPrereleaseState === null &&
+    currentPrereleaseState === null &&
+    !changedSet.has('.changeset/pre.json')
+  if (!exitsPreMode && !finalizesExitMode && !advancesStableMode) {
+    return false
+  }
+
+  let versionChanged = false
+  for (let index = 0; index < manifestPaths.length; index += 1) {
+    const previousVersion = previousVersions[index]
+    const currentVersion = currentVersions[index]
+    if (
+      typeof currentVersion !== 'string' ||
+      !stableVersionPattern.test(currentVersion)
+    ) {
+      return false
+    }
+    if (currentVersion === previousVersion) continue
+    if (!isStableVersionProgression(previousVersion, currentVersion)) {
+      return false
+    }
+    const manifestPath = manifestPaths[index]
+    if (
+      !manifestPath ||
+      !changedSet.has(manifestPath) ||
+      !changedSet.has(changelogPath(manifestPath)) ||
+      !changedSet.has(readmePath(manifestPath))
+    ) {
+      return false
+    }
+    versionChanged = true
+  }
+
+  return versionChanged
 }
 
 function hasPackageRelease(
@@ -312,28 +469,26 @@ async function gitCommandSucceeds(
   }
 }
 
-export async function detectPrereleaseVersionCommit(
+async function resolveReleaseCommitContext(
   repositoryRoot: string,
   manifestPaths: readonly string[],
-  options: {
-    beforeSha?: string | undefined
-    defaultBranch?: string | undefined
-    eventName?: string | undefined
-    headSha?: string | undefined
-  } = {},
-): Promise<boolean> {
+  options: ReleaseCommitOptions,
+): Promise<{
+  beforeSha: string
+  eventName: 'push' | 'workflow_dispatch'
+} | null> {
   const beforeSha = options.beforeSha
   if (
     (options.eventName !== 'push' &&
       options.eventName !== 'workflow_dispatch') ||
     manifestPaths.length === 0
   ) {
-    return false
+    return null
   }
 
   const isValidBeforeSha = (sha: string): boolean =>
     /^[a-f0-9]{40,64}$/i.test(sha) && !/^0+$/.test(sha)
-  if (!beforeSha || !isValidBeforeSha(beforeSha)) return false
+  if (!beforeSha || !isValidBeforeSha(beforeSha)) return null
 
   const defaultBranch = options.defaultBranch
   const requestedHeadSha = options.headSha
@@ -342,7 +497,7 @@ export async function detectPrereleaseVersionCommit(
     !requestedHeadSha ||
     !isValidBeforeSha(requestedHeadSha)
   ) {
-    return false
+    return null
   }
   const currentHeadSha = await readGitOutput(repositoryRoot, [
     'rev-parse',
@@ -355,19 +510,35 @@ export async function detectPrereleaseVersionCommit(
     `refs/heads/${defaultBranch}`,
   ])
   const remoteHeadFields = remoteHeadOutput?.split(/\s+/) ?? []
-  const remoteHeadSha = remoteHeadFields.length === 2 ? remoteHeadFields[0] : null
+  const remoteHeadSha =
+    remoteHeadFields.length === 2 ? remoteHeadFields[0] : null
   if (
     currentHeadSha?.toLowerCase() !== requestedHeadSha.toLowerCase() ||
     remoteHeadSha?.toLowerCase() !== requestedHeadSha.toLowerCase()
   ) {
-    return false
+    return null
   }
+
+  return { beforeSha, eventName: options.eventName }
+}
+
+export async function detectPrereleaseVersionCommit(
+  repositoryRoot: string,
+  manifestPaths: readonly string[],
+  options: ReleaseCommitOptions = {},
+): Promise<boolean> {
+  const context = await resolveReleaseCommitContext(
+    repositoryRoot,
+    manifestPaths,
+    options,
+  )
+  if (!context) return false
 
   return detectPrereleaseVersionCommitSince(
     repositoryRoot,
     manifestPaths,
-    beforeSha,
-    options.eventName,
+    context.beforeSha,
+    context.eventName,
   )
 }
 
@@ -436,22 +607,138 @@ async function detectPrereleaseVersionCommitSince(
   })
 }
 
+export async function detectStableVersionCommit(
+  repositoryRoot: string,
+  manifestPaths: readonly string[],
+  options: ReleaseCommitOptions = {},
+): Promise<boolean> {
+  const context = await resolveReleaseCommitContext(
+    repositoryRoot,
+    manifestPaths,
+    options,
+  )
+  if (!context) return false
+
+  const beforeIsAncestorOfHead = await gitCommandSucceeds(repositoryRoot, [
+    'merge-base',
+    '--is-ancestor',
+    context.beforeSha,
+    'HEAD',
+  ])
+  const changedFilesOutput = await readGitOutput(repositoryRoot, [
+    'diff',
+    '--name-only',
+    '--diff-filter=ACDMRT',
+    context.beforeSha,
+    'HEAD',
+  ])
+  const deletedFilesOutput = await readGitOutput(repositoryRoot, [
+    'diff',
+    '--name-only',
+    '--diff-filter=D',
+    context.beforeSha,
+    'HEAD',
+  ])
+  if (
+    !beforeIsAncestorOfHead ||
+    changedFilesOutput === null ||
+    deletedFilesOutput === null
+  ) {
+    return false
+  }
+  const changedFiles = changedFilesOutput
+    .split('\n')
+    .filter((filePath) => filePath.length > 0)
+  const deletedFiles = deletedFilesOutput
+    .split('\n')
+    .filter((filePath) => filePath.length > 0)
+
+  const previousPrereleaseState =
+    await readPreviousJson<ChangesetsPrereleaseState>(
+      repositoryRoot,
+      context.beforeSha,
+      '.changeset/pre.json',
+    )
+  const currentPrereleaseState = await readPrereleaseState(
+    resolve(repositoryRoot, '.changeset/pre.json'),
+  )
+  const previousManifests = await Promise.all(
+    manifestPaths.map((manifestPath) =>
+      readPreviousJson<PackageVersionManifest>(
+        repositoryRoot,
+        context.beforeSha,
+        manifestPath,
+      ),
+    ),
+  )
+  if (previousManifests.some((manifest) => manifest === null)) return false
+  const currentManifests = await Promise.all(
+    manifestPaths.map((manifestPath) =>
+      readCurrentJson<PackageVersionManifest>(repositoryRoot, manifestPath),
+    ),
+  )
+  const publishablePackageNames = new Set(
+    currentManifests
+      .filter(
+        (manifest) =>
+          manifest.private !== true && typeof manifest.name === 'string',
+      )
+      .map((manifest) => manifest.name as string),
+  )
+  if (publishablePackageNames.size !== manifestPaths.length) return false
+
+  const deletedChangesets = deletedFiles.filter((filePath) =>
+    /^\.changeset\/[^/]+\.md$/.test(filePath),
+  )
+  const removedPackageChangeset = (
+    await Promise.all(
+      deletedChangesets.map(async (filePath) => {
+        const contents = await readGitOutput(repositoryRoot, [
+          'show',
+          `${context.beforeSha}:${filePath}`,
+        ])
+        return contents
+          ? hasPackageRelease(contents, publishablePackageNames)
+          : false
+      }),
+    )
+  ).some(Boolean)
+
+  return isStableVersionCommit({
+    beforeIsAncestorOfHead,
+    changedFiles,
+    currentPrereleaseState,
+    currentVersions: currentManifests.map((manifest) => manifest.version),
+    deletedFiles,
+    eventName: context.eventName,
+    manifestPaths,
+    previousPrereleaseState,
+    previousVersions: previousManifests.map((manifest) => manifest?.version),
+    removedPackageChangeset,
+  })
+}
+
 async function main(): Promise<void> {
   const manifestPaths = process.argv.slice(2)
   const state = await inspectReleaseState(process.cwd(), manifestPaths)
+  const releaseOptions: ReleaseCommitOptions = {
+    beforeSha: process.env.RELEASE_BEFORE_SHA,
+    defaultBranch: process.env.RELEASE_DEFAULT_BRANCH,
+    eventName: process.env.RELEASE_EVENT_NAME,
+    headSha: process.env.RELEASE_HEAD_SHA,
+  }
   const releaseCommit =
     state.mode === 'beta'
       ? await detectPrereleaseVersionCommit(
           process.cwd(),
           manifestPaths,
-          {
-            beforeSha: process.env.RELEASE_BEFORE_SHA,
-            defaultBranch: process.env.RELEASE_DEFAULT_BRANCH,
-            eventName: process.env.RELEASE_EVENT_NAME,
-            headSha: process.env.RELEASE_HEAD_SHA,
-          },
+          releaseOptions,
         )
-      : false
+      : await detectStableVersionCommit(
+          process.cwd(),
+          manifestPaths,
+          releaseOptions,
+        )
   const outputs = [
     'release_commit=' + String(releaseCommit),
     `mode=${state.mode}`,

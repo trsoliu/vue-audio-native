@@ -9,11 +9,15 @@ The package creates no DOM or media objects during import, so it is safe to impo
 
 ## Install
 
+<!-- release-install:start -->
+
 ```bash
-pnpm add @trsoliu/audio-core@next
+pnpm add @trsoliu/audio-core@1.0.0
 ```
 
-The 1.0 line is currently a prerelease. Use the `next` tag while validating it.
+Use `@trsoliu/audio-core@next` only when intentionally validating a prerelease.
+
+<!-- release-install:end -->
 
 ## Exports
 
