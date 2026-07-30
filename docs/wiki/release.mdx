@@ -46,4 +46,6 @@ commit SHA 与对应 CI URL。
 ## 稳定发布
 
 稳定版通过 GitHub Actions Trusted Publishing、OIDC 与 provenance 发布。工作流不保存长期
-npm token。任何待处理的[真机冒烟](../device-smoke/)都会阻止 stable Changesets PR 合并。
+npm token。`pnpm release:verify-devices` 会在 publish 之前解析[真机冒烟](../device-smoke/)
+的四个必需环境；任一状态不是精确的 `通过` 都会在 Actions 中阻断稳定发布，但不会阻止
+Changesets 创建或更新 release PR。
