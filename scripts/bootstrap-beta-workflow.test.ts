@@ -17,7 +17,7 @@ describe('bootstrap npm beta workflow', () => {
     expect(workflow).not.toMatch(/^\s+push:/m)
     expect(workflow).toContain("github.ref == 'refs/heads/master'")
     expect(workflow).toContain("inputs.mode == 'publish-vue-beta'")
-    expect(workflow).toContain("inputs.confirm == 'publish-beta.1'")
+    expect(workflow).toContain("inputs.confirm == 'publish-beta.2'")
     expect(workflow).toContain("inputs.mode == 'finalize-legacy'")
     expect(workflow).toContain("inputs.confirm == 'finalize-legacy'")
     expect(workflow).toContain('environment: npm')
@@ -91,7 +91,7 @@ describe('bootstrap npm beta workflow', () => {
       'https://registry.npmjs.org/@trsoliu%2faudio-core/1.0.0-beta.1',
     )
     expect(workflow).toContain(
-      'https://registry.npmjs.org/vue-audio-native/1.0.0-beta.1',
+      'https://registry.npmjs.org/vue-audio-native/1.0.0-beta.2',
     )
     expect(workflow.match(/for attempt in \{1\.\.12\}/g)?.length).toBe(2)
     expect(workflow.match(/sleep 5/g)?.length).toBe(2)
@@ -108,6 +108,9 @@ describe('bootstrap npm beta workflow', () => {
     )
     expect(workflow).toContain(
       'npm dist-tag add @trsoliu/audio-core@1.0.0-beta.1 next',
+    )
+    expect(workflow).toContain(
+      'npm dist-tag add vue-audio-native@1.0.0-beta.2 next',
     )
   })
 })

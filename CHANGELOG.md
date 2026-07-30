@@ -15,6 +15,8 @@ package changelogs are managed by Changesets.
   `latest` alias on a new package that has no stable version; `next` remains the prerelease channel.
 - Added a machine-enforced stable-release device gate and pinned every action in the privileged
   Trusted Publishing workflow to an immutable commit.
+- Fixed the published Vue declaration bundle so strict TypeScript consumers can resolve component
+  props, events, slots and exposed controls without private `__VLS_*` compiler symbols.
 
 ### Added
 
@@ -37,7 +39,9 @@ package changelogs are managed by Changesets.
 
 ### Release boundary
 
-- Source versions are prepared as `1.0.0-beta.1`; no npm publication is claimed by this file.
+- `@trsoliu/audio-core@1.0.0-beta.1`, `vue-audio-native@1.0.0-beta.1` and
+  `react-audio-native@1.0.0-beta.1` are published; the Vue declaration correction is prepared as
+  `vue-audio-native@1.0.0-beta.2`.
 - Stable `1.0.0` remains blocked until iOS WKWebView, Android WebView and HarmonyOS ArkWeb smoke
   evidence is complete.
 

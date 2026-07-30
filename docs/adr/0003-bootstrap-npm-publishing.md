@@ -83,7 +83,8 @@ required npm package names, dist-tags or clean npm consumer verification.
 
 ## Follow-up actions
 
-- [ ] Publish the core, Vue and React `1.0.0-beta.1` versions.
+- [x] Publish the core, Vue and React `1.0.0-beta.1` versions.
+- [ ] Publish `vue-audio-native@1.0.0-beta.2` with the strict declaration-consumer fix.
 - [ ] Complete clean Vite, Nuxt, React and Next registry-consumer verification.
 - [ ] Set the Vue 2 `legacy` tag only after the beta verification succeeds.
 - [ ] Configure Trusted Publishers for all three packages.
