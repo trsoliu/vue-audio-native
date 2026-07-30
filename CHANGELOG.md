@@ -19,6 +19,8 @@ package changelogs are managed by Changesets.
   props, events, slots and exposed controls without private `__VLS_*` compiler symbols.
 - Retired the short-lived token bootstrap workflow after beta publication, clean registry-consumer
   verification and Vue 2 `legacy` tag finalization; permanent releases use OIDC only.
+- Configured npm Trusted Publishers for core, Vue and React against their exact `release.yml`
+  workflows and protected `npm` environments.
 - Fixed Changesets release versioning to refresh the pnpm lockfile after coordinated core and Vue
   package version updates, keeping generated release PRs installable with `--frozen-lockfile`.
 

@@ -1,6 +1,6 @@
 # ADR 0003: Bootstrap new npm packages with a short-lived token before OIDC
 
-- Status: accepted; bootstrap completed
+- Status: accepted; bootstrap completed; token retained until expiry
 - Date: 2026-07-30
 - Decider: trsoliu
 - Owner: trsoliu
@@ -18,7 +18,9 @@ the repositories and avoid weakening the stable-release device gate.
 
 ## Decision
 
-Use a one-day npm Granular Access Token only for the first beta publications. Store it as the
+Use a bounded npm Granular Access Token only for the first beta publications. The operator selected
+a 90-day expiry ceiling on 2026-07-30 and, after verifying the OIDC cutover, elected to retain the
+disconnected token until its 2026-10-28 expiry. Store it as the
 `NPM_BOOTSTRAP_TOKEN` secret in each repository's protected `npm` GitHub Environment and expose it
 only to manual bootstrap publishing steps on the default branch.
 
@@ -32,9 +34,10 @@ The React repository uses the same bootstrap pattern only after installing the p
 After all three betas and clean registry consumers pass, a separate confirmed workflow mode sets
 `vue-audio-native@0.1.41` to `legacy`.
 
-Immediately afterward, configure each package to trust its repository's `release.yml` workflow,
-delete both GitHub secrets and revoke the token. Stable releases use OIDC Trusted Publishing and
-provenance only.
+Immediately afterward, configure each package to trust its repository's `release.yml` workflow and
+delete both GitHub secrets. The retained npm-account token must not be restored to a repository,
+workflow or local npm configuration. Stable releases use OIDC Trusted Publishing and provenance
+only.
 
 The temporary workflow is removed from the default branch after the beta and `legacy` sequence;
 its immutable Actions runs and Git history retain the audit trail.
@@ -72,16 +75,17 @@ required npm package names, dist-tags or clean npm consumer verification.
 - The temporary token must initially cover all user packages so it can create both scoped and
   unscoped names.
 - Two repository secrets must be created and then removed manually.
-- The token has bypass-2FA capability for at most one day, creating a short but non-zero exposure
-  window.
+- The token has bypass-2FA capability until it is revoked, with 2026-10-28 as its configured expiry
+  backstop, creating a short but non-zero bootstrap exposure window.
 
 ### Risk mitigation
 
-- Keep the expiry at one day and organization permissions at `No access`.
+- Keep organization permissions at `No access` and remove repository secrets immediately after the
+  bootstrap. The owner accepts the residual risk of retaining the disconnected token until expiry.
 - Restrict workflow execution to the default branch and the `npm` Environment.
 - Keep `next` as the documented prerelease channel. Accept npm's required `latest` alias only while
   a new package has no stable version, then move `latest` to `1.0.0` at stable release.
-- Revoke the token only after React beta, registry consumers and `legacy` finalization complete.
+- Do not use or reintroduce the retained token; manually revoke it if the accepted risk changes.
 - Never use this workflow for stable versions; stable remains blocked by device-smoke evidence.
 
 ## Follow-up actions
@@ -90,9 +94,10 @@ required npm package names, dist-tags or clean npm consumer verification.
 - [x] Publish `vue-audio-native@1.0.0-beta.2` with the strict declaration-consumer fix.
 - [x] Complete clean Vite, Nuxt, React and Next registry-consumer verification.
 - [x] Set the Vue 2 `legacy` tag only after the beta verification succeeds.
-- [ ] Configure Trusted Publishers for all three packages.
+- [x] Configure Trusted Publishers for all three packages.
 - [x] Delete both GitHub bootstrap secrets and retire the temporary workflow.
-- [ ] Revoke the one-day bootstrap token on npm.
+- [x] Record the owner's decision to retain the disconnected token until 2026-10-28 and confirm it
+  is absent from both GitHub Environments and all release workflows.
 
 ## References
 
