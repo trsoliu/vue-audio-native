@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 const repositoryRoot = resolve(import.meta.dirname, '..')
 const workflowPath = resolve(repositoryRoot, '.github/workflows/release.yml')
+const packagePath = resolve(repositoryRoot, 'package.json')
 
 describe('stable npm release workflow', () => {
   it('runs the device gate after versioning and before publication', async () => {
@@ -42,5 +43,16 @@ describe('stable npm release workflow', () => {
 
     expect(workflows.join('\n')).not.toContain('NPM_BOOTSTRAP_TOKEN')
     expect(await readFile(workflowPath, 'utf8')).toContain('id-token: write')
+  })
+
+  it('refreshes the workspace lockfile after Changesets updates internal versions', async () => {
+    const packageJson = JSON.parse(await readFile(packagePath, 'utf8')) as {
+      scripts?: Record<string, string>
+    }
+    const versionCommand = packageJson.scripts?.['version-packages']
+
+    expect(versionCommand).toContain('changeset version')
+    expect(versionCommand).toContain('pnpm install --lockfile-only')
+    expect(versionCommand).toContain('--ignore-scripts')
   })
 })
