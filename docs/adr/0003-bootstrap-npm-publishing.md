@@ -18,7 +18,9 @@ the repositories and avoid weakening the stable-release device gate.
 
 ## Decision
 
-Use a one-day npm Granular Access Token only for the first beta publications. Store it as the
+Use a bounded npm Granular Access Token only for the first beta publications. The operator selected
+a 90-day expiry ceiling on 2026-07-30, while the operational plan still requires revocation as soon
+as the OIDC cutover is verified rather than relying on that expiry. Store it as the
 `NPM_BOOTSTRAP_TOKEN` secret in each repository's protected `npm` GitHub Environment and expose it
 only to manual bootstrap publishing steps on the default branch.
 
@@ -72,12 +74,13 @@ required npm package names, dist-tags or clean npm consumer verification.
 - The temporary token must initially cover all user packages so it can create both scoped and
   unscoped names.
 - Two repository secrets must be created and then removed manually.
-- The token has bypass-2FA capability for at most one day, creating a short but non-zero exposure
-  window.
+- The token has bypass-2FA capability until it is revoked, with 2026-10-28 as its configured expiry
+  backstop, creating a short but non-zero bootstrap exposure window.
 
 ### Risk mitigation
 
-- Keep the expiry at one day and organization permissions at `No access`.
+- Keep organization permissions at `No access`, remove repository secrets immediately after the
+  bootstrap and revoke the token as soon as all OIDC bindings are verified.
 - Restrict workflow execution to the default branch and the `npm` Environment.
 - Keep `next` as the documented prerelease channel. Accept npm's required `latest` alias only while
   a new package has no stable version, then move `latest` to `1.0.0` at stable release.
@@ -90,9 +93,9 @@ required npm package names, dist-tags or clean npm consumer verification.
 - [x] Publish `vue-audio-native@1.0.0-beta.2` with the strict declaration-consumer fix.
 - [x] Complete clean Vite, Nuxt, React and Next registry-consumer verification.
 - [x] Set the Vue 2 `legacy` tag only after the beta verification succeeds.
-- [ ] Configure Trusted Publishers for all three packages.
+- [x] Configure Trusted Publishers for all three packages.
 - [x] Delete both GitHub bootstrap secrets and retire the temporary workflow.
-- [ ] Revoke the one-day bootstrap token on npm.
+- [ ] Revoke the bootstrap token on npm.
 
 ## References
 
