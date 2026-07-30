@@ -39,8 +39,9 @@ pnpm test:pack
 pnpm test:e2e
 ```
 
-文档站本地启动：`pnpm docs:dev --host 127.0.0.1 --port 5175`。项目地图见
-[`docs/project-map`](docs/project-map/index.mdx)，架构决策见 [`docs/adr`](docs/adr)，
+文档站本地启动：`pnpm docs:dev --host 127.0.0.1 --port 5175`。设计边界见
+[`DESIGN.md`](DESIGN.md)，项目地图见 [`docs/project-map`](docs/project-map/index.mdx)，
+架构决策见 [`docs/adr`](docs/adr)，
 浏览器支持边界见 [`docs/compatibility.md`](docs/compatibility.md)。合并到 `master` 后，
 GitHub Pages 会发布到 <https://trsoliu.github.io/vue-audio-native/>。
 
