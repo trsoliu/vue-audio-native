@@ -1,6 +1,6 @@
 {
   "name": "vue-audio-native",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Accessible Vue 3 audio player for modern browsers and WebViews.",
   "type": "module",
   "license": "MIT",
@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@lucide/vue": "1.27.0",
-    "@trsoliu/audio-core": "1.0.0"
+    "@trsoliu/audio-core": "1.0.1"
   },
   "peerDependencies": {
     "vue": ">=3.3 <4"

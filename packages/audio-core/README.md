@@ -12,7 +12,7 @@ The package creates no DOM or media objects during import, so it is safe to impo
 <!-- release-install:start -->
 
 ```bash
-pnpm add @trsoliu/audio-core@1.0.0
+pnpm add @trsoliu/audio-core@1.0.1
 ```
 
 Use `@trsoliu/audio-core@next` only when intentionally validating a prerelease.

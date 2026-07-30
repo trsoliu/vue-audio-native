@@ -13,7 +13,7 @@ Version 1.x targets Vue `>=3.3 <4`. Vue 2 applications must stay on the legacy l
 
 ```bash
 # Vue 3
-pnpm add vue-audio-native@1.0.0
+pnpm add vue-audio-native@1.0.1
 
 # Vue 2 compatibility line
 pnpm add vue-audio-native@legacy
