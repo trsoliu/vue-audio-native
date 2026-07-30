@@ -5,6 +5,15 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      release_before_sha:
+        description: Previous default-branch SHA from the failed release push
+        required: true
+        type: string
+      release_head_sha:
+        description: Exact release HEAD SHA from the failed release push
+        required: true
+        type: string
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -15,7 +24,7 @@ permissions:
 
 jobs:
   release:
-    if: github.repository == 'trsoliu/vue-audio-native'
+    if: github.repository == 'trsoliu/vue-audio-native' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     environment: npm
@@ -43,8 +52,17 @@ jobs:
       - run: pnpm test:pack
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm test:e2e
+      - name: Inspect Changesets release state
+        id: release_state
+        run: pnpm release:inspect
+        env:
+          RELEASE_BEFORE_SHA: ${{ github.event_name == 'push' && github.event.before || inputs.release_before_sha }}
+          RELEASE_DEFAULT_BRANCH: master
+          RELEASE_EVENT_NAME: ${{ github.event_name }}
+          RELEASE_HEAD_SHA: ${{ github.event_name == 'push' && github.sha || inputs.release_head_sha }}
       - name: Create or update the release PR
         id: changesets
+        if: steps.release_state.outputs.prerelease_ready != 'true'
         uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1
         with:
           version: pnpm version-packages
@@ -52,10 +70,27 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify stable device-smoke evidence
-        if: steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm release:verify-devices
-      - name: Publish with npm Trusted Publishing
-        if: steps.changesets.outputs.hasChangesets == 'false'
+      - name: Publish stable packages with npm Trusted Publishing
+        if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'
         run: pnpm release
+        env:
+          NPM_CONFIG_PROVENANCE: true
+      - name: Verify beta prerelease manifests
+        if: steps.release_state.outputs.mode == 'beta' && steps.release_state.outputs.prerelease_ready == 'true' && steps.release_state.outputs.release_commit == 'true'
+        run: pnpm release:verify-prerelease
+      - name: Reconfirm the live default-branch release head
+        id: release_head_recheck
+        if: steps.release_state.outputs.mode == 'beta' && steps.release_state.outputs.prerelease_ready == 'true' && steps.release_state.outputs.release_commit == 'true'
+        run: pnpm release:inspect
+        env:
+          RELEASE_BEFORE_SHA: ${{ github.event_name == 'push' && github.event.before || inputs.release_before_sha }}
+          RELEASE_DEFAULT_BRANCH: master
+          RELEASE_EVENT_NAME: ${{ github.event_name }}
+          RELEASE_HEAD_SHA: ${{ github.event_name == 'push' && github.sha || inputs.release_head_sha }}
+      - name: Publish beta packages to next with npm Trusted Publishing
+        if: steps.release_state.outputs.mode == 'beta' && steps.release_state.outputs.prerelease_ready == 'true' && steps.release_state.outputs.release_commit == 'true' && steps.release_head_recheck.outputs.release_commit == 'true'
+        run: pnpm release:next
         env:
           NPM_CONFIG_PROVENANCE: true

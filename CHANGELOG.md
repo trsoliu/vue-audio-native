@@ -5,6 +5,13 @@ package changelogs are managed by Changesets.
 
 ## Unreleased
 
+- Added a mutually exclusive OIDC release path that waits until Changesets records every retained
+  beta changeset for a publishable package as consumed, binds publication to an ancestor-verified
+  versioning push, supports an exact-SHA-bound default-branch recovery after a failed release run,
+  reconfirms the live remote branch immediately before publication,
+  tolerates multi-commit rebase merges, and verifies exact `next` tags before
+  treating registry versions as complete while retrying transient registry failures; stable
+  publication still requires all four device-smoke rows.
 - Expanded the Vue and audio-core API references with every public option, event payload, snapshot
   state, error code, command, slot, Bridge event and npm README usage contract; also corrected the
   headless Vue template ref example and clarified that low-level controller values come from
