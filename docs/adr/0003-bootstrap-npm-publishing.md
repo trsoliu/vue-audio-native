@@ -69,7 +69,8 @@ default-branch boundary even when another push races a running job.
 
 When pre mode was adopted, `modern-audio-native` and `safe-vue-declarations` were seeded as
 consumed because their contents were already represented by the public beta manifests. The later
-`clear-audio-api-docs` changeset remains pending and is the sole input to the next version PR.
+`clear-audio-api-docs` changeset was consumed by the OIDC release PR that published
+`@trsoliu/audio-core@1.0.0-beta.2` and `vue-audio-native@1.0.0-beta.3`.
 
 ## Alternatives considered
 
@@ -123,6 +124,7 @@ required npm package names, dist-tags or clean npm consumer verification.
 
 - [x] Publish the core, Vue and React `1.0.0-beta.1` versions.
 - [x] Publish `vue-audio-native@1.0.0-beta.2` with the strict declaration-consumer fix.
+- [x] Publish `@trsoliu/audio-core@1.0.0-beta.2` and `vue-audio-native@1.0.0-beta.3` through OIDC.
 - [x] Complete clean Vite, Nuxt, React and Next registry-consumer verification.
 - [x] Set the Vue 2 `legacy` tag only after the beta verification succeeds.
 - [x] Configure Trusted Publishers for all three packages.
