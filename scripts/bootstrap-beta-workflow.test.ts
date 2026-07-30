@@ -97,12 +97,17 @@ describe('bootstrap npm beta workflow', () => {
     expect(workflow.match(/sleep 5/g)?.length).toBe(2)
   })
 
-  it('does not leave the new core beta on the latest dist-tag', async () => {
+  it('keeps next authoritative without trying to remove the first-version latest tag', async () => {
     const workflow = await readFile(workflowPath, 'utf8')
 
-    expect(workflow).toContain(
+    expect(workflow).not.toContain(
       'npm dist-tag rm @trsoliu/audio-core latest --registry=https://registry.npmjs.org',
     )
-    expect(workflow).toContain("'^latest: 1\\.0\\.0-beta\\.1$'")
+    expect(workflow).toContain(
+      'npm requires a latest tag while a package has no stable version',
+    )
+    expect(workflow).toContain(
+      'npm dist-tag add @trsoliu/audio-core@1.0.0-beta.1 next',
+    )
   })
 })
