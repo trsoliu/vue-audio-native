@@ -1,6 +1,6 @@
 # ADR 0003: Bootstrap new npm packages with a short-lived token before OIDC
 
-- Status: accepted
+- Status: accepted; bootstrap completed
 - Date: 2026-07-30
 - Decider: trsoliu
 - Owner: trsoliu
@@ -35,6 +35,9 @@ After all three betas and clean registry consumers pass, a separate confirmed wo
 Immediately afterward, configure each package to trust its repository's `release.yml` workflow,
 delete both GitHub secrets and revoke the token. Stable releases use OIDC Trusted Publishing and
 provenance only.
+
+The temporary workflow is removed from the default branch after the beta and `legacy` sequence;
+its immutable Actions runs and Git history retain the audit trail.
 
 ## Alternatives considered
 
@@ -84,11 +87,12 @@ required npm package names, dist-tags or clean npm consumer verification.
 ## Follow-up actions
 
 - [x] Publish the core, Vue and React `1.0.0-beta.1` versions.
-- [ ] Publish `vue-audio-native@1.0.0-beta.2` with the strict declaration-consumer fix.
-- [ ] Complete clean Vite, Nuxt, React and Next registry-consumer verification.
-- [ ] Set the Vue 2 `legacy` tag only after the beta verification succeeds.
+- [x] Publish `vue-audio-native@1.0.0-beta.2` with the strict declaration-consumer fix.
+- [x] Complete clean Vite, Nuxt, React and Next registry-consumer verification.
+- [x] Set the Vue 2 `legacy` tag only after the beta verification succeeds.
 - [ ] Configure Trusted Publishers for all three packages.
-- [ ] Delete the GitHub secrets and revoke the bootstrap token.
+- [x] Delete both GitHub bootstrap secrets and retire the temporary workflow.
+- [ ] Revoke the one-day bootstrap token on npm.
 
 ## References
 
