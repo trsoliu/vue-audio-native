@@ -1,55 +1,376 @@
 ---
-title: 公共 API
-description: Vue 组件、composable、共享类型、事件、插槽与命令句柄。
+title: 公共 API 与事件
+description: Vue 组件、composable、共享状态、事件 payload、命令句柄与 audio-core 控制器的完整契约。
 ---
 
-# 公共 API
+# 公共 API 与事件
 
-## 导出
+Vue 组件和 `useAudioPlayer()` 都适配同一套 `@trsoliu/audio-core` 状态。组件事件不是
+原生 `<audio>` 事件的逐条转发，而是根据不可变 `AudioSnapshot` 的变化发出。业务代码应
+以事件 payload 或 composable 的 `snapshot` 为准，不要同时维护另一套播放状态。
 
-`vue-audio-native` 导出：
+## 导出边界
 
-- `VueAudioNative`，别名 `AudioPlayer`；
-- 默认插件，可通过 `app.use()` 注册；
-- `useAudioPlayer()`；
-- `createAudioController()`、能力检测和时间格式化工具；
-- `AudioTrack`、`AudioSnapshot`、`AudioPlayerError`、`AudioPlayerHandle`、
-`AudioPlayerBridge` 等公共类型。
+从 `vue-audio-native` 导入：
 
-Headless `useAudioPlayer()` 接受协议无关的 `bridge`；从响应式 options 中移除它会解绑旧
-宿主。直接使用 controller 时可传 `bridge: null` 完成同一操作。
+| 导出                                                                   | 类型         | 用途                                                              |
+| ---------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------- |
+| `VueAudioNative`                                                       | value        | 推荐的 Vue 3 组件                                                 |
+| `AudioPlayer`                                                          | value        | `VueAudioNative` 的同一组件别名                                   |
+| default export                                                         | Vue `Plugin` | `app.use(VueAudioNative)`，注册 `VueAudioNative` 与 `AudioPlayer` |
+| `useAudioPlayer()`                                                     | function     | 无界面的响应式播放器 composable                                   |
+| `detectAudioCapabilities()`                                            | function     | 无 UA 的运行时能力检测                                            |
+| `formatMediaTime()`                                                    | function     | 把秒数格式化为 `mm:ss` 或 `hh:mm:ss`                              |
+| `VueAudioNativeProps`、`UseAudioPlayerOptions`、`UseAudioPlayerResult` | type         | Vue 适配层类型                                                    |
+| core 共享类型                                                          | type         | track、snapshot、error、Bridge、handle 等类型                     |
 
-## 现代 props
+完整 type-only 导出为：
 
-| prop             | 类型                      | 说明                           |
-| ---------------- | ------------------------- | ------------------------------ |
-| `tracks`         | `readonly AudioTrack[]`   | 播放列表与多格式 source 回退   |
-| `src`            | `AudioSourceInput`        | 单曲输入                       |
-| `nativeControls` | `boolean`                 | 强制浏览器原生控件             |
-| `repeatMode`     | `'off' \| 'one' \| 'all'` | 循环策略                       |
-| `playbackRate`   | `number`                  | 倍速，内核限制为 0.25–4        |
-| `mediaSession`   | `boolean`                 | 锁屏元数据与媒体按键，显式开启 |
-| `exclusive`      | `boolean`                 | 与同 `group` 实例互斥          |
-| `group`          | `string`                  | 实例协调分组                   |
+```ts
+import type {
+  AudioPlayerSize,
+  UseAudioPlayerOptions,
+  UseAudioPlayerResult,
+  VueAudioNativeProps,
+  AudioArtwork,
+  AudioBridgeEvent,
+  AudioControllerOptions,
+  AudioInput,
+  AudioPlayerBridge,
+  AudioPlayerError,
+  AudioPlayerErrorCode,
+  AudioPlayerHandle,
+  AudioRuntimeCapabilities,
+  AudioSnapshot,
+  AudioSource,
+  AudioSourceInput,
+  AudioTrack,
+  BufferedRange,
+  PlaybackState,
+  PreloadMode,
+  RepeatMode,
+} from 'vue-audio-native'
+```
 
-旧 `url`、`size`、`showCurrentTime`、`showControls`、`showVolume`、`showDownload`、
-`autoplay`、`waitBuffer`、`downloadName` 和 `hint` 继续受支持。
+`createAudioController()`、`normalizeInput()`、`normalizeSources()` 和
+`AudioControllerError` 只从 `@trsoliu/audio-core` 导出，Vue 包不会重新导出这些底层
+value：
 
-## 事件
+```ts
+import { createAudioController } from '@trsoliu/audio-core'
+import { VueAudioNative, useAudioPlayer } from 'vue-audio-native'
+```
 
-现代事件为 `ready`、`play`、`pause`、`ended`、`timeupdate`、`statechange`、
-`trackchange` 和 `error`。旧事件 `on-change`、`on-timeupdate`、`on-metadata`、
-`on-audioId` 保持兼容。
+## 输入模型
 
-## 命令句柄
+### `AudioSource` 与 `AudioSourceInput`
 
-组件通过 `defineExpose` 暴露 `AudioPlayerHandle`：播放、暂停、切换、停止、跳转、前后
-跳、选曲、上一首/下一首、音量、静音、倍速、循环模式和原生媒体元素访问。
+```ts
+interface AudioSource {
+  src: string
+  type?: string
+}
+
+type AudioSourceInput = string | AudioSource
+```
+
+`src` 可以接收一个 URL、一个带 MIME type 的 source，或它们的有序数组。空 URL 会被
+忽略，同一 URL 只保留第一次出现的位置。提供 `type` 时，内核优先选择
+`HTMLMediaElement.canPlayType()` 支持的 source；播放失败后会继续尝试后续 source。
+
+### `AudioTrack`
+
+| 字段           | 类型                                    | 必填 | 说明                                             |
+| -------------- | --------------------------------------- | ---- | ------------------------------------------------ |
+| `id`           | `string`                                | 是   | 调用方维护的稳定曲目标识                         |
+| `sources`      | `AudioSource \| readonly AudioSource[]` | 是   | 一个或多个有序回退源                             |
+| `title`        | `string`                                | 否   | 标题与 Media Session metadata                    |
+| `artist`       | `string`                                | 否   | 艺术家与 Media Session metadata                  |
+| `album`        | `string`                                | 否   | 专辑与 Media Session metadata                    |
+| `artwork`      | `MediaImage[]`                          | 否   | 默认封面与 Media Session artwork                 |
+| `downloadName` | `string`                                | 否   | 覆盖组件级下载文件名                             |
+| `peaks`        | `readonly number[]`                     | 否   | 调用方提供的波形峰值；播放器不会下载音频计算峰值 |
+
+非空 `tracks` 优先于 `src`，`src` 又优先于兼容 prop `url`。同时传入多个输入时，Vue
+组件会在开发环境给出警告。无可用 source 的 track 会被过滤；单独的 `src` 会被规范化
+为 `id: 'audio-source'` 的单曲播放列表。
+
+## `<VueAudioNative>` props
+
+### 输入与播放
+
+| prop           | 类型                                              | 默认值       | 行为                                                                            |
+| -------------- | ------------------------------------------------- | ------------ | ------------------------------------------------------------------------------- |
+| `tracks`       | `readonly AudioTrack[]`                           | —            | 播放列表；非空时覆盖 `src` 与 `url`                                             |
+| `src`          | `AudioSourceInput \| readonly AudioSourceInput[]` | —            | 单曲或多格式回退输入                                                            |
+| `url`          | `string`                                          | `''`         | 0.x 兼容输入，仅在 `tracks`、`src` 都不可用时生效                               |
+| `autoplay`     | `boolean`                                         | `false`      | 挂载或换源后尝试播放；浏览器阻止时发出可恢复的 `AUTOPLAY_BLOCKED`               |
+| `preload`      | `'none' \| 'metadata' \| 'auto'`                  | `'metadata'` | 写入原生 audio 的 preload 策略                                                  |
+| `volume`       | `number`                                          | `1`          | 有限值限制到 `0`–`1`；非有限初始值使用 `1`，后续非有限值忽略                    |
+| `muted`        | `boolean`                                         | `false`      | 静音状态                                                                        |
+| `playbackRate` | `number`                                          | `1`          | 有限值限制到 `0.25`–`4`；非有限初始值使用 `1`，后续非有限值忽略                 |
+| `repeatMode`   | `'off' \| 'one' \| 'all'`                         | `'off'`      | 不循环、单曲循环或列表循环                                                      |
+| `waitBuffer`   | `boolean`                                         | `true`       | `true` 允许跳到已知 duration 内任意位置；`false` 把 seek 限制到当前最大缓冲终点 |
+
+### 协作与浏览器集成
+
+| prop             | 类型      | 默认值      | 行为                                                             |
+| ---------------- | --------- | ----------- | ---------------------------------------------------------------- |
+| `exclusive`      | `boolean` | `false`     | 仅当两个实例都开启且 `group` 相同时，新播放实例才暂停另一个实例  |
+| `group`          | `string`  | `'default'` | 互斥分组；空白字符串按 `'default'` 处理                          |
+| `mediaSession`   | `boolean` | `false`     | 显式开启锁屏 metadata、播放状态与媒体按键处理                    |
+| `nativeControls` | `boolean` | 见说明      | 显式传入时决定是否强制原生 controls；未传时沿用旧 `showControls` |
+
+如果运行环境缺少自定义控件所需能力，即使 `nativeControls` 为 `false` 也会安全降级到
+原生 controls。组件本身不暴露 `bridge` prop；宿主 Bridge 请使用
+`useAudioPlayer({ bridge })`，或直接使用 core controller。
+
+### 展示与兼容 props
+
+| prop              | 类型                              | 默认值              | 行为                                                                  |
+| ----------------- | --------------------------------- | ------------------- | --------------------------------------------------------------------- |
+| `size`            | `'small' \| 'default' \| 'large'` | `'default'`         | 写入根节点 `data-size`，切换包内尺寸样式                              |
+| `showCurrentTime` | `boolean`                         | `true`              | 显示当前时间与 duration                                               |
+| `showVolume`      | `boolean`                         | `true`              | 显示静音按钮和音量滑杆                                                |
+| `showDownload`    | `boolean`                         | `true`              | 有 source 时显示下载链接；浏览器决定是否支持 `download` 和跨域下载    |
+| `downloadName`    | `string`                          | `''`                | 默认下载文件名；track 的同名字段优先                                  |
+| `hint`            | `string`                          | `'暂无有效音频...'` | 没有可播放 track 且未提供插槽时显示                                   |
+| `showControls`    | `boolean`                         | `false`             | 0.x 兼容项；仅在未显式传 `nativeControls` 时决定是否使用原生 controls |
+
+## 现代组件事件
+
+事件按 snapshot 变化发出，不等同于同名 DOM 事件。Vue 模板中建议使用 kebab-case
+监听名：
+
+| 事件          | payload                                           | 触发条件与注意事项                                                                                                                    |
+| ------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `statechange` | `(snapshot: AudioSnapshot)`                       | 每次 `PlaybackState` 真正变化时触发，包括 `loading`、`buffering` 和 `error`                                                           |
+| `ready`       | `(snapshot: AudioSnapshot)`                       | 状态进入 `ready` 时触发；通常来自暂停时的 `canplay`，加载阶段的 `play()` 被拒绝后也会进入这一可重试状态；不是 `loadedmetadata` 的别名 |
+| `play`        | `(snapshot: AudioSnapshot)`                       | 状态进入 `playing` 时触发；从 `buffering` 恢复也会再次触发                                                                            |
+| `pause`       | `(snapshot: AudioSnapshot)`                       | 状态进入 `paused` 时触发，包括命令暂停和同组互斥暂停                                                                                  |
+| `ended`       | `(snapshot: AudioSnapshot)`                       | 状态进入 `ended` 时触发；单曲循环、列表自动前进或列表循环时不会先发出终止事件                                                         |
+| `timeupdate`  | `(currentTime: number, snapshot: AudioSnapshot)`  | snapshot 的 `currentTime` 变化时触发；播放中也会由进度帧同步，频率可能高于原生 `timeupdate`                                           |
+| `trackchange` | `(track: AudioTrack \| null, trackIndex: number)` | 当前 track 的索引或对象发生变化时触发；初始选择请直接读取 snapshot，不要依赖一次“挂载事件”                                            |
+| `error`       | `(error: AudioPlayerError)`                       | 出现新的公开错误时触发；多 source 回退只在没有后续可尝试 source 后报告媒体错误                                                        |
+
+```vue
+<VueAudioNative
+  :tracks="tracks"
+  @statechange="onStateChange"
+  @timeupdate="(seconds, snapshot) => saveProgress(seconds, snapshot.track?.id)"
+  @trackchange="(track, index) => console.log(index, track?.id)"
+  @error="(error) => console.error(error.code, error.message)"
+/>
+```
+
+`AUTOPLAY_BLOCKED` 会触发 `error`，但 snapshot 通常保持 `ready` 或 `paused`，用户仍可通过
+手势再次调用 `play()`。因此不要把所有 `error` 都当作播放器永久不可用。
+
+## 0.x 兼容事件
+
+| 事件名          | Vue 监听写法     | payload                 | 与现代事件的关系                                                |
+| --------------- | ---------------- | ----------------------- | --------------------------------------------------------------- |
+| `on-change`     | `@on-change`     | `(playing: boolean)`    | 进入 `playing` 发 `true`；进入 `paused` 或 `ended` 发 `false`   |
+| `on-timeupdate` | `@on-timeupdate` | `(currentTime: number)` | 与现代 `timeupdate` 同时发出，但不包含 snapshot                 |
+| `on-metadata`   | `@on-metadata`   | `(event: Event)`        | 原生 `loadedmetadata` 或 `durationchange`；一次换源可能触发多次 |
+| `on-audioId`    | `@on-audio-id`   | `(id: string)`          | 组件挂载后发出一次，如 `vue-audio-native-1`                     |
+
+兼容事件只为迁移保留。新代码优先使用现代事件和 `AudioSnapshot`，尤其不要用
+`on-change` 推断 `loading`、`buffering` 或错误状态。
+
+## `AudioSnapshot`
+
+每次通知提供一个新的、顶层冻结的 snapshot：
+
+| 字段           | 类型                       | 说明                                           |
+| -------------- | -------------------------- | ---------------------------------------------- |
+| `state`        | `PlaybackState`            | 当前状态，见下表                               |
+| `track`        | `AudioTrack \| null`       | 当前规范化 track                               |
+| `trackIndex`   | `number`                   | 当前索引；没有 track 时为 `-1`                 |
+| `currentTime`  | `number`                   | 非负播放位置，单位秒                           |
+| `duration`     | `number \| null`           | 有效非负时长；未知、Infinity 或无效时为 `null` |
+| `buffered`     | `readonly BufferedRange[]` | `{ start, end }` 秒区间列表                    |
+| `volume`       | `number`                   | `0`–`1`                                        |
+| `muted`        | `boolean`                  | 是否静音                                       |
+| `playbackRate` | `number`                   | 当前倍速                                       |
+| `repeatMode`   | `RepeatMode`               | 当前循环模式                                   |
+| `error`        | `AudioPlayerError \| null` | 最近公开错误；成功播放或重新加载后清空         |
+
+| state       | 含义                                                                 |
+| ----------- | -------------------------------------------------------------------- |
+| `idle`      | 尚未附着媒体元素，或当前没有可用输入                                 |
+| `loading`   | 已选择 source，等待媒体就绪                                          |
+| `ready`     | 暂停且可重试；通常已收到 `canplay`，也可能刚从加载阶段的播放拒绝恢复 |
+| `playing`   | 正在播放                                                             |
+| `paused`    | 已暂停                                                               |
+| `buffering` | 播放期间收到 `waiting` 或 `stalled`                                  |
+| `ended`     | 播放列表到达终点且没有继续循环                                       |
+| `error`     | 所有可用 source 均失败，或发生其他致命媒体错误                       |
+
+## 结构化错误
+
+```ts
+interface AudioPlayerError {
+  code: AudioPlayerErrorCode
+  message: string
+  mediaErrorCode?: number
+  cause?: unknown
+}
+```
+
+| code                   | 常见来源                                              | 建议处理                                    |
+| ---------------------- | ----------------------------------------------------- | ------------------------------------------- |
+| `AUTOPLAY_BLOCKED`     | `play()` 被浏览器的用户手势策略拒绝                   | 显示播放按钮，让用户手势重试                |
+| `SOURCE_NOT_SUPPORTED` | 没有可用 source、原生错误码 4，或未附着媒体元素就播放 | 更换 source、检查 MIME/type，或先挂载 audio |
+| `MEDIA_ABORTED`        | 原生媒体错误码 1                                      | 允许重新加载或换源                          |
+| `NETWORK`              | 原生媒体错误码 2                                      | 提供重试并检查 URL/CORS/网络                |
+| `DECODE`               | 原生媒体错误码 3                                      | 换用兼容编码或后备 source                   |
+| `UNKNOWN`              | 其他 `play()` 或媒体失败                              | 记录 `cause`，向用户提供重试或后备路径      |
+
+## `AudioPlayerHandle`
+
+组件通过 `defineExpose` 暴露下列稳定句柄，composable 的 `controls` 使用同一接口：
+
+| 方法                    | 返回值                     | 语义                                                                            |
+| ----------------------- | -------------------------- | ------------------------------------------------------------------------------- |
+| `play()`                | `Promise<void>`            | 请求播放；失败时以结构化 `AudioControllerError` 拒绝                            |
+| `pause()`               | `void`                     | 暂停当前元素                                                                    |
+| `toggle()`              | `Promise<void>`            | 根据原生元素的 paused 状态播放或暂停                                            |
+| `stop()`                | `void`                     | 暂停并跳回 `0` 秒                                                               |
+| `seekTo(seconds)`       | `void`                     | 忽略非有限值，并把位置限制到合法时长；`waitBuffer=false` 时不能超过最大缓冲终点 |
+| `skipBy(seconds)`       | `void`                     | 从当前时间相对跳转                                                              |
+| `selectTrack(index)`    | `Promise<void>`            | 选择合法整数索引；越界时抛出 `RangeError`，原先在播或 autoplay 时继续播放       |
+| `previous()`            | `Promise<void>`            | 当前时间大于 3 秒时先回到本曲开头，否则切上一曲；`all` 可从首曲回绕             |
+| `next()`                | `Promise<void>`            | 切下一曲；`all` 可从末曲回绕，否则进入 `ended`                                  |
+| `setVolume(volume)`     | `void`                     | 把有限数值限制到 `0`–`1`；忽略 `NaN` 与无穷值                                   |
+| `setMuted(muted)`       | `void`                     | 更新静音状态                                                                    |
+| `setPlaybackRate(rate)` | `void`                     | 把有限数值限制到 `0.25`–`4`；忽略 `NaN` 与无穷值                                |
+| `setRepeatMode(mode)`   | `void`                     | 更新 `'off' \| 'one' \| 'all'`                                                  |
+| `getElement()`          | `HTMLAudioElement \| null` | 获取当前原生元素；SSR 或未挂载时为 `null`                                       |
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { VueAudioNative, type AudioPlayerHandle } from 'vue-audio-native'
+
+const player = ref<AudioPlayerHandle | null>(null)
+</script>
+
+<template>
+  <VueAudioNative ref="player" src="/episode.mp3" />
+  <button type="button" @click="void player?.play()">播放</button>
+</template>
+```
+
+## `useAudioPlayer()`
+
+```ts
+type UseAudioPlayerOptions = MaybeRefOrGetter<AudioControllerOptions>
+
+interface UseAudioPlayerResult {
+  audioRef: ShallowRef<HTMLAudioElement | null>
+  snapshot: ShallowRef<AudioSnapshot>
+  controls: AudioPlayerHandle
+}
+```
+
+在模板中使用 `ref="audioRef"`，不要写成普通 `src` 绑定：
+
+```vue
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useAudioPlayer } from 'vue-audio-native'
+
+const source = computed(() => '/episode.mp3')
+const { audioRef, controls, snapshot } = useAudioPlayer(() => ({
+  src: source.value,
+  bridge: null,
+  exclusive: true,
+  group: 'podcast',
+}))
+</script>
+
+<template>
+  <audio ref="audioRef" />
+  <button type="button" @click="void controls.toggle()">
+    {{ snapshot.state === 'playing' ? '暂停' : '播放' }}
+  </button>
+</template>
+```
+
+options 可以是普通对象、ref、computed 或 getter。composable 会响应输入和运行参数变化，
+并在当前 effect scope 销毁时取消订阅、解绑媒体元素和释放 controller。`bridge` 可以传对象
+或 `null`；移除旧 bridge 与换源同时发生时，旧宿主不会收到后续事件。
 
 ## 插槽
 
-保留 `slotTip`，并提供 `tip`、`artwork`、`before-controls`、`after-controls`。所有图标按钮
-均有可访问名称，键盘、Pointer 和触摸共用同一命令接口。
+| 插槽              | props                    | 渲染条件                               |
+| ----------------- | ------------------------ | -------------------------------------- |
+| `artwork`         | `{ track: AudioTrack }`  | 有当前 track 时；覆盖默认首张 artwork  |
+| `before-controls` | `{ controls, snapshot }` | 使用自定义 controls 且有 track 时      |
+| `after-controls`  | `{ controls, snapshot }` | 使用自定义 controls 且有 track 时      |
+| `tip`             | 无                       | 没有可播放 track 时，优先于 `slotTip`  |
+| `slotTip`         | 无                       | 0.x 兼容 fallback；未提供 `tip` 时使用 |
 
-具体签名以 npm 包生成的 `.d.ts` 为准；发布门禁通过 Are The Types Wrong 和
-`publint` 验证 ESM、CJS 与类型解析。
+## 直接使用 `@trsoliu/audio-core`
+
+```ts
+import { createAudioController } from '@trsoliu/audio-core'
+
+const controller = createAudioController({ src: '/episode.mp3' })
+const unsubscribe = controller.subscribe((snapshot) => {
+  console.log(snapshot.state, snapshot.currentTime)
+})
+
+controller.attach(document.querySelector('audio'))
+```
+
+`subscribe()` 不会立即回放当前值；需要初始值时先调用 `getSnapshot()`。listener 会在任何
+snapshot 发布时收到完整值，不只是在 state 改变时收到。底层 `AudioController` 还提供：
+
+| 方法                        | 说明                                                            |
+| --------------------------- | --------------------------------------------------------------- |
+| `attach(element \| null)`   | 绑定、换绑或解绑真实 `HTMLAudioElement`                         |
+| `destroy()`                 | 移除监听器、进度帧、互斥注册和 Media Session 所有权；可重复调用 |
+| `getSnapshot()`             | 同步读取当前不可变 snapshot                                     |
+| `setInput({ src, tracks })` | 替换输入并把选择重置到首个有效 track                            |
+| `subscribe(listener)`       | 订阅 snapshot，返回幂等取消函数                                 |
+| `updateOptions(partial)`    | 合并运行选项；`bridge: null` 明确解绑宿主                       |
+
+### Bridge Events
+
+Bridge 是协议无关的单向出口：
+
+```ts
+type AudioBridgeEvent =
+  | { type: 'statechange'; snapshot: AudioSnapshot }
+  | {
+      type: 'trackchange'
+      snapshot: AudioSnapshot
+      track: AudioTrack | null
+      trackIndex: number
+    }
+  | { type: 'error'; snapshot: AudioSnapshot; error: AudioPlayerError }
+```
+
+- `statechange` 只在 `snapshot.state` 改变时发送。
+- `trackchange` 在当前 track/index 改变时发送；附着已有选中 track 的 controller 时也会
+  向当前 bridge 发送一次。
+- `error` 只在出现新的公开错误对象时发送。
+- `bridge.emit()` 抛出的宿主异常会被隔离，不会中断播放。
+
+Bridge 不规定 WKWebView、Android `JavascriptInterface` 或 ArkWeb 的消息格式；宿主负责
+序列化、鉴权和生命周期管理。
+
+## Core 工具函数
+
+| API                                 | 行为                                                                                                 |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `detectAudioCapabilities(element?)` | 返回 custom controls、download、Media Session、原生 HLS、Pointer 和 touch 能力；SSR 时全部为 `false` |
+| `formatMediaTime(seconds)`          | 无效、负数或未知值返回 `--:--`，否则返回补零时间                                                     |
+| `normalizeSources(input)`           | trim、过滤空 URL、按 URL 去重并保留顺序                                                              |
+| `normalizeInput(input)`             | 规范化 playlist；非空 tracks 优先，单 src 生成合成 track                                             |
+| `AudioControllerError`              | 带 `code`、可选 `mediaErrorCode` 和 `cause` 的公开 Error 类                                          |
+
+具体声明仍以已发布包的 `.d.ts` 为最终机器契约；发布门禁会验证 ESM、CJS、类型解析、
+SSR 导入和 npm tarball 内容。

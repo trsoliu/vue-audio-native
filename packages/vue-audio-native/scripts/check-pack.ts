@@ -54,7 +54,15 @@ assert.deepEqual(forbiddenPaths, [], `Unexpected packed files: ${forbiddenPaths.
 
 const manifest = JSON.parse(
   await readFile(resolve(packageRoot, 'package.json'), 'utf8'),
-) as { dependencies?: Record<string, string> }
+) as {
+  dependencies?: Record<string, string>
+  exports?: {
+    '.'?: {
+      import?: { development?: string }
+      require?: { development?: string }
+    }
+  }
+}
 const dependencyNames = Object.keys(manifest.dependencies ?? {})
 const forbiddenDependencies = dependencyNames.filter((name) =>
   /shadcn|radix|reka|sonner|class-variance-authority/i.test(name),
@@ -66,14 +74,32 @@ assert.deepEqual(
 )
 
 const esm = await readFile(resolve(packageRoot, 'dist/index.js'))
+const developmentEsm = await readFile(
+  resolve(packageRoot, 'dist/index.development.js'),
+)
 const css = await readFile(resolve(packageRoot, 'dist/style.css'))
 assert(gzipSync(esm).byteLength <= 25 * 1024, 'Component ESM exceeds 25 KB gzip')
 assert(gzipSync(css).byteLength <= 12 * 1024, 'Component CSS exceeds 12 KB gzip')
 
 const esmText = esm.toString('utf8')
+const developmentEsmText = developmentEsm.toString('utf8')
 assert(
-  esmText.includes('Multiple audio inputs were provided'),
-  'Published build lost the input precedence warning',
+  !esmText.includes('Multiple audio inputs were provided'),
+  'Published build retained the development-only input precedence warning',
+)
+assert(
+  developmentEsmText.includes('Multiple audio inputs were provided'),
+  'Development export lost the input precedence warning',
+)
+assert.equal(
+  manifest.exports?.['.']?.import?.development,
+  './dist/index.development.js',
+  'ESM development condition does not resolve the development build',
+)
+assert.equal(
+  manifest.exports?.['.']?.require?.development,
+  './dist/index.development.cjs',
+  'CommonJS development condition does not resolve the development build',
 )
 
 const cssText = css.toString('utf8')

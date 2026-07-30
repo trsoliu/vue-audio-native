@@ -5,6 +5,12 @@ package changelogs are managed by Changesets.
 
 ## Unreleased
 
+- Expanded the Vue and audio-core API references with every public option, event payload, snapshot
+  state, error code, command, slot, Bridge event and npm README usage contract; also corrected the
+  headless Vue template ref example and clarified that low-level controller values come from
+  `@trsoliu/audio-core`.
+- Kept volume and playback-rate snapshots finite when integrations pass `NaN` or infinite values,
+  and limited conflicting-input migration warnings to development builds.
 - Fixed WebView Bridge teardown so removing an adapter happens before a simultaneous source switch.
 - Pinned publishable packages to the official npm registry so local mirror settings cannot redirect a release.
 - Added a manual, gated GitHub Actions bootstrap for the first npm beta using a short-lived

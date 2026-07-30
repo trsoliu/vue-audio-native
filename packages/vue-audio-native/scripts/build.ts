@@ -16,4 +16,5 @@ await writeFile(
   resolve(outputDirectory, 'style.css.d.ts'),
   'declare const stylesheet: string\nexport default stylesheet\n',
 )
+await viteBuild({ configFile, mode: 'development' })
 await viteBuild({ configFile, mode: 'global' })
