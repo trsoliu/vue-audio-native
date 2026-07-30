@@ -1,0 +1,118 @@
+name: Bootstrap npm beta
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Publish the Vue repository betas or finalize the Vue 2 compatibility tag'
+        required: true
+        type: choice
+        options:
+          - publish-vue-beta
+          - finalize-legacy
+      confirm:
+        description: 'Type publish-beta.1 or finalize-legacy for the selected mode'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: bootstrap-npm-beta
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'trsoliu/vue-audio-native' &&
+      github.ref == 'refs/heads/master' &&
+      inputs.mode == 'publish-vue-beta' &&
+      inputs.confirm == 'publish-beta.1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: npm
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm install --global npm@12.0.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm security:audit
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:coverage
+      - run: pnpm build
+      - run: pnpm docs:build
+      - run: pnpm docs:index
+      - run: pnpm docs:audit
+      - run: pnpm docs:eval
+      - run: pnpm test:pack
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e
+      - name: Publish audio core beta when absent
+        working-directory: packages/audio-core
+        run: |
+          if npm view @trsoliu/audio-core@1.0.0-beta.1 version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
+            echo '@trsoliu/audio-core@1.0.0-beta.1 is already published; skipping.'
+          else
+            npm publish --tag next --access public --registry=https://registry.npmjs.org
+          fi
+          npm view @trsoliu/audio-core@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+      - name: Publish Vue beta when absent
+        working-directory: packages/vue-audio-native
+        run: |
+          if npm view vue-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org >/dev/null 2>&1; then
+            echo 'vue-audio-native@1.0.0-beta.1 is already published; skipping.'
+          else
+            npm publish --tag next --access public --registry=https://registry.npmjs.org
+          fi
+          npm view vue-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+      - name: Normalize prerelease dist-tags
+        run: |
+          npm dist-tag add @trsoliu/audio-core@1.0.0-beta.1 next --registry=https://registry.npmjs.org
+          npm dist-tag add vue-audio-native@1.0.0-beta.1 next --registry=https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+      - name: Show published dist-tags
+        run: |
+          npm view @trsoliu/audio-core dist-tags --json --registry=https://registry.npmjs.org
+          npm view vue-audio-native dist-tags --json --registry=https://registry.npmjs.org
+
+  finalize-legacy:
+    if: >-
+      github.repository == 'trsoliu/vue-audio-native' &&
+      github.ref == 'refs/heads/master' &&
+      inputs.mode == 'finalize-legacy' &&
+      inputs.confirm == 'finalize-legacy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: npm
+    steps:
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm install --global npm@12.0.1
+      - name: Verify every beta is public before changing compatibility tags
+        run: |
+          npm view @trsoliu/audio-core@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+          npm view vue-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+          npm view react-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+      - name: Preserve the Vue 2 release line
+        run: npm dist-tag add vue-audio-native@0.1.41 legacy --registry=https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
+      - run: npm view vue-audio-native dist-tags --json --registry=https://registry.npmjs.org

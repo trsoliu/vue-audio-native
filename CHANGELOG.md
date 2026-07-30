@@ -7,6 +7,8 @@ package changelogs are managed by Changesets.
 
 - Fixed WebView Bridge teardown so removing an adapter happens before a simultaneous source switch.
 - Pinned publishable packages to the official npm registry so local mirror settings cannot redirect a release.
+- Added a manual, gated GitHub Actions bootstrap for the first npm beta using a short-lived
+  environment secret before permanent migration to OIDC Trusted Publishing.
 
 ### Added
 
