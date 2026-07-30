@@ -6,6 +6,10 @@ import { describe, expect, it } from 'vitest'
 const repositoryRoot = resolve(import.meta.dirname, '..')
 const workflowPath = resolve(repositoryRoot, '.github/workflows/release.yml')
 const packagePath = resolve(repositoryRoot, 'package.json')
+const versionPackagesPath = resolve(
+  repositoryRoot,
+  'scripts/version-packages.ts',
+)
 
 describe('stable npm release workflow', () => {
   it('runs only from the repository default branch', async () => {
@@ -27,6 +31,13 @@ describe('stable npm release workflow', () => {
     expect(publish).toBeGreaterThan(stableGate)
     expect(workflow).toContain(
       "if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'",
+    )
+    expect(workflow).toContain(
+      "steps.release_state.outputs.release_commit == 'true'",
+    )
+    expect(workflow).toContain('id: stable_release_head_recheck')
+    expect(workflow).toContain(
+      "steps.stable_release_head_recheck.outputs.release_commit == 'true'",
     )
   })
 
@@ -118,14 +129,18 @@ describe('stable npm release workflow', () => {
     expect(await readFile(workflowPath, 'utf8')).toContain('id-token: write')
   })
 
-  it('refreshes the workspace lockfile after Changesets updates internal versions', async () => {
+  it('uses the typed version command to refresh package READMEs and the lockfile', async () => {
     const packageJson = JSON.parse(await readFile(packagePath, 'utf8')) as {
       scripts?: Record<string, string>
     }
     const versionCommand = packageJson.scripts?.['version-packages']
 
-    expect(versionCommand).toContain('changeset version')
-    expect(versionCommand).toContain('pnpm install --lockfile-only')
-    expect(versionCommand).toContain('--ignore-scripts')
+    expect(versionCommand).toContain('scripts/version-packages.ts')
+
+    const script = await readFile(versionPackagesPath, 'utf8')
+    expect(script).toContain("['exec', 'changeset', 'version']")
+    expect(script).toContain("['install', '--lockfile-only', '--ignore-scripts']")
+    expect(script).toContain('void versionPackages().catch')
+    expect(script).not.toContain('  await versionPackages()')
   })
 })

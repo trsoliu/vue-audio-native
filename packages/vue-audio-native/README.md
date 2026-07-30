@@ -9,13 +9,19 @@ Version 1.x targets Vue `>=3.3 <4`. Vue 2 applications must stay on the legacy l
 
 ## Install
 
+<!-- release-install:start -->
+
 ```bash
-# Vue 3 prerelease
-pnpm add vue-audio-native@next
+# Vue 3
+pnpm add vue-audio-native@1.0.0
 
 # Vue 2 compatibility line
 pnpm add vue-audio-native@legacy
 ```
+
+Use `vue-audio-native@next` only when intentionally validating a prerelease.
+
+<!-- release-install:end -->
 
 Import the standalone package CSS; consumers do not need Tailwind:
 

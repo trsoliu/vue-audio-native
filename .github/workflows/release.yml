@@ -70,10 +70,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify stable release evidence or maintainer assessment
-        if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false' && steps.release_state.outputs.release_commit == 'true'
         run: pnpm release:verify-stable
+      - name: Reconfirm the live default-branch stable release head
+        id: stable_release_head_recheck
+        if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false' && steps.release_state.outputs.release_commit == 'true'
+        run: pnpm release:inspect
+        env:
+          RELEASE_BEFORE_SHA: ${{ github.event_name == 'push' && github.event.before || inputs.release_before_sha }}
+          RELEASE_DEFAULT_BRANCH: master
+          RELEASE_EVENT_NAME: ${{ github.event_name }}
+          RELEASE_HEAD_SHA: ${{ github.event_name == 'push' && github.sha || inputs.release_head_sha }}
       - name: Publish stable packages with npm Trusted Publishing
-        if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false'
+        if: steps.release_state.outputs.mode == 'stable' && steps.changesets.outputs.hasChangesets == 'false' && steps.release_state.outputs.release_commit == 'true' && steps.stable_release_head_recheck.outputs.release_commit == 'true'
         run: pnpm release
         env:
           NPM_CONFIG_PROVENANCE: true

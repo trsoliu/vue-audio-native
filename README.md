@@ -4,8 +4,17 @@
 音频内核，提供事件驱动状态、播放列表、多格式回退、Media Session、互斥播放、
 键盘与触控操作，并继续兼容 0.x 已公开的 Vue 接入方式。
 
-> 1.0 稳定版已进入发布流程。Vue 2 用户请使用
+> 1.0 稳定版已发布到 npm。Vue 2 用户请使用
 > `vue-audio-native@legacy`，该标签固定指向 `0.1.41`。
+
+## Install
+
+```bash
+pnpm add vue-audio-native
+```
+
+播放器样式通过 `vue-audio-native/style.css` 独立导入；稳定包可在
+[npm](https://www.npmjs.com/package/vue-audio-native) 查看。
 
 ## Workspace
 

@@ -76,6 +76,11 @@ transition、祖先关系和完整 diff 白名单。push 与手动路径都会�
 稳定证据门禁。因此 beta 发布不能把 `latest` 切到未评估的稳定版本，稳定发布也不能借用
 `next` 路径绕过版本绑定授权。
 
+稳定发布还必须来自 Changesets 生成的版本提交：previous SHA 必须是当前提交的祖先，至少一个
+面向发布包的 changeset 必须在该提交中删除，包版本必须单调前进，完整 diff 只能包含
+Changesets 状态、manifests、package changelogs、受管理的 package README 安装区和 lockfile。
+工作流在发布前再次确认远端 `master` 仍指向同一版本提交；普通源码或文档提交不会直接发布。
+
 本次切换先把随公开 beta 发布过的 `modern-audio-native` 与 `safe-vue-declarations` 记为
 consumed；随后 `clear-audio-api-docs` 也由 beta 版本 PR 消费，并生成已发布的 core beta.2
 与 Vue beta.3。
@@ -95,6 +100,6 @@ npm token。`pnpm release:verify-stable` 会在 publish 之前解析
 工作流会要求所有传入 manifest 要么匹配单一共享版本，要么被完整的 `包名@版本` 映射精确覆盖。
 1.0.0 采用维护者评估路径，未执行的真机项保持明确标记，不会被写成通过。
 
-Vue 仓库采用 core 与组件协调版本。`pnpm version-packages` 在 Changesets 更新 manifests 后
-立即以 `--lockfile-only --ignore-scripts` 刷新 pnpm lockfile，保证生成的 release PR 仍可通过
-CI 的 `pnpm install --frozen-lockfile`，且版本阶段不会执行依赖生命周期脚本。
+Vue 仓库采用 core 与组件协调版本。`pnpm version-packages` 在 Changesets 更新 manifests 后，
+同步重写两个 package README 的受管理安装区，再以 `--lockfile-only --ignore-scripts` 刷新
+pnpm lockfile，保证 npm 页面、精确版本和 release PR 一致，并确保版本阶段不执行依赖生命周期脚本。

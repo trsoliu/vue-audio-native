@@ -5,6 +5,12 @@ package changelogs are managed by Changesets.
 
 ## Unreleased
 
+- Corrected the stable npm installation guidance for core and Vue, and made Changesets keep package
+  README version examples synchronized with every generated release.
+- Restricted stable OIDC publication to an allowlisted Changesets version commit and repeated the
+  live default-branch head check immediately before publishing.
+- Published `@trsoliu/audio-core@1.0.0` and `vue-audio-native@1.0.0` with provenance, kept Vue 2 on
+  `vue-audio-native@legacy`, and verified clean Vite, Nuxt, React and Next registry consumers.
 - Accepted the maintainer's version-bound automated compatibility assessment for stable 1.0.0,
   while preserving unexecuted WebView rows as explicit residual risk instead of false test evidence.
 - Replaced the device-only stable gate with an auditable dual-path gate: complete device evidence or

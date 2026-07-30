@@ -8,8 +8,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import {
   detectPrereleaseVersionCommit,
+  detectStableVersionCommit,
   inspectReleaseState,
   isPrereleaseVersionCommit,
+  isStableVersionCommit,
 } from './release-state'
 
 const temporaryDirectories: string[] = []
@@ -170,6 +172,165 @@ describe('Changesets release state', () => {
         previousVersions: ['1.0.0-beta.1'],
       }),
     ).toBe(false)
+  })
+
+  it('accepts only an allowlisted stable patch version commit', () => {
+    const manifestPaths = [
+      'packages/audio-core/package.json',
+      'packages/vue-audio-native/package.json',
+    ]
+    const releaseFiles = [
+      '.changeset/stable-readme.md',
+      'packages/vue-audio-native/package.json',
+      'packages/vue-audio-native/CHANGELOG.md',
+      'packages/vue-audio-native/README.md',
+      'pnpm-lock.yaml',
+    ]
+    const releaseInput = {
+      beforeIsAncestorOfHead: true,
+      changedFiles: releaseFiles,
+      currentPrereleaseState: null,
+      currentVersions: ['1.0.0', '1.0.1'],
+      deletedFiles: ['.changeset/stable-readme.md'],
+      eventName: 'push',
+      manifestPaths,
+      previousPrereleaseState: null,
+      previousVersions: ['1.0.0', '1.0.0'],
+      removedPackageChangeset: true,
+    } as const
+
+    expect(isStableVersionCommit(releaseInput)).toBe(true)
+    expect(
+      isStableVersionCommit({
+        ...releaseInput,
+        changedFiles: [...releaseFiles, 'packages/vue-audio-native/src/index.ts'],
+      }),
+    ).toBe(false)
+    expect(
+      isStableVersionCommit({
+        ...releaseInput,
+        removedPackageChangeset: false,
+      }),
+    ).toBe(false)
+    expect(
+      isStableVersionCommit({
+        ...releaseInput,
+        deletedFiles: [],
+      }),
+    ).toBe(false)
+    expect(
+      isStableVersionCommit({
+        ...releaseInput,
+        changedFiles: releaseFiles.filter(
+          (filePath) => filePath !== 'packages/vue-audio-native/README.md',
+        ),
+      }),
+    ).toBe(false)
+    expect(
+      isStableVersionCommit({
+        ...releaseInput,
+        currentVersions: ['1.0.0', '1.0.0'],
+      }),
+    ).toBe(false)
+  })
+
+  it('detects a stable version-only push at the live default-branch head', async () => {
+    const repositoryRoot = await createFixture({
+      changesetBody:
+        '---\n"vue-audio-native": patch\n---\n\nRefresh stable install guidance.\n',
+      changesetId: 'stable-readme',
+      withPrereleaseState: false,
+    })
+    const manifestPaths = [
+      'packages/audio-core/package.json',
+      'packages/vue-audio-native/package.json',
+    ]
+    for (const manifestPath of manifestPaths) {
+      const packageDirectory = resolve(repositoryRoot, manifestPath, '..')
+      await mkdir(packageDirectory, { recursive: true })
+      await writeFile(
+        join(repositoryRoot, manifestPath),
+        JSON.stringify({
+          name: manifestPath.includes('audio-core')
+            ? '@trsoliu/audio-core'
+            : 'vue-audio-native',
+          version: '1.0.0',
+        }),
+      )
+      await writeFile(join(packageDirectory, 'CHANGELOG.md'), '# Changelog\n')
+      await writeFile(join(packageDirectory, 'README.md'), '# Package\n')
+    }
+
+    await execFileAsync('git', ['init', '-b', 'master'], { cwd: repositoryRoot })
+    await execFileAsync('git', ['config', 'user.email', 'release@example.com'], {
+      cwd: repositoryRoot,
+    })
+    await execFileAsync('git', ['config', 'user.name', 'Release Test'], {
+      cwd: repositoryRoot,
+    })
+    await execFileAsync('git', ['add', '.'], { cwd: repositoryRoot })
+    await execFileAsync('git', ['commit', '-m', 'release source'], {
+      cwd: repositoryRoot,
+    })
+    const { stdout: beforeShaOutput } = await execFileAsync(
+      'git',
+      ['rev-parse', 'HEAD'],
+      { cwd: repositoryRoot, encoding: 'utf8' },
+    )
+
+    await rm(join(repositoryRoot, '.changeset/stable-readme.md'))
+    const vueDirectory = join(repositoryRoot, 'packages/vue-audio-native')
+    await writeFile(
+      join(vueDirectory, 'package.json'),
+      JSON.stringify({ name: 'vue-audio-native', version: '1.0.1' }),
+    )
+    await writeFile(
+      join(vueDirectory, 'CHANGELOG.md'),
+      '# Changelog\n\n## 1.0.1\n',
+    )
+    await writeFile(
+      join(vueDirectory, 'README.md'),
+      'pnpm add vue-audio-native@1.0.1\n',
+    )
+    await execFileAsync('git', ['add', '--all'], { cwd: repositoryRoot })
+    await execFileAsync('git', ['commit', '-m', 'version packages'], {
+      cwd: repositoryRoot,
+    })
+    const { stdout: releaseHeadShaOutput } = await execFileAsync(
+      'git',
+      ['rev-parse', 'HEAD'],
+      { cwd: repositoryRoot, encoding: 'utf8' },
+    )
+    const remoteRoot = await mkdtemp(join(tmpdir(), 'audio-stable-remote-'))
+    temporaryDirectories.push(remoteRoot)
+    await execFileAsync(
+      'git',
+      ['init', '--bare', '--initial-branch=master', remoteRoot],
+      { cwd: repositoryRoot },
+    )
+    await execFileAsync('git', ['remote', 'add', 'origin', remoteRoot], {
+      cwd: repositoryRoot,
+    })
+    await execFileAsync('git', ['push', '--set-upstream', 'origin', 'master'], {
+      cwd: repositoryRoot,
+    })
+
+    await expect(
+      detectStableVersionCommit(repositoryRoot, manifestPaths, {
+        beforeSha: beforeShaOutput.trim(),
+        defaultBranch: 'master',
+        eventName: 'push',
+        headSha: releaseHeadShaOutput.trim(),
+      }),
+    ).resolves.toBe(true)
+    await expect(
+      detectStableVersionCommit(repositoryRoot, manifestPaths, {
+        beforeSha: beforeShaOutput.trim(),
+        defaultBranch: 'master',
+        eventName: 'push',
+        headSha: beforeShaOutput.trim(),
+      }),
+    ).resolves.toBe(false)
   })
 
   it('accepts a version-only rebase sequence when the previous tip remains an ancestor', async () => {

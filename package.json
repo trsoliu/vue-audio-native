@@ -28,7 +28,7 @@
     "test:pack": "turbo run test:pack",
     "test:release": "vitest run --config vitest.release.config.ts",
     "changeset": "changeset",
-    "version-packages": "changeset version && pnpm install --lockfile-only --ignore-scripts",
+    "version-packages": "tsx scripts/version-packages.ts",
     "release": "changeset publish",
     "release:inspect": "tsx scripts/release-state.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
     "release:next": "tsx scripts/publish-prerelease.ts packages/audio-core/package.json packages/vue-audio-native/package.json",
