@@ -1,6 +1,6 @@
 {
   "name": "vue-audio-native",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Accessible Vue 3 audio player for modern browsers and WebViews.",
   "type": "module",
   "license": "MIT",

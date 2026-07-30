@@ -7,6 +7,30 @@ import { gzipSync } from 'node:zlib'
 
 const execute = promisify(execFile)
 const packageRoot = resolve(import.meta.dirname, '..')
+
+await execute(
+  'pnpm',
+  [
+    'exec',
+    'tsc',
+    '--ignoreConfig',
+    '--noEmit',
+    '--skipLibCheck',
+    'false',
+    '--strict',
+    '--module',
+    'ESNext',
+    '--moduleResolution',
+    'Bundler',
+    '--target',
+    'ES2019',
+    '--lib',
+    'ES2023,DOM,DOM.Iterable',
+    'dist/index.d.ts',
+  ],
+  { cwd: packageRoot },
+)
+
 const { stdout } = await execute(
   'npm',
   ['pack', '--dry-run', '--json'],

@@ -11,7 +11,7 @@ on:
           - publish-vue-beta
           - finalize-legacy
       confirm:
-        description: 'Type publish-beta.1 or finalize-legacy for the selected mode'
+        description: 'Type publish-beta.2 or finalize-legacy for the selected mode'
         required: true
         type: string
 
@@ -29,7 +29,7 @@ jobs:
       github.repository == 'trsoliu/vue-audio-native' &&
       github.ref == 'refs/heads/master' &&
       inputs.mode == 'publish-vue-beta' &&
-      inputs.confirm == 'publish-beta.1'
+      inputs.confirm == 'publish-beta.2'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     environment: npm
@@ -81,19 +81,19 @@ jobs:
       - name: Publish Vue beta when absent
         working-directory: packages/vue-audio-native
         run: |
-          registry_url='https://registry.npmjs.org/vue-audio-native/1.0.0-beta.1'
+          registry_url='https://registry.npmjs.org/vue-audio-native/1.0.0-beta.2'
           if curl --fail --silent --show-error --output /dev/null "$registry_url"; then
-            echo 'vue-audio-native@1.0.0-beta.1 is already published; skipping.'
+            echo 'vue-audio-native@1.0.0-beta.2 is already published; skipping.'
           else
             npm publish --tag next --access public --registry=https://registry.npmjs.org
           fi
           for attempt in {1..12}; do
             if curl --fail --silent --show-error --output /dev/null "$registry_url"; then
-              echo 'vue-audio-native@1.0.0-beta.1 is visible on the registry.'
+              echo 'vue-audio-native@1.0.0-beta.2 is visible on the registry.'
               break
             fi
             if [[ "$attempt" == 12 ]]; then
-              echo '::error::vue-audio-native@1.0.0-beta.1 was not visible after 12 checks.'
+              echo '::error::vue-audio-native@1.0.0-beta.2 was not visible after 12 checks.'
               exit 1
             fi
             sleep 5
@@ -104,7 +104,7 @@ jobs:
       - name: Normalize prerelease dist-tags
         run: |
           npm dist-tag add @trsoliu/audio-core@1.0.0-beta.1 next --registry=https://registry.npmjs.org
-          npm dist-tag add vue-audio-native@1.0.0-beta.1 next --registry=https://registry.npmjs.org
+          npm dist-tag add vue-audio-native@1.0.0-beta.2 next --registry=https://registry.npmjs.org
           echo 'npm requires a latest tag while a package has no stable version; next remains the documented prerelease channel.'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_BOOTSTRAP_TOKEN }}
@@ -132,7 +132,7 @@ jobs:
       - name: Verify every beta is public before changing compatibility tags
         run: |
           npm view @trsoliu/audio-core@1.0.0-beta.1 version --registry=https://registry.npmjs.org
-          npm view vue-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org
+          npm view vue-audio-native@1.0.0-beta.2 version --registry=https://registry.npmjs.org
           npm view react-audio-native@1.0.0-beta.1 version --registry=https://registry.npmjs.org
       - name: Preserve the Vue 2 release line
         run: npm dist-tag add vue-audio-native@0.1.41 legacy --registry=https://registry.npmjs.org

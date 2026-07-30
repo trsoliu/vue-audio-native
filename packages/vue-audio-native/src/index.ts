@@ -1,10 +1,67 @@
 import './styles.css'
 
-import type { App, Plugin } from 'vue'
+import type {
+  AudioPlayerError,
+  AudioPlayerHandle,
+  AudioSnapshot,
+  AudioTrack,
+} from '@trsoliu/audio-core'
+import type {
+  App,
+  ComponentOptionsMixin,
+  DefineComponent,
+  Plugin,
+} from 'vue'
 
-import VueAudioNative from './VueAudioNative.vue'
+import VueAudioNativeSfc from './VueAudioNative.vue'
+import type { VueAudioNativeProps } from './types'
 
-export { VueAudioNative }
+type EmptyRecord = Record<string, never>
+
+type VueAudioNativeEmits = {
+  ended: (snapshot: AudioSnapshot) => void
+  error: (error: AudioPlayerError) => void
+  'on-audioId': (id: string) => void
+  'on-change': (playing: boolean) => void
+  'on-metadata': (event: Event) => void
+  'on-timeupdate': (currentTime: number) => void
+  pause: (snapshot: AudioSnapshot) => void
+  play: (snapshot: AudioSnapshot) => void
+  ready: (snapshot: AudioSnapshot) => void
+  statechange: (snapshot: AudioSnapshot) => void
+  timeupdate: (currentTime: number, snapshot: AudioSnapshot) => void
+  trackchange: (track: AudioTrack | null, trackIndex: number) => void
+}
+
+interface VueAudioNativeSlots {
+  'after-controls'?: (props: {
+    controls: AudioPlayerHandle
+    snapshot: AudioSnapshot
+  }) => unknown
+  artwork?: (props: { track: AudioTrack }) => unknown
+  'before-controls'?: (props: {
+    controls: AudioPlayerHandle
+    snapshot: AudioSnapshot
+  }) => unknown
+  slotTip?: (props: EmptyRecord) => unknown
+  tip?: (props: EmptyRecord) => unknown
+}
+
+type VueAudioNativeComponent = DefineComponent<
+  VueAudioNativeProps,
+  AudioPlayerHandle,
+  EmptyRecord,
+  EmptyRecord,
+  EmptyRecord,
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  VueAudioNativeEmits,
+  keyof VueAudioNativeEmits & string
+> &
+  (new () => { $slots: VueAudioNativeSlots })
+
+export const VueAudioNative =
+  VueAudioNativeSfc as unknown as VueAudioNativeComponent
 export const AudioPlayer = VueAudioNative
 export { useAudioPlayer } from './use-audio-player'
 export type {
