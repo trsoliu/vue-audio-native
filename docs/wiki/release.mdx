@@ -19,8 +19,9 @@ description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费�
 ## 首次 beta 引导发布（已完成）
 
 新包尚不存在时，无法先在 npm 包设置页绑定 Trusted Publisher。首次 beta 曾使用受保护的
-手动工作流与设有 90 天到期上限的 Granular Access Token 引导；该期限只是失效兜底，迁移
-完成后必须立即撤销，不能把到期时间当作清理机制。完成顺序如下：
+手动工作流与设有 90 天到期上限的 Granular Access Token 引导。OIDC 迁移完成后，所有者
+决定保留这枚已与仓库断开的 token 至 2026-10-28；它不能重新进入 Secret、工作流或本机
+npm 配置。完成顺序如下：
 
 1. 在 npm 网站创建仅用于引导的 Granular Access Token：有效期上限为 2026-10-28，
    Packages and scopes 设为
@@ -30,13 +31,15 @@ description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费�
 3. Vue 仓库先运行完整门禁并按 core → Vue 顺序发布，声明修复以 Vue beta.2 更新到 `next`。
 4. React 仓库改用 registry core、通过门禁并发布 React beta 后，完成四类干净消费者回归。
 5. 三个 beta 都可查询且四类消费者通过后，将 Vue 2 的 0.1.41 设置为 `legacy`。
-6. 删除两个 GitHub Secret，并在 npm 网站撤销该 token。
+6. 删除两个 GitHub Secret；根据所有者决定，npm 账户中的 token 保留至到期，但不再用于
+   项目发布。
 7. 为已创建的三个包绑定 `.github/workflows/release.yml`、GitHub `npm` Environment 与
    `npm publish` Trusted Publisher；后续发布只使用 OIDC。Vue 仓库绑定
    `@trsoliu/audio-core` 与 `vue-audio-native`，React 仓库绑定 `react-audio-native`。
 
 三个 Trusted Publisher 已于 2026-07-30 配置并逐项核验；引导工作流和仓库 Secret 已移除，
-不能再用于发布。三个发布包都通过
+两个 GitHub `npm` Environment 的 Secret 数量均为 0。保留的账户 token 不属于项目发布
+链路；后续只能由 Trusted Publisher 获取短期 OIDC 凭据。三个发布包都通过
 `publishConfig.registry` 固定到官方 npm registry，不受本机安装镜像配置影响；首次 beta
 保留 provenance，后续版本必须由 `.github/workflows/release.yml` 和 Trusted Publishing 的
 短期 OIDC 凭据发布。
