@@ -8,23 +8,34 @@ description: beta、stable、npm dist-tag、Trusted Publishing 与干净消费�
 ## 发布链
 
 1. 两个仓库完成 lint、类型、覆盖率、build、Silen audit/eval、pack 和浏览器 E2E。
-2. 核验 npm 登录与 `vue-audio-native` 原包维护权限；权限缺失时停止，不改包名。
+2. 核验 npm 身份与 `vue-audio-native` 原包维护权限；权限缺失时停止，不改包名。
 3. 先发布 `@trsoliu/audio-core@1.0.0-beta.1 --tag next`。
 4. 再发布 `vue-audio-native@1.0.0-beta.1 --tag next`，随后让 React 仓库从 registry 安装。
-5. 在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包。
-6. 真机证据完成前保持 beta；完成后才设置 Vue 2 `legacy` 并发布稳定 1.0。
+5. 发布 React beta，并在完全干净的 Vite、Nuxt、React 和 Next 消费者中验证 registry 包。
+6. 三个 beta 与干净消费者回归全部通过后，将 `vue-audio-native@0.1.41` 设置为 `legacy`。
+7. 真机证据完成前保持 beta；完成后才发布稳定 1.0。
 
 ## 首次 beta 引导发布
 
-新包尚未建立 Trusted Publisher 时，从包目录执行：
+新包尚不存在时，无法先在 npm 包设置页绑定 Trusted Publisher。首次 beta 使用
+`.github/workflows/bootstrap-beta.yml` 手动引导：
 
-```bash
-npm whoami --registry=https://registry.npmjs.org
-npm publish --tag next --access public --provenance=false
-```
+1. 在 npm 网站创建有效期一天、仅用于引导的 Granular Access Token：Packages and scopes 设为
+   `Read and write`、选择 `All Packages`、开启 bypass 2FA，Organizations 设为 `No access`。
+2. 将 token 保存到 Vue 和 React 两个仓库的 GitHub `npm` Environment Secret
+   `NPM_BOOTSTRAP_TOKEN`；不写入本机 `.npmrc`、代码、日志或 PR。
+3. 从 Vue 仓库 `master` 手动触发 `Bootstrap npm beta`，mode 选择 `publish-vue-beta`、确认值
+   填写 `publish-beta.1`。工作流会先运行完整门禁，再按 core → Vue 顺序发布 `next`。
+4. React 仓库改用 registry core、通过门禁并发布 React beta 后，完成四类干净消费者回归。
+5. 再次触发 Vue `Bootstrap npm beta`，mode 选择 `finalize-legacy`、确认值填写
+   `finalize-legacy`。工作流只有在三个 beta 都可查询时才会设置 `legacy`。
+6. 立即删除两个 GitHub Secret，并在 npm 网站撤销该 token。
+7. 为已创建的包绑定 `.github/workflows/release.yml`、GitHub `npm` Environment 与 `npm publish`
+   Trusted Publisher；后续发布只使用 OIDC。
 
 三个发布包都通过 `publishConfig.registry` 固定到官方 npm registry，不受本机安装镜像配置
-影响。`--provenance=false` 只用于首次 beta 引导；稳定版必须由 GitHub OIDC 生成 provenance。
+影响。GitHub 引导工作流拥有 `id-token: write`，首次 beta 也保留 provenance；稳定版必须由
+Trusted Publishing 的短期 OIDC 凭据发布。
 
 ## 证据不是声明
 

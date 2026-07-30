@@ -3,5 +3,11 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["e2e/**/*.ts", "eslint.config.ts", "playwright.config.ts"]
+  "include": [
+    "e2e/**/*.ts",
+    "scripts/**/*.ts",
+    "eslint.config.ts",
+    "playwright.config.ts",
+    "vitest.release.config.ts"
+  ]
 }
