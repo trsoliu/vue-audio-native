@@ -9,6 +9,8 @@ package changelogs are managed by Changesets.
 - Pinned publishable packages to the official npm registry so local mirror settings cannot redirect a release.
 - Added a manual, gated GitHub Actions bootstrap for the first npm beta using a short-lived
   environment secret before permanent migration to OIDC Trusted Publishing.
+- Included hidden Silen output in the GitHub Pages artifact so the public Agent Contract under
+  `.well-known/silen` is deployed with the documentation site.
 
 ### Added
 
