@@ -10,7 +10,7 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "nuxt": "4.5.1",
+    "nuxt": "4.6.2",
     "vue": "catalog:",
     "vue-audio-native": "workspace:*"
   },
