@@ -67,7 +67,7 @@
     "@vitejs/plugin-vue": "6.0.8",
     "@vitest/coverage-v8": "4.1.10",
     "@vue/test-utils": "2.4.11",
-    "happy-dom": "20.11.1",
+    "happy-dom": "21.0.4",
     "publint": "0.3.22",
     "size-limit": "13.0.2",
     "tailwindcss": "4.3.3",
